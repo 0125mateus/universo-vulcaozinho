@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Programação — Universo Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <span class="hotel-badge">{{ hotel_atual.nome }}</span>
+    <h2>Programação Diária de Atividades</h2>
+    <p>Grade por faixa etária — {{ hoje|date:"d/m/Y" }}</p>
+</section>
+
+<h2 class="section-title">⏰ Horários Fixos</h2>
+<div class="horarios-fixos">
+    {% for hora, label in horarios_fixos %}
+    <div class="horario-item">
+        <span class="horario-hora">{{ hora }}</span>
+        <span class="horario-label">{{ label }}</span>
+    </div>
+    {% endfor %}
+</div>
+
+<h2 class="section-title">📋 Grade por Faixa (Ages)</h2>
+{% if colunas %}
+<div class="programacao-grade">
+    {% for col in colunas %}
+    <div class="coluna-categoria">
+        <div class="coluna-header" style="background:{{ col.categoria.cor }}">
+            {{ col.categoria.icone }} {{ col.categoria.nome }}
+            ({{ col.categoria.idade_min }}–{{ col.categoria.idade_max }} anos)
+        </div>
+        {% for prog in col.programacoes %}
+        <div class="atividade-item">
+            <div class="atividade-hora">{{ prog.hora_inicio|time:"H:i" }} — {{ prog.hora_fim|time:"H:i" }}</div>
+            <div class="atividade-nome">{{ prog.atividade.icone|default:"⭐" }} {{ prog.atividade.nome }}</div>
+            <div class="atividade-local">{{ prog.local.nome }}{% if prog.recreador %} · {{ prog.recreador.nome }}{% endif %}</div>
+        </div>
+        {% empty %}
+        <div class="atividade-item">
+            <p style="color:var(--text-muted);font-size:0.85rem;">Nenhuma atividade hoje.</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>Categorias não cadastradas. Rode: <code>python manage.py seed_categorias</code></p>
+</div>
+{% endif %}
+
+{% if sem_categoria %}
+<h2 class="section-title">Outras atividades</h2>
+<div class="cards-grid">
+    {% for prog in sem_categoria %}
+    <div class="card">
+        <div class="atividade-hora">{{ prog.hora_inicio|time:"H:i" }}</div>
+        <h3>{{ prog.atividade.nome }}</h3>
+        <p>{{ prog.local.nome }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

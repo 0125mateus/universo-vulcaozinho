@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Noites & Manhãs — Universo Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <span class="hotel-badge">{{ hotel_atual.nome }}</span>
+    <h2>Noites & Manhãs Temáticas</h2>
+    <p>Cada noite, uma cor. Cada cor, uma história!</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'noites_gestao' %}" class="rec-btn rec-btn-primary" style="margin-top:1rem;display:inline-flex;">⚙️ Editar programação</a>
+    {% endif %}
+</section>
+
+<div class="noites-lista">
+    {% for noite in noites %}
+    <article class="noite-semana">
+        <div class="noite-semana-top">
+            <span class="dia-badge">{{ noite.get_dia_semana_display }}</span>
+            <div>
+                <strong style="font-size:1.1rem;">{{ noite.tema }}</strong>
+                <div style="font-size:0.85rem;opacity:0.9;">{{ noite.atracao_musical }}</div>
+            </div>
+        </div>
+        <div class="noite-semana-content">
+            <div class="noite-periodo manha">
+                <h4>☀️ Manhã — {{ noite.manha_tema }}</h4>
+                <p><strong>Música:</strong> {{ noite.manha_genero_musical }}</p>
+                <p>{{ noite.manha_atividades }}</p>
+            </div>
+            <div class="noite-periodo noite">
+                <h4>🌙 Noite — {{ noite.tema }}</h4>
+                <p><strong>Vista-se:</strong> {{ noite.vista_se }}</p>
+                <p><strong>Gastronomia:</strong> {{ noite.descricao_gastronomia }}</p>
+                {% if noite.cores_do_dia %}
+                <p style="margin-top:0.5rem;"><span class="tag">{{ noite.cores_do_dia }}</span></p>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+    {% empty %}
+    <div class="empty-state">
+        <p>Nenhuma noite temática cadastrada.</p>
+        <p>Rode: <code>python manage.py seed_noites_tematicas</code></p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

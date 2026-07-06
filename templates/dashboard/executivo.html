@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Executivo — Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>📈 Dashboard Executivo</h2>
+    <p>{{ hotel.nome }} · visão gerencial</p>
+</section>
+
+<div class="row g-3 mb-4" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+    <div class="dash-card glass-card" style="padding:1.25rem;">
+        <div class="dash-card-label">Hóspedes ativos</div>
+        <div class="dash-stat">{{ hospedes_ativos }}</div>
+    </div>
+    <div class="dash-card glass-card" style="padding:1.25rem;">
+        <div class="dash-card-label">Atividades hoje</div>
+        <div class="dash-stat">{{ atividades_hoje }}</div>
+    </div>
+    <div class="dash-card glass-card" style="padding:1.25rem;">
+        <div class="dash-card-label">Ocupação média</div>
+        <div class="dash-stat">{{ ocupacao_media }}%</div>
+    </div>
+    <div class="dash-card glass-card" style="padding:1.25rem;">
+        <div class="dash-card-label">Produtos ativos</div>
+        <div class="dash-stat">{{ produtos_ativos }}</div>
+        <small style="color:var(--text-muted);">Estoque: {{ estoque_total }} · {{ estoque_baixo }} baixo</small>
+    </div>
+    <div class="dash-card glass-card" style="padding:1.25rem;">
+        <div class="dash-card-label">Passeios hoje</div>
+        <div class="dash-stat">{{ passeios_hoje }}</div>
+        {% if passeio_destaque %}
+        <small style="color:var(--text-muted);">{{ passeio_destaque.titulo }}</small>
+        {% endif %}
+    </div>
+    <div class="dash-card glass-card" style="padding:1.25rem;">
+        <div class="dash-card-label">Passaportes ativos</div>
+        <div class="dash-stat">{{ passaportes_com_carimbo }}</div>
+        <small style="color:var(--text-muted);">{{ passaportes_completos }} completos · {{ moedas_totais }} moedas</small>
+    </div>
+</div>
+
+<div class="rec-form-card glass-card">
+    <h3 style="margin-bottom:1rem;color:var(--hotel-primary);">💰 Financeiro — Loja</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1rem;">
+        <div class="dash-card glass-card" style="padding:1rem;text-align:center;">
+            <div class="dash-card-label">Receita</div>
+            <div class="dash-stat">R$ {{ fin.receita_mes }}</div>
+        </div>
+        <div class="dash-card glass-card" style="padding:1rem;text-align:center;">
+            <div class="dash-card-label">Lucro bruto</div>
+            <div class="dash-stat">R$ {{ fin.lucro_mes }}</div>
+        </div>
+        <div class="dash-card glass-card" style="padding:1rem;text-align:center;">
+            <div class="dash-card-label">Margem</div>
+            <div class="dash-stat">{{ fin.margem_pct }}%</div>
+        </div>
+        <div class="dash-card glass-card" style="padding:1rem;text-align:center;">
+            <div class="dash-card-label">Vendas</div>
+            <div class="dash-stat">{{ fin.qtd_vendas_mes }}</div>
+        </div>
+        <div class="dash-card glass-card" style="padding:1rem;text-align:center;">
+            <div class="dash-card-label">Ticket médio</div>
+            <div class="dash-stat">R$ {{ fin.ticket_medio }}</div>
+        </div>
+    </div>
+    <p style="color:var(--text-muted);">
+        <a href="{% url 'loja_pdv' %}">Abrir PDV →</a> ·
+        <a href="{% url 'loja_financeiro' %}">Relatório completo →</a>
+    </p>
+</div>
+
+<p style="margin-top:1.5rem;"><a href="{% url 'dashboard' %}">← Dashboard operacional</a></p>
+{% endblock %}

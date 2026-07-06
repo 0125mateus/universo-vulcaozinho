@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Agenda do dia — Recepção{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>📅 Agenda do dia</h2>
+    <p>{{ hotel_atual.nome }} · {{ hoje|date:"d/m/Y" }}</p>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'recepcao_index' %}" class="rec-btn rec-btn-ghost">← Recepção</a>
+    <a href="{% url 'recepcao_vincular' %}" class="rec-btn rec-btn-primary">Inscrições</a>
+</div>
+
+<div class="rec-table-wrap">
+    <table class="rec-table">
+        <thead>
+            <tr>
+                <th>Horário</th>
+                <th>Atividade</th>
+                <th>Local</th>
+                <th>Recreador</th>
+                <th>Vagas</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in programacoes %}
+            <tr>
+                <td><strong>{{ p.hora_inicio|time:"H:i" }}</strong>–{{ p.hora_fim|time:"H:i" }}</td>
+                <td>{{ p.atividade.nome }}{% if p.categoria %}<br><small>{{ p.categoria.nome }}</small>{% endif %}</td>
+                <td>{{ p.local.nome }}</td>
+                <td>{% if p.recreador %}{{ p.recreador.nome }}{% else %}—{% endif %}</td>
+                <td>
+                    <span class="rec-tag {% if p.inscritos >= p.vagas_total %}rec-tag-warn{% endif %}">
+                        {{ p.inscritos }}/{{ p.vagas_total }}
+                    </span>
+                    {% if p.presentes_count %}<br><small>{{ p.presentes_count }} presentes</small>{% endif %}
+                </td>
+                <td>
+                    <button type="button" class="rec-btn rec-btn-sm rec-btn-primary btn-presenca"
+                            data-url="{% url 'recepcao_presenca' p.pk %}?modal=1"
+                            data-titulo="{{ p.atividade.nome }} — {{ p.hora_inicio|time:'H:i' }}">
+                        Registrar presença
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="rec-empty">Nenhuma atividade programada para hoje.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<dialog id="presenca-modal" class="rec-modal">
+    <div class="rec-modal-header">
+        <h3 id="presenca-modal-title">Registrar presença</h3>
+        <button type="button" class="rec-modal-close" id="presenca-modal-close" aria-label="Fechar">×</button>
+    </div>
+    <div id="presenca-modal-body" class="rec-modal-body">Carregando…</div>
+</dialog>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/recepcao.js' %}"></script>
+{% endblock %}

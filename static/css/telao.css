@@ -1,0 +1,445 @@
+/* Telão da Recreação — layout mockup #17 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.telao-body {
+    font-family: 'Fredoka', 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    background: #fdfbf2;
+    color: #1a1a1a;
+    overflow-x: hidden;
+}
+
+/* Moldura externa (slide #17) */
+.telao-showcase {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 1.5rem 2rem;
+}
+
+.telao-showcase-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.telao-showcase-num {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #1a5c3a;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.telao-showcase-titles h1 {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #111;
+}
+
+.telao-showcase-titles p {
+    font-size: 0.95rem;
+    color: #555;
+    margin-top: 0.15rem;
+}
+
+.telao-bezel {
+    background: linear-gradient(145deg, #1a2744 0%, #0d1525 100%);
+    border-radius: 28px;
+    padding: 14px;
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.35),
+        inset 0 2px 0 rgba(255, 255, 255, 0.08);
+}
+
+.telao-bezel:fullscreen,
+.telao-bezel:-webkit-full-screen {
+    border-radius: 0;
+    padding: 0;
+    background: #000;
+    max-width: none;
+}
+
+.telao-bezel:fullscreen .telao-showcase-header,
+.telao-bezel:-webkit-full-screen .telao-showcase-header { display: none; }
+
+body:has(.telao-bezel:fullscreen) .telao-showcase-header,
+body:has(.telao-bezel:-webkit-full-screen) .telao-showcase-header { display: none; }
+
+body:has(.telao-bezel:fullscreen),
+body:has(.telao-bezel:-webkit-full-screen) {
+    background: #000;
+}
+
+.telao-screen {
+    display: flex;
+    flex-direction: column;
+    min-height: min(78vh, 720px);
+    color: #fff;
+    background: linear-gradient(165deg,
+        color-mix(in srgb, var(--telao-primary, #003d7a) 85%, #001a33) 0%,
+        #001a33 45%,
+        #000d1a 100%);
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.telao-bezel:fullscreen .telao-screen,
+.telao-bezel:-webkit-full-screen .telao-screen {
+    min-height: 100vh;
+    border-radius: 0;
+}
+
+/* Grade principal 3 colunas */
+.telao-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 22% 1fr 24%;
+    gap: 1.25rem;
+    padding: 1.5rem 1.5rem 0.75rem;
+    min-height: 0;
+}
+
+.telao-col-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.telao-widget {
+    background: rgba(72, 120, 110, 0.55);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.telao-widget-clock {
+    flex: 1.2;
+    min-height: 120px;
+}
+
+.telao-widget-clock span {
+    font-size: clamp(3rem, 6vw, 5rem);
+    font-weight: 800;
+    color: var(--telao-accent, #ffcc00);
+    letter-spacing: 0.02em;
+    line-height: 1;
+}
+
+.telao-widget-weather {
+    flex: 1;
+    min-height: 100px;
+    gap: 0.5rem;
+    flex-direction: row;
+    padding: 1rem;
+}
+
+.weather-icon { font-size: 2.5rem; }
+.weather-temp {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: #fff;
+}
+
+.telao-widget-weather-label {
+    min-height: 70px;
+    gap: 0.5rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    padding: 0.75rem;
+}
+
+.telao-widget-passeio {
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.85rem;
+    min-height: 90px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.telao-passeio-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    opacity: 0.9;
+}
+
+.telao-passeio-title {
+    font-size: 1.05rem;
+    line-height: 1.25;
+    color: var(--telao-accent, #ffcc00);
+}
+
+/* Painel central — próxima atividade */
+.telao-col-center {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 3px solid rgba(255, 255, 255, 0.25);
+    min-height: 320px;
+}
+
+.telao-hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(0, 30, 80, 0.25) 0%, rgba(0, 10, 30, 0.65) 100%),
+        linear-gradient(180deg, #4fc3f7 0%, #29b6f6 35%, #81d4fa 55%, #fff9c4 72%, #ffcc80 85%, #4db6ac 100%);
+    z-index: 0;
+}
+
+.telao-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 2rem 2rem 6rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.telao-hero-label {
+    font-size: clamp(1rem, 2vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 0.75rem;
+}
+
+.telao-hero-title {
+    font-size: clamp(2rem, 5.5vw, 4.2rem);
+    font-weight: 800;
+    color: var(--telao-accent, #ffcc00);
+    text-transform: uppercase;
+    line-height: 1.08;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+    margin-bottom: 0.5rem;
+    max-width: 95%;
+}
+
+.telao-hero-time {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.telao-hero-local {
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.telao-mascot {
+    position: absolute;
+    right: 1rem;
+    bottom: 0;
+    width: clamp(110px, 20vw, 220px);
+    height: auto;
+    z-index: 3;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+    pointer-events: none;
+    object-fit: contain;
+}
+
+/* Aniversariantes */
+.telao-col-right {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0;
+}
+
+.telao-nivers-title {
+    font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1.35;
+    margin-bottom: 1.25rem;
+    text-align: left;
+}
+
+.telao-nivers-list {
+    list-style: none;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.telao-nivers-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0;
+    font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.telao-nivers-list li::before {
+    content: '🌋';
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.telao-nivers-empty {
+    opacity: 0.75;
+    font-style: italic;
+}
+
+.telao-nivers-empty::before { content: '🎉'; }
+
+/* Barra de navegação inferior */
+.telao-nav-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    background: color-mix(in srgb, var(--telao-primary, #002b5c) 70%, #000814);
+    border-top: 3px solid rgba(255, 255, 255, 0.12);
+    margin: 0 1rem 0.5rem;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+}
+
+.telao-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 1rem 0.5rem;
+    text-decoration: none;
+    color: #fff;
+    font-size: clamp(0.65rem, 1.2vw, 0.85rem);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    transition: background 0.2s;
+}
+
+.telao-nav-item:last-child { border-right: none; }
+.telao-nav-item:hover { background: rgba(255, 255, 255, 0.08); }
+
+.telao-nav-icon {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    position: relative;
+    line-height: 1;
+}
+
+.telao-nav-dot {
+    position: absolute;
+    top: -2px;
+    right: -6px;
+    width: 10px;
+    height: 10px;
+    background: #f7941d;
+    border-radius: 50%;
+    font-style: normal;
+}
+
+.telao-meta {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 1.5rem 0.75rem;
+    font-size: 0.75rem;
+    opacity: 0.55;
+    font-weight: 600;
+}
+
+/* Temas por hotel — paletas dos uniformes */
+body.hotel-nacional-inn .telao-screen {
+    background: linear-gradient(165deg, #006838 0%, #004d28 50%, #003318 100%);
+}
+body.hotel-nacional-inn .telao-widget {
+    background: rgba(0, 104, 56, 0.55);
+    border-color: rgba(141, 198, 63, 0.5);
+}
+
+body.hotel-euro-suite .telao-screen {
+    background: linear-gradient(165deg, #6B1C2F 0%, #4a1220 50%, #2a0a12 100%);
+}
+body.hotel-euro-suite .telao-widget {
+    background: rgba(237, 30, 121, 0.4);
+    border-color: rgba(247, 148, 29, 0.45);
+}
+
+body.hotel-dan-inn .telao-screen {
+    background: linear-gradient(165deg, #002855 0%, #001d40 50%, #001028 100%);
+}
+body.hotel-dan-inn .telao-widget {
+    background: rgba(0, 174, 239, 0.35);
+    border-color: rgba(0, 114, 188, 0.5);
+}
+
+/* Responsivo TV / tablet */
+@media (max-width: 1024px) {
+    .telao-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+    }
+    .telao-col-left { grid-column: 1; flex-direction: row; flex-wrap: wrap; }
+    .telao-col-center { grid-column: 1 / -1; min-height: 260px; }
+    .telao-col-right { grid-column: 2; }
+    .telao-widget-clock { flex: 1; min-width: 45%; }
+}
+
+@media (max-width: 640px) {
+    .telao-grid { grid-template-columns: 1fr; }
+    .telao-col-left { flex-direction: column; }
+    .telao-nav-bar { grid-template-columns: repeat(3, 1fr); }
+    .telao-nav-item:nth-child(4),
+    .telao-nav-item:nth-child(5) { display: none; }
+}
+
+/* Modo TV — tela cheia sem moldura do mockup #17 */
+body.telao-tv-mode {
+    background: #000;
+    overflow: hidden;
+}
+
+body.telao-tv-mode .telao-showcase {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+body.telao-tv-mode .telao-bezel {
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+body.telao-tv-mode .telao-screen {
+    min-height: 100vh;
+    border-radius: 0;
+}
+
+body.telao-tv-mode .telao-nav-bar {
+    margin: 0;
+    border-radius: 0;
+}
+
+body.telao-tv-mode:fullscreen,
+body.telao-tv-mode:-webkit-full-screen {
+    background: #000;
+}
+
+body.telao-tv-mode:fullscreen .telao-screen,
+body.telao-tv-mode:-webkit-full-screen .telao-screen {
+    min-height: 100vh;
+}

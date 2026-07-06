@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Acesso negado{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <span class="hotel-badge">🔒</span>
+    <h2>{{ titulo|default:"Acesso restrito" }}</h2>
+    <p>Você não tem permissão para acessar esta área com seu perfil atual.</p>
+</section>
+<div class="empty-state">
+    {% if perfil_usuario %}
+    <p>Seu papel: <strong>{{ perfil_usuario.get_papel_display }}</strong></p>
+    {% endif %}
+    {% if papeis_necessarios %}
+    <p>Papéis autorizados: {{ papeis_necessarios|join:", " }}</p>
+    {% endif %}
+    <a href="{% url 'home' %}" class="admin-link" style="margin-top:1rem;">Voltar ao início</a>
+</div>
+{% endblock %}

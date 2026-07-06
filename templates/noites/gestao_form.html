@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar — {{ object.tema }}{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>✏️ {{ object.get_dia_semana_display }} — {{ object.tema }}</h2>
+</section>
+
+<form method="post" class="rec-form-card">
+    {% csrf_token %}
+    <div class="rec-form-grid">
+        {% for field in form %}
+        <div class="rec-field {% if field.field.widget.input_type == 'textarea' or 'atividades' in field.name or 'gastronomia' in field.name %}rec-field-full{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="rec-actions">
+        <a href="{% url 'noites_gestao' %}" class="rec-btn rec-btn-ghost">Cancelar</a>
+        <button type="submit" class="rec-btn rec-btn-primary">Salvar</button>
+    </div>
+</form>
+{% endblock %}

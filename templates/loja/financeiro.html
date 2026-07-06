@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Financeiro — Loja{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>📊 Financeiro da Loja</h2>
+    <p>{{ hotel_atual.nome }} · {{ kpis.inicio_mes|date:"F Y" }}</p>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'loja_pdv' %}" class="rec-btn rec-btn-primary">🛒 Abrir PDV</a>
+    <a href="{% url 'dashboard_executivo' %}" class="rec-btn rec-btn-ghost">Dashboard executivo</a>
+    <a href="{% url 'loja_vendas' %}" class="rec-btn rec-btn-ghost">Histórico de vendas</a>
+</div>
+
+<div class="fin-kpi-grid">
+    <div class="dash-card glass-card fin-kpi">
+        <div class="dash-card-label">Receita</div>
+        <div class="dash-stat">R$ {{ kpis.receita_mes }}</div>
+    </div>
+    <div class="dash-card glass-card fin-kpi">
+        <div class="dash-card-label">Custo</div>
+        <div class="dash-stat">R$ {{ kpis.custo_mes }}</div>
+    </div>
+    <div class="dash-card glass-card fin-kpi">
+        <div class="dash-card-label">Lucro bruto</div>
+        <div class="dash-stat">R$ {{ kpis.lucro_mes }}</div>
+    </div>
+    <div class="dash-card glass-card fin-kpi">
+        <div class="dash-card-label">Margem</div>
+        <div class="dash-stat">{{ kpis.margem_pct }}%</div>
+    </div>
+    <div class="dash-card glass-card fin-kpi">
+        <div class="dash-card-label">Vendas</div>
+        <div class="dash-stat">{{ kpis.qtd_vendas_mes }}</div>
+    </div>
+    <div class="dash-card glass-card fin-kpi">
+        <div class="dash-card-label">Ticket médio</div>
+        <div class="dash-stat">R$ {{ kpis.ticket_medio }}</div>
+    </div>
+</div>
+
+<div class="fin-panels">
+    <div class="rec-form-card glass-card">
+        <h3>💳 Por forma de pagamento</h3>
+        {% if kpis.por_pagamento %}
+        <ul class="fin-list">
+            {% for p in kpis.por_pagamento %}
+            <li>
+                <span>{{ p.label }}</span>
+                <strong>R$ {{ p.total }}</strong>
+                <small>{{ p.pct }}%</small>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="rec-empty">Nenhuma venda no período.</p>
+        {% endif %}
+    </div>
+    <div class="rec-form-card glass-card">
+        <h3>🏆 Top produtos</h3>
+        {% if kpis.top_produtos %}
+        <ul class="fin-list">
+            {% for p in kpis.top_produtos %}
+            <li>
+                <span>{{ p.descricao }}</span>
+                <strong>R$ {{ p.total }}</strong>
+                <small>{{ p.qtd }} un.</small>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="rec-empty">Sem dados ainda.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="rec-form-card glass-card" style="margin-top:1rem;">
+    <h3>Últimas vendas</h3>
+    <div class="rec-table-wrap">
+        <table class="rec-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Produto</th>
+                    <th>Total</th>
+                    <th>Lucro</th>
+                    <th>Margem</th>
+                    <th>Pagamento</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in vendas_recentes %}
+                <tr>
+                    <td>{{ v.criado_em|date:"d/m H:i" }}</td>
+                    <td>{{ v.descricao }}</td>
+                    <td>R$ {{ v.valor_total }}</td>
+                    <td>R$ {{ v.lucro_bruto }}</td>
+                    <td>{{ v.margem_pct }}%</td>
+                    <td>{{ v.get_forma_pagamento_display }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="rec-empty">Nenhuma venda.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

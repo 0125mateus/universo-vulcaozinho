@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Recepção — Universo Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="rec-hero">
+    <span class="hotel-badge">🏨 {{ hotel_atual.nome }}</span>
+    <h2>📋 Módulo Recepção</h2>
+    <p>Check-in, hóspedes ativos, agenda do dia e inscrições em atividades.</p>
+</section>
+
+<div class="rec-cards">
+    <a href="{% url 'recepcao_checkin' %}" class="rec-card">
+        <span class="rec-card-icon">✅</span>
+        <h3>Check-in</h3>
+        <p>Registrar novo hóspede</p>
+    </a>
+    <a href="{% url 'recepcao_hospedes' %}" class="rec-card">
+        <span class="rec-card-icon">👥</span>
+        <h3>Hóspedes ativos</h3>
+        <p><strong>{{ ativos }}</strong> no hotel</p>
+    </a>
+    <a href="{% url 'recepcao_agenda' %}" class="rec-card">
+        <span class="rec-card-icon">📅</span>
+        <h3>Agenda do dia</h3>
+        <p><strong>{{ programacoes_hoje }}</strong> atividades hoje</p>
+    </a>
+    <a href="{% url 'recepcao_vincular' %}" class="rec-card">
+        <span class="rec-card-icon">🎯</span>
+        <h3>Inscrições</h3>
+        <p>Vincular hóspede × atividade</p>
+    </a>
+</div>
+{% endblock %}

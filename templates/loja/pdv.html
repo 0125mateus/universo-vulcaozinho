@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PDV — Loja Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🛒 PDV — Ponto de Venda</h2>
+    <p>{{ hotel_atual.nome }} · receita hoje no mês: <strong>R$ {{ kpis.receita_mes }}</strong></p>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'loja_gestao' %}" class="rec-btn rec-btn-ghost">← Gestão</a>
+    <a href="{% url 'loja_financeiro' %}" class="rec-btn rec-btn-ghost">📊 Financeiro</a>
+    <a href="{% url 'loja_vendas' %}" class="rec-btn rec-btn-ghost">💰 Vendas</a>
+</div>
+
+<div class="pdv-layout">
+    <div class="pdv-produtos">
+        <h3 class="section-title">Produtos</h3>
+        <div class="pdv-grid">
+            {% for p in produtos %}
+            <button type="button" class="pdv-produto-card" data-id="{{ p.pk }}" data-nome="{{ p.nome }}"
+                    data-preco="{{ p.preco|default:0 }}" data-estoque="{{ p.estoque }}">
+                <span class="pdv-produto-emoji">{% if p.categoria == 'noite_tematica' %}🧢{% else %}🛍️{% endif %}</span>
+                <strong>{{ p.nome }}</strong>
+                <span class="pdv-preco">R$ {{ p.preco|default:"0.00" }}</span>
+                <small>Estoque: {{ p.estoque }}</small>
+            </button>
+            {% empty %}
+            <p class="rec-empty">Sem produtos com estoque.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="pdv-carrinho glass-card">
+        <h3>🧾 Carrinho</h3>
+        <form method="post" id="pdv-form">
+            {% csrf_token %}
+            <ul id="pdv-cart-list" class="pdv-cart-list"></ul>
+            <p id="pdv-cart-empty" class="pdv-cart-empty">Clique nos produtos para adicionar</p>
+            <div class="pdv-total-row">
+                <span>Total</span>
+                <strong id="pdv-total">R$ 0,00</strong>
+            </div>
+            <label class="pdv-label">Forma de pagamento</label>
+            <select name="forma_pagamento" class="rec-input rec-select">
+                {% for val, label in formas_pagamento %}
+                <option value="{{ val }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="rec-btn rec-btn-primary pdv-checkout-btn" disabled id="pdv-submit">
+                Finalizar venda
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/pdv.js' %}"></script>
+{% endblock %}

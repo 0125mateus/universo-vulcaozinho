@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Telão da Recreação — {{ hotel.nome }}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'css/telao.css' %}">
+
+    <style>
+
+        :root {
+
+            --telao-primary: {{ hotel.cor_primaria }};
+
+            --telao-secondary: {{ hotel.cor_secundaria }};
+
+            --telao-accent: {{ hotel.cor_destaque }};
+
+            --telao-tertiary: {{ hotel.cor_terciaria|default:"#F7941D" }};
+
+        }
+
+    </style>
+
+</head>
+
+<body class="telao-body telao-v17 hotel-{{ hotel.slug }}{% if not telao_preview %} telao-tv-mode{% endif %}">
+
+    <div class="telao-showcase">
+
+        {% if telao_preview %}
+
+        <header class="telao-showcase-header">
+
+            <span class="telao-showcase-num">17</span>
+
+            <div class="telao-showcase-titles">
+
+                <h1>TELÃO DA RECREAÇÃO</h1>
+
+                <p>Informação em tempo real para todos!</p>
+
+            </div>
+
+        </header>
+
+        {% endif %}
+
+
+
+        <div class="telao-bezel">
+
+            <div id="telao-app"
+
+                 class="telao-screen"
+
+                 data-hotel-id="{{ hotel.id }}"
+
+                 data-hotel-nome="{{ hotel.nome }}"
+
+                 data-api-key="{{ telao_api_key }}"
+
+                 data-api-base="/api/v1/"
+
+                 data-tv-mode="{% if telao_preview %}0{% else %}1{% endif %}">
+
+
+
+                <div class="telao-grid">
+
+                    <aside class="telao-col telao-col-left">
+
+                        <div class="telao-widget telao-widget-clock">
+
+                            <span id="telao-clock">--:--</span>
+
+                        </div>
+
+                        <div class="telao-widget telao-widget-weather">
+
+                            <span class="weather-icon" id="telao-weather-icon">⛅</span>
+
+                            <span class="weather-temp" id="telao-temp">—°C</span>
+
+                        </div>
+
+                        <div class="telao-widget telao-widget-weather-label">
+
+                            <span id="telao-clima-icon">☀️</span>
+
+                            <span id="telao-clima">Carregando clima…</span>
+
+                        </div>
+
+                        <div class="telao-widget telao-widget-passeio">
+                            <span class="telao-passeio-label">🌴 PASSEIO DO DIA</span>
+                            <span class="telao-passeio-title" id="telao-passeio">—</span>
+                        </div>
+
+                    </aside>
+
+
+
+                    <main class="telao-col telao-col-center" id="telao-hero">
+
+                        <div class="telao-hero-bg"></div>
+
+                        <div class="telao-hero-content">
+
+                            <p class="telao-hero-label" id="telao-hero-label">PRÓXIMA ATIVIDADE</p>
+
+                            <h1 class="telao-hero-title" id="telao-atividade-nome">Carregando…</h1>
+
+                            <p class="telao-hero-time" id="telao-atividade-hora">—</p>
+
+                            <p class="telao-hero-local" id="telao-atividade-local"></p>
+
+                        </div>
+
+                        <img class="telao-mascot" src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Vulcãozinho">
+
+                    </main>
+
+
+
+                    <aside class="telao-col telao-col-right">
+
+                        <h2 class="telao-nivers-title">ANIVERSARIANTES<br>DO DIA</h2>
+
+                        <ul class="telao-nivers-list" id="telao-nivers">
+
+                            <li class="telao-nivers-empty">Carregando…</li>
+
+                        </ul>
+
+                    </aside>
+
+                </div>
+
+
+
+                <nav class="telao-nav-bar">
+
+                    <a href="/programacao/" class="telao-nav-item" target="_blank" rel="noopener">
+
+                        <span class="telao-nav-icon">📅</span>
+
+                        <span>PROGRAMAÇÃO</span>
+
+                    </a>
+
+                    <a href="/universo/" class="telao-nav-item" target="_blank" rel="noopener">
+
+                        <span class="telao-nav-icon">📷</span>
+
+                        <span>FOTOS</span>
+
+                    </a>
+
+                    <a href="/programacao/" class="telao-nav-item" target="_blank" rel="noopener">
+
+                        <span class="telao-nav-icon">🌴</span>
+
+                        <span>PASSEIOS</span>
+
+                    </a>
+
+                    <a href="/noites/" class="telao-nav-item" target="_blank" rel="noopener">
+
+                        <span class="telao-nav-icon">🌙</span>
+
+                        <span>NOITES</span>
+
+                    </a>
+
+                    <a href="/" class="telao-nav-item telao-nav-avisos" target="_blank" rel="noopener">
+
+                        <span class="telao-nav-icon">🔔<i class="telao-nav-dot"></i></span>
+
+                        <span>AVISOS</span>
+
+                    </a>
+
+                </nav>
+
+
+
+                <div class="telao-meta">
+
+                    <span class="telao-hotel-name">🏨 {{ hotel.nome }}</span>
+
+                    <span id="telao-updated">Atualizando…</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="{% static 'js/telao.js' %}"></script>
+
+</body>
+
+</html>
+

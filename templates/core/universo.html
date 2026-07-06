@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Universo Vulcãozinho — Visão Completa{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <span class="hotel-badge">Universo Vulcãozinho Inn</span>
+    <h2>Mapa Completo da Recreação</h2>
+    <p>Missão, valores, faixas etárias, programação, passaporte, moedas, loja, telão e app do hóspede.</p>
+</section>
+
+<div class="universo-img-wrap">
+    <img src="{% static 'img/universo-completo.png' %}" alt="Infográfico Universo Vulcãozinho Inn" class="universo-img">
+</div>
+
+<div class="cards-grid" style="margin-top:1.5rem;">
+    <div class="card">
+        <div class="card-icon">🌋</div>
+        <h3>4 Faixas (Ages)</h3>
+        <p>Kids 7–12 · Teen 13–17 · Adultos 18–59 · Melhor Idade 60+</p>
+        <a href="{% url 'faixas' %}" style="color:var(--hotel-primary);font-weight:700;font-size:0.875rem;">Ver faixas →</a>
+    </div>
+    <div class="card accent-orange">
+        <div class="card-icon">📅</div>
+        <h3>Programação Diária</h3>
+        <p>Grade por idade com horários fixos e intervalos.</p>
+        <a href="{% url 'programacao' %}" style="color:var(--hotel-primary);font-weight:700;font-size:0.875rem;">Ver grade →</a>
+    </div>
+    <div class="card accent-yellow">
+        <div class="card-icon">🎭</div>
+        <h3>Noites Temáticas</h3>
+        <p>7 noites + 7 manhãs temáticas da rede.</p>
+        <a href="{% url 'noites' %}" style="color:var(--hotel-primary);font-weight:700;font-size:0.875rem;">Ver noites →</a>
+    </div>
+    <div class="card accent-blue">
+        <div class="card-icon">🛂</div>
+        <h3>Passaporte & Loja</h3>
+        <p>7 carimbos, moedas Vulcãozinho e loja oficial.</p>
+        <a href="{% url 'passaporte' %}" style="color:var(--hotel-primary);font-weight:700;font-size:0.875rem;">Ver passaporte →</a>
+    </div>
+</div>
+{% endblock %}

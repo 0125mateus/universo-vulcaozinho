@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Universo Vulcãozinho{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/vulcaozinho.css' %}">
+    <link rel="stylesheet" href="{% static 'css/hotel-themes.css' %}">
+    <link rel="stylesheet" href="{% static 'css/assistant.css' %}">
+    {% if hotel_atual %}
+    <style>
+        :root {
+            --hotel-primary: {{ hotel_atual.cor_primaria }};
+            --hotel-secondary: {{ hotel_atual.cor_secundaria }};
+            --hotel-accent: {{ hotel_atual.cor_destaque }};
+            --hotel-tertiary: {{ hotel_atual.cor_terciaria|default:"#F7941D" }};
+            --brand-green: {{ hotel_atual.cor_primaria }};
+            --brand-green-light: {{ hotel_atual.cor_secundaria }};
+            --brand-yellow: {{ hotel_atual.cor_destaque }};
+            --brand-orange: {{ hotel_atual.cor_terciaria|default:hotel_atual.cor_secundaria }};
+            --brand-blue: {{ hotel_atual.cor_terciaria|default:"#00B5E2" }};
+            --brand-pink: {{ hotel_atual.cor_secundaria }};
+        }
+    </style>
+    {% endif %}
+</head>
+<body{% if hotel_atual %} class="hotel-theme hotel-{{ hotel_atual.slug }}"{% endif %}>
+    <div class="wave-bg"></div>
+    <div class="app-shell">
+        {% if hotel_atual %}
+        <div class="hotel-theme-bar">
+            <span class="hotel-theme-bar-name">🏨 {{ hotel_atual.nome }}</span>
+            <span class="hotel-theme-bar-slogan">{{ hotel_atual.slogan }}</span>
+        </div>
+        {% endif %}
+        <header class="site-header">
+            <a href="{% url 'home' %}" class="brand">
+                <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Vulcãozinho">
+                <div class="brand-text">
+                    <h1>vulcãozinho — inn —</h1>
+                    <span>Sistema de Recreação</span>
+                </div>
+            </a>
+            {% if hoteis_disponiveis %}
+            <div class="header-actions">
+                {% if user.is_authenticated %}
+                <div class="user-badge">
+                    {% if perfil_usuario %}
+                    <span class="user-papel">{{ perfil_usuario.get_papel_display }}</span>
+                    {% endif %}
+                    <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                    <a href="{% url 'logout' %}" class="user-logout">Sair</a>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="user-login-btn">Entrar</a>
+                {% endif %}
+                {% if pode_trocar_hotel %}
+                <select id="hotel-select" class="hotel-selector-select" aria-label="Selecionar hotel">
+                    {% for h in hoteis_disponiveis %}
+                    <option value="{{ h.slug }}" {% if hotel_atual.slug == h.slug %}selected{% endif %}>{{ h.nome }}</option>
+                    {% endfor %}
+                </select>
+                {% elif hotel_atual %}
+                <span class="hotel-locked">🏨 {{ hotel_atual.nome }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </header>
+
+        {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+            <div class="flash flash-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <nav class="main-nav">
+            <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">🏠 Início</a>
+            <a href="{% url 'faixas' %}" class="{% if request.resolver_match.url_name == 'faixas' %}active{% endif %}">👥 Faixas</a>
+            <a href="{% url 'programacao' %}" class="{% if request.resolver_match.url_name == 'programacao' %}active{% endif %}">📅 Programação</a>
+            <a href="{% url 'noites' %}" class="{% if request.resolver_match.url_name == 'noites' %}active{% endif %}">🎭 Noites</a>
+            <a href="{% url 'universo' %}" class="{% if request.resolver_match.url_name == 'universo' %}active{% endif %}">🌋 Universo</a>
+            <a href="{% url 'loja' %}" class="{% if request.resolver_match.url_name == 'loja' %}active{% endif %}">🛍️ Loja</a>
+            <a href="{% url 'passaporte' %}" class="{% if request.resolver_match.url_name == 'passaporte' %}active{% endif %}">🛂 Passaporte</a>
+            <a href="{% url 'recepcao_index' %}" class="{% if request.resolver_match.url_name == 'recepcao_index' or request.resolver_match.url_name == 'recepcao_checkin' or request.resolver_match.url_name == 'recepcao_hospedes' or request.resolver_match.url_name == 'recepcao_agenda' or request.resolver_match.url_name == 'recepcao_vincular' %}active{% endif %}">📋 Recepção</a>
+            <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
+            <a href="{% url 'telao' %}" class="{% if request.resolver_match.url_name == 'telao' or request.resolver_match.url_name == 'telao_hotel' %}active{% endif %}">🖥️ Telão</a>
+            <a href="{% url 'reuniao' %}" class="{% if request.resolver_match.url_name == 'reuniao' %}active{% endif %}">🎥 Reunião</a>
+            <a href="/admin/">⚙️ Admin</a>
+        </nav>
+
+        {% block content %}{% endblock %}
+
+        {% include 'includes/assistant_widget.html' %}
+
+        <footer class="site-footer">
+            <p><strong>A energia que acolhe, cuida e faz bem!</strong></p>
+            <p>Sempre pronto para receber você! · Poços de Caldas/MG</p>
+            <a href="/admin/" class="admin-link">Painel administrativo</a>
+        </footer>
+    </div>
+    <script>
+        const sel = document.getElementById('hotel-select');
+        if (sel) {
+            sel.addEventListener('change', () => {
+                window.location.href = '/hotel/' + sel.value + '/';
+            });
+        }
+    </script>
+    <script src="{% static 'js/assistant.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

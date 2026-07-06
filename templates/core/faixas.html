@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Faixas Etárias (Ages) — Universo Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <span class="hotel-badge">{% if hotel_atual %}{{ hotel_atual.nome }}{% else %}Rede{% endif %}</span>
+    <h2>Faixas Etárias — Ages</h2>
+    <p>Programação dividida por idade: Vulcão Kids, Boys & Girls, Adultos e Melhor Idade.</p>
+</section>
+
+<div class="faixas-grid">
+    {% for item in faixas_data %}
+    <article class="faixa-card" style="border-top-color:{{ item.categoria.cor }}">
+        <div class="faixa-header" style="background:{{ item.categoria.cor }}">
+            <span class="faixa-icone">{{ item.categoria.icone }}</span>
+            <div>
+                <h3>{{ item.categoria.nome }}</h3>
+                <span class="faixa-idade">{{ item.categoria.idade_min }} a {{ item.categoria.idade_max }} anos</span>
+            </div>
+        </div>
+        <div class="faixa-body">
+            <div class="faixa-stats">
+                <div><strong>{{ item.hospedes }}</strong> hóspedes ativos</div>
+                <div><strong>{{ item.atividades_hoje }}</strong> atividades hoje</div>
+            </div>
+            <p class="faixa-desc">{{ item.categoria.descricao_atividades }}</p>
+            <a href="{% url 'programacao' %}" class="faixa-link">Ver programação →</a>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+<h2 class="section-title">⏰ Horários Fixos da Recreação</h2>
+<div class="horarios-fixos">
+    {% for hora, label in horarios_fixos %}
+    <div class="horario-item">
+        <span class="horario-hora">{{ hora }}</span>
+        <span class="horario-label">{{ label }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

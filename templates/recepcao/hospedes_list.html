@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Hóspedes ativos — Recepção{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>👥 Hóspedes ativos</h2>
+    <p>{{ hotel_atual.nome }}</p>
+</section>
+
+<div class="rec-toolbar">
+    <form method="get" class="rec-search-form">
+        <input type="search" name="q" value="{{ q }}" placeholder="Buscar nome ou apartamento…" class="rec-input">
+        <select name="faixa" class="rec-input rec-select">
+            <option value="">Todas as faixas</option>
+            {% for val, label in faixas %}
+            <option value="{{ val }}" {% if faixa == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="rec-btn rec-btn-primary">Filtrar</button>
+    </form>
+    <a href="{% url 'recepcao_checkin' %}" class="rec-btn rec-btn-primary">+ Check-in</a>
+</div>
+
+<div class="rec-table-wrap">
+    <table class="rec-table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Apto</th>
+                <th>Faixa</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in hospedes %}
+            <tr>
+                <td><strong>{{ h.nome_completo }}</strong><br><small>{{ h.documento }}</small></td>
+                <td>{{ h.apartamento }}</td>
+                <td><span class="rec-tag">{{ h.get_faixa_etaria_display }}</span></td>
+                <td>{{ h.data_checkin|date:"d/m/Y" }}</td>
+                <td>{% if h.data_checkout %}{{ h.data_checkout|date:"d/m/Y" }}{% else %}—{% endif %}</td>
+                <td>
+                    <form method="post" action="{% url 'recepcao_checkout' h.pk %}" class="rec-inline-form" onsubmit="return confirm('Confirmar check-out de {{ h.nome_completo }}?');">
+                        {% csrf_token %}
+                        <button type="submit" class="rec-btn rec-btn-sm rec-btn-warn">Check-out</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="rec-empty">Nenhum hóspede ativo encontrado.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if is_paginated %}
+<nav class="rec-pager">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&faixa={{ faixa }}">← Anterior</a>{% endif %}
+    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}&faixa={{ faixa }}">Próxima →</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

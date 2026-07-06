@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscrições — Recepção{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🎯 Vincular hóspede × atividade</h2>
+    <p>Pré-inscrição antes da presença · {{ hotel_atual.nome }}</p>
+</section>
+
+<form method="get" class="rec-form-card rec-form-card-compact">
+    <div class="rec-field">
+        <label for="programacao">Atividade do dia</label>
+        <select name="programacao" id="programacao" class="rec-input rec-select" onchange="this.form.submit()">
+            {% for p in programacoes %}
+            <option value="{{ p.pk }}" {% if programacao and programacao.pk == p.pk %}selected{% endif %}>
+                {{ p.hora_inicio|time:"H:i" }} — {{ p.atividade.nome }} ({{ p.inscritos }}/{{ p.vagas_total }})
+            </option>
+            {% empty %}
+            <option value="">Nenhuma atividade hoje</option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+{% if programacao %}
+<form method="post" class="rec-form-card">
+    {% csrf_token %}
+    <input type="hidden" name="programacao" value="{{ programacao.pk }}">
+
+    {% if programacao.lotado %}
+    <div class="auth-error">
+        ⚠️ Atividade lotada ({{ programacao.vagas_total }} vagas).
+        {% if pode_override %}
+        <label class="rec-override-label">
+            <input type="checkbox" name="override_lotado" value="1"> Forçar inscrição (Gerente+)
+        </label>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="rec-checklist">
+        {% for h in hospedes %}
+        <label class="rec-check-item">
+            <input type="checkbox" name="hospedes" value="{{ h.pk }}" {% if h.pk in inscritos %}checked disabled{% endif %}>
+            <span>
+                <strong>{{ h.nome_completo }}</strong>
+                <small>apt. {{ h.apartamento }} · {{ h.get_faixa_etaria_display }}</small>
+                {% if h.pk in inscritos %}<em> (já inscrito)</em>{% endif %}
+            </span>
+        </label>
+        {% empty %}
+        <p class="rec-empty">Nenhum hóspede ativo.</p>
+        {% endfor %}
+    </div>
+
+    {% if hospedes %}
+    <div class="rec-actions">
+        <a href="{% url 'recepcao_agenda' %}" class="rec-btn rec-btn-ghost">Agenda</a>
+        <button type="submit" class="rec-btn rec-btn-primary">Confirmar inscrições</button>
+    </div>
+    {% endif %}
+</form>
+{% endif %}
+{% endblock %}

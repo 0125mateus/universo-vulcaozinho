@@ -1,0 +1,23 @@
+<form method="post" action="{% url 'recepcao_presenca' programacao.pk %}" class="rec-presenca-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{% url 'recepcao_agenda' %}">
+    <p class="rec-modal-sub">{{ programacao.local.nome }} · {{ programacao.inscritos }}/{{ programacao.vagas_total }} inscritos</p>
+    <div class="rec-checklist">
+        {% for h in hospedes %}
+        <label class="rec-check-item">
+            <input type="checkbox" name="presentes" value="{{ h.pk }}" {% if h.pk in ja_presentes %}checked{% endif %}>
+            <span>
+                <strong>{{ h.nome_completo }}</strong>
+                <small>apt. {{ h.apartamento }} · {{ h.get_faixa_etaria_display }}</small>
+            </span>
+        </label>
+        {% empty %}
+        <p class="rec-empty">Nenhum hóspede ativo no hotel.</p>
+        {% endfor %}
+    </div>
+    {% if hospedes %}
+    <div class="rec-actions">
+        <button type="submit" class="rec-btn rec-btn-primary">Salvar presença</button>
+    </div>
+    {% endif %}
+</form>

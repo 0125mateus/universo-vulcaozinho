@@ -1,0 +1,34 @@
+# Stack leve para testes locais (SQLite, sem nginx/Postgres)
+# Uso: docker compose -f docker-compose.dev.yml up --build
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  web:
+    build: .
+    ports:
+      - '8000:8000'
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      DJANGO_SECRET_KEY: dev-secret
+      DJANGO_DEBUG: 'True'
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      DATABASE_PATH: /data/db.sqlite3
+      REDIS_URL: redis://redis:6379/0
+      TELAO_API_KEY: vulcaozinho-telao-dev
+      RUN_SEED: '1'
+    volumes:
+      - db_data:/data
+    restart: unless-stopped
+
+volumes:
+  db_data:

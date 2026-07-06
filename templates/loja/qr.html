@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}QR — {{ produto.nome }}{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>📱 QR Code</h2>
+    <p>{{ produto.nome }}</p>
+</section>
+
+<div class="rec-form-card rec-layout" style="text-align:center;">
+    <img src="https://quickchart.io/qr?text={{ produto.codigo_qr|urlencode }}&size=280&margin=2" alt="QR {{ produto.codigo_qr }}" width="280" height="280">
+    <p style="margin-top:1rem;font-weight:800;font-size:1.2rem;">{{ produto.codigo_qr }}</p>
+    <p style="color:var(--text-muted);">Estoque: {{ produto.estoque }} · {% if produto.preco %}R$ {{ produto.preco }}{% endif %}</p>
+    <a href="{% url 'loja_gestao' %}" class="rec-btn rec-btn-ghost" style="margin-top:1rem;">← Voltar</a>
+</div>
+{% endblock %}

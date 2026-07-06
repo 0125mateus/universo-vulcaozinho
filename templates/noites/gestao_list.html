@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestão Noites Temáticas{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🎭 Noites & Manhãs Temáticas</h2>
+    <p>{{ hotel_atual.nome }} · edição administrativa</p>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'noites' %}" class="rec-btn rec-btn-ghost">Ver vitrine</a>
+</div>
+
+<div class="rec-table-wrap">
+    <table class="rec-table">
+        <thead>
+            <tr>
+                <th>Dia</th>
+                <th>Noite</th>
+                <th>Manhã</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for n in noites %}
+            <tr>
+                <td><strong>{{ n.get_dia_semana_display }}</strong></td>
+                <td>{{ n.tema }}<br><small>{{ n.atracao_musical }}</small></td>
+                <td>{{ n.manha_tema|default:"—" }}</td>
+                <td><a href="{% url 'noites_gestao_editar' n.pk %}" class="rec-btn rec-btn-sm rec-btn-primary">Editar</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="rec-empty">Rode <code>seed_noites_tematicas</code></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

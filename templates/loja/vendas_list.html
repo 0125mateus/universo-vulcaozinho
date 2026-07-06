@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Vendas — Loja{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>💰 Vendas da Loja</h2>
+    <p>{{ hotel_atual.nome }} · receita: <strong>R$ {{ kpis.receita_mes }}</strong> · lucro: <strong>R$ {{ kpis.lucro_mes }}</strong> ({{ kpis.margem_pct }}%)</p>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'loja_pdv' %}" class="rec-btn rec-btn-primary">🛒 PDV</a>
+    <a href="{% url 'loja_gestao' %}" class="rec-btn rec-btn-ghost">← Gestão de produtos</a>
+    <a href="{% url 'loja_financeiro' %}" class="rec-btn rec-btn-ghost">📊 Financeiro</a>
+</div>
+
+<div class="rec-table-wrap">
+    <table class="rec-table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Produto</th>
+                <th>Qtd</th>
+                <th>Total</th>
+                <th>Lucro</th>
+                <th>Pagamento</th>
+                <th>Operador</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vendas %}
+            <tr>
+                <td>{{ v.criado_em|date:"d/m/Y H:i" }}</td>
+                <td>{{ v.descricao }}</td>
+                <td>{{ v.quantidade }}</td>
+                <td>R$ {{ v.valor_total }}</td>
+                <td>R$ {{ v.lucro_bruto }} <small>({{ v.margem_pct }}%)</small></td>
+                <td>{{ v.get_forma_pagamento_display }}</td>
+                <td>{% if v.registrado_por %}{{ v.registrado_por.username }}{% else %}—{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="rec-empty">Nenhuma venda registrada ainda.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

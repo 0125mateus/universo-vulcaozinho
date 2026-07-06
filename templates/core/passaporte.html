@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Passaporte — Universo Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <span class="hotel-badge">{{ hotel_atual.nome }}</span>
+    <h2>Passaporte da Diversão</h2>
+    <p>Colete os 7 carimbos exclusivos das noites temáticas e ganhe um presente especial do Vulcãozinho Inn!</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'passaporte_gestao' %}" class="rec-btn rec-btn-primary" style="margin-top:1rem;display:inline-flex;">⚙️ Gestão de carimbos</a>
+    {% endif %}
+</section>
+
+<div class="passaporte-grid">
+    {% for item in hospedes_data %}
+    <div class="passaporte-item">
+        <div>
+            <strong>{{ item.hospede.nome_completo }}</strong>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Apt. {{ item.hospede.apartamento }}</div>
+        </div>
+        <div class="carimbos">
+            {% for noite in noites %}
+            <div class="carimbo {% if noite.id in item.carimbo_ids %}ok{% endif %}" title="{{ noite.tema }}">
+                {{ noite.tema|slice:":1" }}
+            </div>
+            {% endfor %}
+        </div>
+        <div style="font-size:0.8rem;font-weight:700;color:var(--hotel-primary);">
+            {{ item.total }}/7 · 🪙 {% if item.hospede.passaporte %}{{ item.hospede.passaporte.moedas }}{% else %}0{% endif %}
+            {% if item.hospede.passaporte %}<br><small>{{ item.hospede.passaporte.nivel }}</small>{% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>Nenhum hóspede ativo. Cadastre check-ins no admin.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Loja — Universo Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <span class="hotel-badge">Loja Oficial</span>
+    <h2>vulcãozinho — inn —</h2>
+    <p>Acessórios exclusivos para hóspedes que amam viver cada momento! #VivaCadaMomento</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'loja_gestao' %}" class="rec-btn rec-btn-primary" style="margin-top:1rem;display:inline-flex;">⚙️ Gestão da loja</a>
+    {% endif %}
+</section>
+
+<h2 class="section-title">🛍️ Acessórios Exclusivos</h2>
+<div class="loja-grid">
+    {% for p in acessorios %}
+    <div class="produto-card">
+        <div class="emoji">🎒</div>
+        <h3>{{ p.nome }}</h3>
+        <p>{{ p.descricao }}</p>
+    </div>
+    {% empty %}
+    <p class="empty-state">Nenhum produto cadastrado.</p>
+    {% endfor %}
+</div>
+
+<h2 class="section-title">🧢 Noites Temáticas — Bonés</h2>
+<p style="color:var(--text-muted);margin-bottom:1rem;">Cada noite, uma cor. Cada cor, uma história!</p>
+<div class="loja-grid">
+    {% for p in produtos_noites %}
+    <div class="produto-card">
+        <div class="emoji">🧢</div>
+        <h3>{{ p.nome }}</h3>
+        <p>{{ p.descricao }}</p>
+        {% if p.cor_tema %}<span class="tag">{{ p.cor_tema }}</span>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

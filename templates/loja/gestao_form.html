@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar{% else %}Novo{% endif %} produto{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>{% if object %}✏️ Editar produto{% else %}➕ Novo produto{% endif %}</h2>
+</section>
+
+<form method="post" class="rec-form-card rec-layout">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="rec-field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {{ field.errors }}
+    </div>
+    {% endfor %}
+    <div class="rec-actions">
+        <a href="{% url 'loja_gestao' %}" class="rec-btn rec-btn-ghost">Cancelar</a>
+        <button type="submit" class="rec-btn rec-btn-primary">Salvar</button>
+    </div>
+</form>
+{% endblock %}

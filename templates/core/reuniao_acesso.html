@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Acesso — Reunião{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <span class="hotel-badge">🔒 Acesso restrito</span>
+    <h2>Sala de Reunião — Diretoria</h2>
+    <p>Esta área é exclusiva para diretores e gestores (usuários staff).</p>
+</section>
+<div class="empty-state">
+    <p>Faça login com uma conta de diretor/gestor para acessar as reuniões em tempo real.</p>
+    <a href="{% url 'login' %}?next=/reuniao/" class="admin-link" style="margin-top:1rem;">Entrar como diretor/gestor</a>
+</div>
+{% endblock %}

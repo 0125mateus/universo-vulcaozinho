@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestão Loja — Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🛍️ Gestão da Loja</h2>
+    <p>{{ hotel_atual.nome|default:"Rede" }}</p>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'loja' %}" class="rec-btn rec-btn-ghost">Vitrine pública</a>
+    <a href="{% url 'loja_produto_novo' %}" class="rec-btn rec-btn-primary">+ Produto</a>
+    <a href="{% url 'loja_pdv' %}" class="rec-btn rec-btn-warn">🛒 PDV</a>
+    <a href="{% url 'loja_financeiro' %}" class="rec-btn rec-btn-ghost">📊 Financeiro</a>
+    <a href="{% url 'loja_vendas' %}" class="rec-btn rec-btn-ghost">💰 Vendas</a>
+</div>
+
+<div class="rec-table-wrap">
+    <table class="rec-table">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th>Custo</th>
+                <th>Estoque</th>
+                <th>QR</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in produtos %}
+            <tr>
+                <td><strong>{{ p.nome }}</strong>{% if not p.ativo %} <span class="rec-tag rec-tag-warn">inativo</span>{% endif %}</td>
+                <td>{{ p.get_categoria_display }}</td>
+                <td>{% if p.preco %}R$ {{ p.preco }}{% else %}—{% endif %}</td>
+                <td>{% if p.custo %}R$ {{ p.custo }}{% else %}—{% endif %}</td>
+                <td>
+                    <span class="rec-tag {% if p.estoque <= 5 %}rec-tag-warn{% endif %}">{{ p.estoque }}</span>
+                </td>
+                <td><a href="{% url 'loja_produto_qr' p.pk %}" class="rec-btn rec-btn-sm rec-btn-ghost">{{ p.codigo_qr|default:"—" }}</a></td>
+                <td class="rec-actions-inline">
+                    <a href="{% url 'loja_produto_editar' p.pk %}" class="rec-btn rec-btn-sm rec-btn-primary">Editar</a>
+                    <form method="post" action="{% url 'loja_produto_venda' p.pk %}" class="rec-inline-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantidade" value="1">
+                        <select name="forma_pagamento" class="rec-input rec-select" style="max-width:100px;padding:0.25rem;">
+                            <option value="pix">PIX</option>
+                            <option value="cartao">Cartão</option>
+                            <option value="dinheiro">Dinheiro</option>
+                            <option value="hospede">Hóspede</option>
+                        </select>
+                        <button type="submit" class="rec-btn rec-btn-sm rec-btn-warn" {% if p.estoque < 1 %}disabled{% endif %}>Vender</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="rec-empty">Nenhum produto. Rode <code>seed_loja</code> ou cadastre um novo.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

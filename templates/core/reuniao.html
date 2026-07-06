@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reunião — Diretoria{% endblock %}
+
+{% block content %}
+<section class="hero hero-reuniao">
+    <span class="hotel-badge">🎥 Sala de Reunião</span>
+    <h2>Reunião em Tempo Real — Diretoria</h2>
+    <p>Videoconferência + chat ao vivo para alinhar decisões entre os diretores da rede.</p>
+</section>
+
+<div class="reuniao-toolbar">
+    <label for="sala-select" class="reuniao-label">Escolha a sala:</label>
+    <select id="sala-select" class="reuniao-select" aria-label="Selecionar sala">
+        {% for s in salas %}
+        <option value="{{ s.slug }}" {% if sala_atual.slug == s.slug %}selected{% endif %}
+            data-jitsi="{{ s.jitsi_url }}">
+            {% if s.hotel %}🏨{% else %}🌐{% endif %} {{ s.nome }}
+        </option>
+        {% endfor %}
+    </select>
+    <span class="reuniao-live-badge">● AO VIVO</span>
+</div>
+
+{% if sala_atual %}
+<div class="reuniao-layout" id="reuniao-app"
+     data-sala="{{ sala_atual.slug }}"
+     data-usuario="{{ usuario.get_full_name|default:usuario.username }}">
+    <div class="reuniao-video-panel">
+        <div class="reuniao-panel-header">
+            <span>📹 Videoconferência</span>
+            <small>Permita câmera e microfone no navegador</small>
+        </div>
+        <iframe id="jitsi-frame"
+            src="{{ sala_atual.jitsi_url }}"
+            allow="camera; microphone; fullscreen; display-capture"
+            title="Videoconferência {{ sala_atual.nome }}">
+        </iframe>
+    </div>
+
+    <div class="reuniao-chat-panel">
+        <div class="reuniao-panel-header">
+            <span>💬 Chat da Reunião</span>
+            <small>Tempo real · {{ usuario.username }}</small>
+        </div>
+        <div class="reuniao-chat-messages" id="chat-messages">
+            {% for msg in mensagens_iniciais %}
+            <div class="chat-msg {% if msg.autor_id == usuario.id %}eu{% endif %}" data-id="{{ msg.id }}">
+                <div class="chat-meta">
+                    <strong>{{ msg.autor.get_full_name|default:msg.autor.username }}</strong>
+                    <span>{{ msg.criado_em|time:"H:i" }}</span>
+                </div>
+                <p>{{ msg.texto }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <form class="reuniao-chat-form" id="chat-form">
+            {% csrf_token %}
+            <input type="text" id="chat-input" placeholder="Digite sua mensagem..." maxlength="2000" autocomplete="off">
+            <button type="submit" class="reuniao-send-btn">Enviar</button>
+        </form>
+    </div>
+</div>
+
+<p class="reuniao-dica">
+    💡 <strong>Dica:</strong> Use o chat para links, pautas e anotações. A vídeo-chamada é segura via Jitsi Meet.
+    {% if sala_atual.descricao %} — {{ sala_atual.descricao }}{% endif %}
+</p>
+{% else %}
+<div class="empty-state">
+    <p>Nenhuma sala cadastrada. Rode: <code>python manage.py seed_salas_reuniao</code></p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/reuniao.js' %}"></script>
+{% endblock %}

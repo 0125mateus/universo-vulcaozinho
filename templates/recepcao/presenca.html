@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Presença — {{ programacao.atividade.nome }}{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>✔️ Registrar presença</h2>
+    <p>{{ programacao.atividade.nome }} · {{ programacao.hora_inicio|time:"H:i" }} · {{ programacao.local.nome }}</p>
+</section>
+
+<div class="rec-layout">
+    {% include 'recepcao/presenca_modal.html' %}
+    <p style="margin-top:1rem;"><a href="{% url 'recepcao_agenda' %}">← Voltar à agenda</a></p>
+</div>
+{% endblock %}

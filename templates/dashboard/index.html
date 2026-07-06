@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard — Universo Vulcãozinho{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<section class="rec-hero rec-hero-compact">
+    <h2>📊 Dashboard Operacional</h2>
+    <p>{{ hotel_atual.nome }} · atualização em tempo real</p>
+    <span id="dash-live" class="dash-live dash-live-off">🟡 Conectando…</span>
+    <br>
+    <a href="{% url 'dashboard_executivo' %}" class="rec-btn rec-btn-ghost" style="margin-top:0.5rem;display:inline-flex;">📈 Visão executiva</a>
+    <br>
+    <small id="dash-updated" class="text-muted">Carregando…</small>
+</section>
+
+<div id="dashboard-root"
+     data-hotel-id="{{ hotel_id }}"
+     data-hoje="{{ hoje_iso }}"
+     data-dia-semana="{{ dia_semana }}"
+     data-api-base="/api/v1/">
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card dash-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="dash-card-label">Hóspedes ativos</div>
+                    <div class="dash-stat" id="metric-hospedes-total">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card dash-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="dash-card-label">Aniversariantes hoje</div>
+                    <div class="dash-stat" id="metric-aniversariantes">—</div>
+                    <ul id="lista-aniversariantes" class="dash-list small mb-0"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card dash-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="dash-card-label">Em andamento</div>
+                    <div class="dash-stat dash-stat-sm" id="metric-atual">—</div>
+                    <div class="small text-muted" id="metric-atual-local"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card dash-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="dash-card-label">Próxima atividade</div>
+                    <div class="dash-stat dash-stat-sm" id="metric-proxima">—</div>
+                    <div class="small text-muted" id="metric-proxima-hora"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-5">
+            <div class="card dash-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Ocupação da atividade atual</h5>
+                    <div class="dash-ocupacao">
+                        <span id="metric-ocupacao">—</span>
+                        <div class="progress mt-2" style="height: 12px;">
+                            <div id="bar-ocupacao" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card dash-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Hóspedes por faixa etária</h5>
+                    <canvas id="chart-faixas" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card dash-card border-0 shadow-sm">
+                <div class="card-body text-center py-3">
+                    <div class="dash-card-label">Loja — produtos ativos</div>
+                    <div class="dash-stat" id="metric-loja-produtos">—</div>
+                    <small class="text-muted" id="metric-loja-estoque-baixo"></small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dash-card border-0 shadow-sm">
+                <div class="card-body text-center py-3">
+                    <div class="dash-card-label">Passeios de hoje</div>
+                    <div class="dash-stat" id="metric-passeios">—</div>
+                    <small class="text-muted" id="metric-passeios-detalhe">Carregando…</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dash-card border-0 shadow-sm">
+                <div class="card-body text-center py-3">
+                    <div class="dash-card-label">Passaportes com carimbos</div>
+                    <div class="dash-stat" id="metric-passaportes">—</div>
+                    <small class="text-muted">Hóspedes com ≥1 carimbo</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

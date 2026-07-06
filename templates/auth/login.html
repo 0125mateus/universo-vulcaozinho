@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Entrar — Universo Vulcãozinho{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-emoji">🌋</span>
+            <h2>Entrar</h2>
+            <p>Sistema de Recreação Vulcãozinho Inn</p>
+        </div>
+
+        {% if form.errors %}
+        <div class="auth-error">Usuário ou senha incorretos. Tente novamente.</div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+            <label for="id_username">Usuário</label>
+            <input type="text" name="username" id="id_username" autofocus required autocomplete="username">
+
+            <label for="id_password">Senha</label>
+            <input type="password" name="password" id="id_password" required autocomplete="current-password">
+
+            <button type="submit" class="auth-btn">Entrar</button>
+        </form>
+
+        <p class="auth-links">
+            <a href="{% url 'password_reset' %}">Esqueci minha senha</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

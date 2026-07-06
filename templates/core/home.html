@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Início — Universo Vulcãozinho{% endblock %}
+
+{% block content %}
+{% if sem_hotel %}
+<div class="empty-state">
+    <p>Nenhum hotel cadastrado.</p>
+    <p>Rode: <code>python manage.py seed_hoteis</code></p>
+</div>
+{% else %}
+
+<section class="hero">
+    <span class="hotel-badge">🏨 {{ hotel_atual.nome }}</span>
+    <h2>{{ hotel_atual.slogan|default:"A energia que acolhe, cuida e faz bem!" }}</h2>
+    <p>🎉 Diversão garantida · Programação por idade · Noites temáticas · Passaporte da diversão!</p>
+</section>
+
+<div class="values-strip">
+    <span class="value-pill">😄 Diversão Garantida</span>
+    <span class="value-pill">⚡ Energia Positiva</span>
+    <span class="value-pill">🌟 Momentos Incríveis</span>
+    <span class="value-pill">❤️ Acolhimento que Aquece</span>
+</div>
+
+<h2 class="section-title">👥 Faixas Etárias (Ages)</h2>
+<div class="faixas-grid faixas-grid-compact">
+    {% for item in faixas %}
+    <a href="{% url 'faixas' %}" class="faixa-card faixa-card-link" style="border-top-color:{{ item.categoria.cor }}">
+        <div class="faixa-header" style="background:{{ item.categoria.cor }}">
+            <span class="faixa-icone">{{ item.categoria.icone }}</span>
+            <div>
+                <h3>{{ item.categoria.nome }}</h3>
+                <span class="faixa-idade">{{ item.categoria.idade_min }}–{{ item.categoria.idade_max }} anos</span>
+            </div>
+        </div>
+        <div class="faixa-body" style="padding:0.75rem 1rem;">
+            <strong style="font-size:1.5rem;color:var(--hotel-primary);">{{ item.hospedes }}</strong>
+            <span style="font-size:0.8rem;color:var(--text-muted);"> hóspedes ativos</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+<div class="cards-grid">
+    <div class="card">
+        <div class="card-icon">🏨</div>
+        <h3>Hóspedes ativos</h3>
+        <div class="stat">{{ hospedes_ativos }}</div>
+        <p>Check-ins em andamento neste hotel.</p>
+    </div>
+    <div class="card accent-orange">
+        <div class="card-icon">📅</div>
+        <h3>Atividades hoje</h3>
+        <div class="stat">{{ programacoes|length }}</div>
+        <p>Programação do dia {{ hoje|date:"d/m/Y" }}.</p>
+    </div>
+    <div class="card accent-yellow">
+        <div class="card-icon">🎭</div>
+        <h3>Noite de hoje</h3>
+        <p style="font-size:1.1rem;font-weight:800;color:var(--hotel-primary);margin:0.5rem 0;">
+            {% if noite_hoje %}{{ noite_hoje.tema }}{% else %}—{% endif %}
+        </p>
+        <p>{% if noite_hoje %}{{ noite_hoje.atracao_musical }}{% endif %}</p>
+    </div>
+    <div class="card accent-blue">
+        <div class="card-icon">🛍️</div>
+        <h3>Loja Vulcãozinho</h3>
+        <p>Acessórios exclusivos e bonés das noites temáticas.</p>
+        <a href="{% url 'loja' %}" style="color:var(--hotel-primary);font-weight:700;font-size:0.875rem;">Ver produtos →</a>
+    </div>
+</div>
+
+{% if noite_hoje %}
+<div class="noite-card">
+    <div class="noite-card-header">
+        🌙 Noite Temática de Hoje — {{ noite_hoje.tema }}
+    </div>
+    <div class="noite-card-body">
+        <div class="noite-block">
+            <h4>Vista-se</h4>
+            <p>{{ noite_hoje.vista_se }}</p>
+            <h4 style="margin-top:0.75rem;">Gastronomia</h4>
+            <p>{{ noite_hoje.descricao_gastronomia }}</p>
+        </div>
+        <div class="noite-block">
+            <h4>Manhã — {{ noite_hoje.manha_tema }}</h4>
+            <p>{{ noite_hoje.manha_atividades }}</p>
+            <h4 style="margin-top:0.75rem;">Música</h4>
+            <p>{{ noite_hoje.manha_genero_musical }}</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if programacoes %}
+<h2 class="section-title">Próximas atividades de hoje</h2>
+<div class="cards-grid">
+    {% for prog in programacoes %}
+    <div class="card">
+        <div class="atividade-hora">{{ prog.hora_inicio|time:"H:i" }} — {{ prog.hora_fim|time:"H:i" }}</div>
+        <h3>{{ prog.atividade.nome }}</h3>
+        <p>{{ prog.local.nome }}{% if prog.categoria %} · {{ prog.categoria.nome }}{% endif %}</p>
+        {% if prog.recreador %}<p style="font-size:0.8rem;margin-top:0.25rem;">👤 {{ prog.recreador.nome }}</p>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>Nenhuma atividade programada para hoje.</p>
+    <p>Cadastre no <a href="/admin/core/programacaodiaria/">admin</a>.</p>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}
