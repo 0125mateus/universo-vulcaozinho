@@ -1,11 +1,5 @@
 # Blueprint Render — Universo Vulcãozinho
-# Dashboard Render → New → Blueprint → conectar repositório GitHub
-
-databases:
-  - name: vulcaozinho-db
-    plan: free
-    databaseName: vulcaozinho
-    user: vulcaozinho_user
+# Plano free: apenas 1 PostgreSQL por conta — reutilize o banco existente (consulta-db).
 
 services:
   - type: web
@@ -31,9 +25,7 @@ services:
       - key: RUN_SEED
         value: "1"
       - key: DATABASE_URL
-        fromDatabase:
-          name: vulcaozinho-db
-          property: connectionString
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: TELAO_API_KEY
