@@ -1597,6 +1597,17 @@ body {
     text-decoration: none;
 }
 
+.user-logout-form {
+    display: inline;
+    margin: 0;
+}
+
+.user-logout-form .user-logout {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
 .user-logout {
     background: #f0f0f0;
     color: var(--text-muted);

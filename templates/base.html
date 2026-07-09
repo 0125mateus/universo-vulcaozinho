@@ -52,7 +52,10 @@
                     <span class="user-papel">{{ perfil_usuario.get_papel_display }}</span>
                     {% endif %}
                     <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
-                    <a href="{% url 'logout' %}" class="user-logout">Sair</a>
+                    <form method="post" action="{% url 'logout' %}" class="user-logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="user-logout">Sair</button>
+                    </form>
                 </div>
                 {% else %}
                 <a href="{% url 'login' %}" class="user-login-btn">Entrar</a>
