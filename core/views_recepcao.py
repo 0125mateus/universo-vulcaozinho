@@ -7,7 +7,12 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView
 
-from .auth_utils import filtrar_queryset_por_hotel, resolver_hotel_atual, usuario_tem_papel
+from .auth_utils import (
+    filtrar_queryset_por_hotel,
+    resolver_hotel_atual,
+    usuario_acesso_global,
+    usuario_tem_papel,
+)
 from .forms import HospedeForm
 from .mixins import PapelRequeridoMixin
 from .models import (
@@ -57,6 +62,38 @@ class RecepcaoMixin(PapelRequeridoMixin):
         if self.hotel:
             qs = qs.filter(**{campo_hotel: self.hotel})
         return qs
+
+    def ajustar_hospede_recepcao(self, request, pk):
+        """
+        Garante acesso ao hóspede pelo pk.
+        Retorna redirect se não existir ou estiver fora do escopo; None se OK.
+        """
+        hospede = Hospede.objects.filter(pk=pk).select_related('hotel').first()
+        if not hospede:
+            messages.error(request, 'Hóspede não encontrado ou foi excluído.')
+            return redirect('recepcao_hospedes')
+
+        if self.escopo_queryset(Hospede.objects.filter(pk=pk)).exists():
+            return None
+
+        if usuario_acesso_global(request.user):
+            request.session['hotel_slug'] = hospede.hotel.slug
+            self.hotel = resolver_hotel_atual(request)
+            messages.info(request, f'Exibindo hóspede do {hospede.hotel.nome}.')
+            return None
+
+        messages.warning(
+            request,
+            f'Este hóspede pertence ao {hospede.hotel.nome}. '
+            'Troque o hotel no seletor do topo da página.',
+        )
+        return redirect('recepcao_hospedes')
+
+    def get_hospede_escopo(self, request, pk):
+        redir = self.ajustar_hospede_recepcao(request, pk)
+        if redir:
+            return None, redir
+        return get_object_or_404(self.escopo_queryset(Hospede.objects.all()), pk=pk), None
 
 
 def _hospedes_ativos_qs(hotel):
@@ -173,6 +210,9 @@ class HospedeDetailView(RecepcaoMixin, DetailView):
     def dispatch(self, request, *args, **kwargs):
         if not self.hotel:
             return self.hotel_required_response()
+        redir = self.ajustar_hospede_recepcao(request, kwargs.get('pk'))
+        if redir:
+            return redir
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -194,6 +234,9 @@ class HospedeTermoView(RecepcaoMixin, DetailView):
     def dispatch(self, request, *args, **kwargs):
         if not self.hotel:
             return self.hotel_required_response()
+        redir = self.ajustar_hospede_recepcao(request, kwargs.get('pk'))
+        if redir:
+            return redir
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -240,10 +283,9 @@ class HospedeCheckoutView(RecepcaoMixin, View):
     def post(self, request, pk):
         if not self.hotel:
             return self.hotel_required_response()
-        hospede = get_object_or_404(
-            self.escopo_queryset(Hospede.objects.all()),
-            pk=pk,
-        )
+        hospede, redir = self.get_hospede_escopo(request, pk)
+        if redir:
+            return redir
         if not hospede.ativo:
             messages.warning(request, 'Hóspede já está com check-out.')
         else:
@@ -259,10 +301,9 @@ class HospedeDeleteView(RecepcaoMixin, View):
     def post(self, request, pk):
         if not self.hotel:
             return self.hotel_required_response()
-        hospede = get_object_or_404(
-            self.escopo_queryset(Hospede.objects.all()),
-            pk=pk,
-        )
+        hospede, redir = self.get_hospede_escopo(request, pk)
+        if redir:
+            return redir
         nome = hospede.nome_completo
         hospede.delete()
         messages.success(request, f'Hóspede {nome} excluído do sistema.')

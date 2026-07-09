@@ -329,6 +329,25 @@ class HospedeValidationTestCase(TestCase):
         self.assertEqual(resp_pub.status_code, 200)
         self.assertContains(resp_pub, 'Menor WhatsApp')
 
+    def test_hospede_inexistente_redireciona_lista(self):
+        from core.models import PapelUsuario, PerfilUsuario
+
+        user = User.objects.create_user('rec_404', password='testpass123')
+        PerfilUsuario.objects.create(
+            user=user,
+            papel=PapelUsuario.RECEPCAO,
+            hotel=self.hotel,
+            ativo=True,
+        )
+        self.client.login(username='rec_404', password='testpass123')
+        session = self.client.session
+        session['hotel_slug'] = self.hotel.slug
+        session.save()
+
+        resp = self.client.get(reverse('recepcao_hospede_detalhe', kwargs={'pk': 99999}))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.url, reverse('recepcao_hospedes'))
+
 
 @override_settings(ALLOWED_HOSTS=['testserver'], TELAO_API_KEY='test-key')
 class TelaoAPITestCase(TestCase):
