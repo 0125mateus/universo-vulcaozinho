@@ -110,6 +110,21 @@
     margin-bottom: 0.35rem;
 }
 
+.app-login-hotel-detect {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--app-primary, #1E6B43) 12%, white);
+    animation: app-hotel-pop 0.35s ease;
+}
+
+@keyframes app-hotel-pop {
+    from { opacity: 0; transform: translateY(6px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .app-login h1 {
     font-size: 1.65rem;
     font-weight: 800;

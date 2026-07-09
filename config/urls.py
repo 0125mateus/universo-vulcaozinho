@@ -105,6 +105,7 @@ urlpatterns = [
 
     path('app/', views_hospede_app.HospedeAppHomeView.as_view(), name='hospede_app_home'),
     path('app/entrar/', views_hospede_app.HospedeAppLoginView.as_view(), name='hospede_app_login'),
+    path('app/identificar-hotel/', views_hospede_app.HospedeAppIdentificarHotelView.as_view(), name='hospede_app_identificar_hotel'),
     path('app/sair/', views_hospede_app.HospedeAppLogoutView.as_view(), name='hospede_app_logout'),
     path('app/programacao/', views_hospede_app.HospedeAppProgramacaoView.as_view(), name='hospede_app_programacao'),
     path('app/passeios/', views_hospede_app.HospedeAppPasseiosView.as_view(), name='hospede_app_passeios'),

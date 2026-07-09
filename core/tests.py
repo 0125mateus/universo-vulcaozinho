@@ -791,6 +791,29 @@ class HospedeAppTestCase(TestCase):
         })
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(self.client.session.get('hospede_app_id'), self.hospede.pk)
+        self.assertEqual(self.client.session.get('hotel_slug'), self.hotel.slug)
+
+    def test_login_sem_hotel_na_sessao(self):
+        session = self.client.session
+        session.pop('hotel_slug', None)
+        session.save()
+        resp = self.client.post(reverse('hospede_app_login'), {
+            'apartamento': '302',
+            'documento': '24725',
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(self.client.session.get('hospede_app_id'), self.hospede.pk)
+
+    def test_identificar_hotel_api(self):
+        resp = self.client.get(reverse('hospede_app_identificar_hotel'), {
+            'apartamento': '302',
+            'documento': '24725',
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data['ok'])
+        self.assertEqual(data['hotel_slug'], self.hotel.slug)
+        self.assertEqual(data['primeiro_nome'], 'Maria')
 
     def test_login_invalido(self):
         resp = self.client.post(reverse('hospede_app_login'), {

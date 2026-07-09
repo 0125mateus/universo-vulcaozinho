@@ -14,7 +14,8 @@ from django.views import View
 from .auth_utils import resolver_hotel_atual
 from .forms_hospede_app import HospedeAppLoginForm
 from .hospede_app_auth import (
-    buscar_hospede_login,
+    buscar_hospede_login_global,
+    buscar_hospedes_login_global,
     get_hospede_sessao,
     login_hospede,
     logout_hospede,
@@ -66,38 +67,62 @@ class HospedeAppLoginView(View):
     def get(self, request):
         if get_hospede_sessao(request):
             return redirect('hospede_app_home')
-        hotel = resolver_hotel_atual(request)
-        if not hotel:
-            messages.error(request, 'Nenhum hotel configurado.')
-            return redirect('home')
         form = HospedeAppLoginForm(initial={'apartamento': request.GET.get('apt', '')})
-        return render(request, self.template_name, {'form': form, 'hotel': hotel})
+        return render(request, self.template_name, {'form': form, 'hotel': None})
 
     def post(self, request):
-        hotel = resolver_hotel_atual(request)
-        if not hotel:
-            messages.error(request, 'Selecione o hotel no site antes de entrar.')
-            return redirect('home')
-
         form = HospedeAppLoginForm(request.POST)
         if not form.is_valid():
-            return render(request, self.template_name, {'form': form, 'hotel': hotel})
+            return render(request, self.template_name, {'form': form, 'hotel': None})
 
-        hospede = buscar_hospede_login(
-            hotel,
-            form.cleaned_data['apartamento'],
-            form.cleaned_data['documento'],
-        )
+        apartamento = form.cleaned_data['apartamento']
+        documento = form.cleaned_data['documento']
+        matches = buscar_hospedes_login_global(apartamento, documento)
+
+        if len(matches) > 1:
+            messages.error(
+                request,
+                'Encontramos mais de um check-in com esses dados. Procure a recepção.',
+            )
+            return render(request, self.template_name, {'form': form, 'hotel': None})
+
+        hospede = matches[0] if matches else None
         if not hospede:
             messages.error(
                 request,
                 'Não encontramos check-in ativo com esses dados. Confira apartamento e documento na recepção.',
             )
-            return render(request, self.template_name, {'form': form, 'hotel': hotel})
+            return render(request, self.template_name, {'form': form, 'hotel': None})
 
         login_hospede(request, hospede)
         destino = request.GET.get('next') or reverse('hospede_app_home')
         return redirect(destino)
+
+
+class HospedeAppIdentificarHotelView(View):
+    """API leve: identifica o hotel pelo apartamento + documento (login do app)."""
+
+    def get(self, request):
+        apartamento = (request.GET.get('apartamento') or '').strip()
+        documento = (request.GET.get('documento') or '').strip()
+        from .documento_utils import normalizar_documento
+
+        if not apartamento or len(normalizar_documento(documento)) < 4:
+            return JsonResponse({'ok': False})
+
+        matches = buscar_hospedes_login_global(apartamento, documento)
+        if len(matches) != 1:
+            return JsonResponse({'ok': False, 'ambiguo': len(matches) > 1})
+
+        hospede = matches[0]
+        hotel = hospede.hotel
+        return JsonResponse({
+            'ok': True,
+            'hotel_nome': hotel.nome,
+            'hotel_slug': hotel.slug,
+            'hotel_cor': hotel.cor_primaria,
+            'primeiro_nome': primeiro_nome(hospede.nome_completo),
+        })
 
 
 class HospedeAppLogoutView(View):

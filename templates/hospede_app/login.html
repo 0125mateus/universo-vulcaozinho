@@ -9,12 +9,16 @@
 <div class="app-login">
     <div class="app-login-hero">
         <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Vulcãozinho" class="app-mascote">
-        <p class="app-login-hotel">🏨 {{ hotel.nome }}</p>
+        <p class="app-login-hotel app-login-hotel-detect" id="app-hotel-detect" hidden>
+            <span class="app-hotel-detect-label">🏨</span>
+            <span id="app-hotel-detect-nome"></span>
+        </p>
+        <p class="app-login-hotel app-login-hotel-default" id="app-hotel-default">Universo Vulcãozinho</p>
         <h1>Olá, hóspede!</h1>
-        <p class="app-login-sub">Tudo na palma da mão — programação, passaporte e diversão.</p>
+        <p class="app-login-sub">Informe apartamento e documento — identificamos seu hotel automaticamente.</p>
     </div>
 
-    <form method="post" class="app-login-form">
+    <form method="post" class="app-login-form" id="app-login-form">
         {% csrf_token %}
         <div class="app-field">
             <label for="{{ form.apartamento.id_for_label }}">{{ form.apartamento.label }}</label>
@@ -34,4 +38,9 @@
         Dados do check-in na recepção.
     </p>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/documento-mask.js' %}"></script>
+<script src="{% static 'js/hospede-app-login.js' %}?v=1"></script>
 {% endblock %}
