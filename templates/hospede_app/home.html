@@ -1,0 +1,101 @@
+{% extends 'hospede_app/base.html' %}
+{% load static %}
+
+{% block title %}Início{% endblock %}
+
+{% block content %}
+<section class="app-welcome">
+    <div class="app-welcome-bg"></div>
+    <div class="app-welcome-content">
+        <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="" class="app-welcome-mascote">
+        <h1>Olá, {{ primeiro_nome }}!</h1>
+        <p>Sejam bem-vindos ao {{ hotel.nome }}</p>
+        <span class="app-badge">Apt. {{ hospede.apartamento }}</span>
+    </div>
+</section>
+
+{% if categoria %}
+<div class="app-card app-card-faixa" style="--faixa-cor: {{ categoria.cor }}">
+    <span class="app-card-icon">{{ categoria.icone }}</span>
+    <div>
+        <strong>Sua faixa</strong>
+        <p>{{ categoria.nome }} · {{ categoria.idade_min }}–{{ categoria.idade_max }} anos</p>
+    </div>
+</div>
+{% endif %}
+
+{% if acontecendo %}
+<div class="app-card app-card-highlight app-card-live">
+    <p class="app-card-label"><span class="app-live-dot"></span> Acontecendo agora</p>
+    <h2>{{ acontecendo.atividade.icone|default:"⭐" }} {{ acontecendo.atividade.nome }}</h2>
+    <p class="app-card-meta">
+        {{ acontecendo.hora_inicio|time:"H:i" }} – {{ acontecendo.hora_fim|time:"H:i" }}
+        · {{ acontecendo.local.nome }}
+    </p>
+</div>
+{% endif %}
+
+{% if proxima_atividade %}
+<div class="app-card app-card-highlight">
+    <p class="app-card-label">Próxima atividade</p>
+    <h2>{{ proxima_atividade.atividade.icone|default:"⭐" }} {{ proxima_atividade.atividade.nome }}</h2>
+    <p class="app-card-meta">
+        {{ proxima_atividade.hora_inicio|time:"H:i" }} – {{ proxima_atividade.hora_fim|time:"H:i" }}
+        · {{ proxima_atividade.local.nome }}
+    </p>
+    {% if a_seguir|length > 1 %}
+    <ul class="app-aseguir">
+        {% for p in a_seguir %}
+        <li><strong>{{ p.hora_inicio|time:"H:i" }}</strong> {{ p.atividade.nome }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <a href="{% url 'hospede_app_programacao' %}" class="app-link">Ver programação completa</a>
+</div>
+{% else %}
+<div class="app-card">
+    <p class="app-card-label">Programação de hoje</p>
+    <p>Confira as atividades da sua faixa.</p>
+    <a href="{% url 'hospede_app_programacao' %}" class="app-btn app-btn-secondary">Ver programação</a>
+</div>
+{% endif %}
+
+{% if passeios_count %}
+<div class="app-card app-card-passeios">
+    <p class="app-card-label">🌴 Passeios de hoje</p>
+    <h3>{{ passeios_count }} passeio(s) disponível(is)</h3>
+    {% if meus_passeios_count %}
+    <p class="app-card-meta">✓ Você está inscrito em {{ meus_passeios_count }}</p>
+    {% endif %}
+    <a href="{% url 'hospede_app_passeios' %}" class="app-link">Ver passeios e inscrever-se</a>
+</div>
+{% endif %}
+
+{% if noite_hoje %}
+<div class="app-card app-card-noite">
+    <p class="app-card-label">🌙 Noite temática de hoje</p>
+    <h3>{{ noite_hoje.tema }}</h3>
+    {% if noite_hoje.vista_se %}<p class="app-noite-linha"><strong>Vista-se:</strong> {{ noite_hoje.vista_se }}</p>{% endif %}
+    {% if noite_hoje.atracao_musical %}<p class="app-noite-linha"><strong>Música:</strong> {{ noite_hoje.atracao_musical }}</p>{% endif %}
+    {% if noite_hoje.descricao_gastronomia %}<p class="app-noite-linha"><strong>Gastronomia:</strong> {{ noite_hoje.descricao_gastronomia }}</p>{% endif %}
+</div>
+{% endif %}
+
+<div class="app-card app-card-passaporte">
+    <p class="app-card-label">🛂 Passaporte</p>
+    {% if passaporte %}
+    <div class="app-passaporte-mini">
+        <span class="app-moedas">🪙 {{ passaporte.moedas }}</span>
+        <span>{{ passaporte.total_carimbos }}/7 carimbos · {{ passaporte.nivel }}</span>
+    </div>
+    {% else %}
+    <p>Participe das noites temáticas e colete carimbos!</p>
+    {% endif %}
+    <a href="{% url 'hospede_app_passaporte' %}" class="app-link">Abrir passaporte</a>
+</div>
+
+<form method="post" action="{% url 'hospede_app_logout' %}" class="app-logout-form">
+    {% csrf_token %}
+    <button type="submit" class="app-btn app-btn-ghost">Sair do app</button>
+</form>
+{% endblock %}

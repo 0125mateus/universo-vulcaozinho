@@ -33,6 +33,7 @@
             <div class="rec-field">
                 <label for="id_documento">Documento</label>
                 {{ form.documento }}
+                <small class="field-hint">CPF, RG ou passaporte — formata automaticamente</small>
                 {{ form.documento.errors }}
             </div>
             <div class="rec-field">
@@ -53,17 +54,102 @@
             <div class="rec-field rec-field-full">
                 <label for="id_observacoes">Observações</label>
                 {{ form.observacoes }}
+                <small class="field-hint">Alergias, necessidades especiais, restrições alimentares, etc.</small>
+                {{ form.observacoes.errors }}
             </div>
         </div>
+
+        <fieldset id="responsavel-section" class="rec-responsavel" hidden>
+            <legend>👨‍👩‍👧 Responsável legal <span class="rec-required-badge">obrigatório para menores de 18 anos</span></legend>
+            <p class="field-hint">O sistema identificou que o hóspede é menor de idade. Preencha os dados do responsável legal e colete a assinatura.</p>
+            <div class="rec-form-grid">
+                <div class="rec-field rec-field-full">
+                    <label for="id_responsavel_nome">Nome do responsável</label>
+                    {{ form.responsavel_nome }}
+                    {{ form.responsavel_nome.errors }}
+                </div>
+                <div class="rec-field">
+                    <label for="id_responsavel_documento">Documento do responsável</label>
+                    {{ form.responsavel_documento }}
+                    {{ form.responsavel_documento.errors }}
+                </div>
+                <div class="rec-field">
+                    <label for="id_responsavel_parentesco">Parentesco</label>
+                    {{ form.responsavel_parentesco }}
+                    {{ form.responsavel_parentesco.errors }}
+                </div>
+                <div class="rec-field">
+                    <label for="id_responsavel_telefone">Telefone</label>
+                    {{ form.responsavel_telefone }}
+                    {{ form.responsavel_telefone.errors }}
+                </div>
+            </div>
+
+            <div class="rec-field rec-field-full">
+                <label>Assinatura do responsável</label>
+                <div class="rec-signature">
+                    <canvas id="signature-pad" class="rec-signature-canvas" width="600" height="200"></canvas>
+                    <div class="rec-signature-actions">
+                        <span class="rec-signature-hint">Assine no quadro acima usando o dedo ou o mouse.</span>
+                        <button type="button" id="signature-clear" class="rec-btn rec-btn-sm rec-btn-ghost">Limpar</button>
+                    </div>
+                </div>
+                {{ form.responsavel_assinatura }}
+                {{ form.responsavel_assinatura.errors }}
+            </div>
+        </fieldset>
 
         <div class="rec-actions">
             <a href="{% url 'recepcao_index' %}" class="rec-btn rec-btn-ghost">Voltar</a>
             <button type="submit" class="rec-btn rec-btn-primary">Confirmar check-in</button>
         </div>
+        <p class="field-hint" style="margin-top:1rem;text-align:center;">
+            Após o check-in, o hóspede pode acessar o
+            <a href="{% url 'hospede_app_login' %}">app em /app/</a>
+            (apartamento + documento).
+        </p>
     </form>
+
+    {% if hospedes_ativos %}
+    <aside class="rec-checkin-aside">
+        <h3>Hóspedes ativos no hotel</h3>
+        <p class="field-hint">Observações registradas na recepção</p>
+        <div class="rec-table-wrap rec-table-wrap-compact">
+            <table class="rec-table rec-table-compact">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Apto</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in hospedes_ativos %}
+                    <tr>
+                        <td>
+                            <strong>{{ h.nome_completo }}</strong>
+                            <a href="{% url 'recepcao_hospede_detalhe' h.pk %}" class="rec-link-sm" title="Ver detalhes">👁️</a>
+                        </td>
+                        <td>{{ h.apartamento }}</td>
+                        <td class="rec-obs-cell">
+                            {% if h.observacoes %}
+                            <span class="rec-obs-text" title="{{ h.observacoes }}">{{ h.observacoes }}</span>
+                            {% else %}
+                            <span class="rec-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="field-hint"><a href="{% url 'recepcao_hospedes' %}">Ver lista completa de hóspedes →</a></p>
+    </aside>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/recepcao.js' %}"></script>
+<script src="{% static 'js/documento-mask.js' %}?v=2"></script>
+<script src="{% static 'js/recepcao.js' %}?v=4"></script>
 {% endblock %}

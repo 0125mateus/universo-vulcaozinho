@@ -2,6 +2,7 @@ from django.shortcuts import redirect, render
 from django.views import View
 
 from .auth_utils import resolver_hotel_atual
+from .hoteis import hoteis_rede_queryset
 from .models import Hotel
 
 
@@ -11,7 +12,7 @@ class TelaoView(View):
     def get(self, request, hotel_id=None):
         hotel = None
         if hotel_id:
-            hotel = Hotel.objects.filter(pk=hotel_id, ativo=True).first()
+            hotel = hoteis_rede_queryset().filter(pk=hotel_id).first()
         if not hotel:
             hotel = resolver_hotel_atual(request)
         if not hotel:

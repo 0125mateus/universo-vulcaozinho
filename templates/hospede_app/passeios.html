@@ -1,0 +1,71 @@
+{% extends 'hospede_app/base.html' %}
+
+{% block title %}Passeios{% endblock %}
+
+{% block content %}
+<header class="app-page-head">
+    <h1>🌴 Passeios</h1>
+    <p>{{ hoje|date:"l, d/m/Y" }}</p>
+</header>
+
+<section class="app-section">
+    <h2 class="app-section-title">Passeios de hoje</h2>
+    <div class="app-passeios-lista">
+        {% for p in passeios_hoje %}
+        <article class="app-passeio-card {% if p.inscrito %}app-passeio-inscrito{% endif %}">
+            <div class="app-passeio-head">
+                <h3>{{ p.titulo }}</h3>
+                {% if p.status_pag == 'confirmado' %}<span class="app-passeio-tag ok">✓ Pago</span>
+                {% elif p.status_pag == 'comprovante_enviado' %}<span class="app-passeio-tag wait">⏳ Em análise</span>
+                {% elif p.status_pag == 'pendente' %}<span class="app-passeio-tag pay">💰 A pagar</span>
+                {% elif p.status_pag == 'rejeitado' %}<span class="app-passeio-tag rej">✕ Comprovante recusado</span>
+                {% elif p.inscrito %}<span class="app-passeio-tag ok">✓ Inscrito</span>{% endif %}
+            </div>
+            <p class="app-passeio-desc">{{ p.descricao }}</p>
+            <ul class="app-passeio-meta">
+                {% if p.hora_saida %}<li>🕒 Saída {{ p.hora_saida|time:"H:i" }}{% if p.hora_retorno %} · retorno {{ p.hora_retorno|time:"H:i" }}{% endif %}</li>{% endif %}
+                {% if p.ponto_encontro %}<li>📍 {{ p.ponto_encontro }}</li>{% endif %}
+                <li>{% if p.is_gratuito %}🎟️ Incluso{% else %}💰 R$ {{ p.preco }}{% endif %}</li>
+                {% if p.vagas %}<li>👥 {% if p.vagas_rest is not None %}{{ p.vagas_rest }} vaga(s) restante(s){% endif %}</li>{% endif %}
+            </ul>
+
+            {% if p.precisa_pagar %}
+            <a href="{% url 'hospede_app_passeio_pagamento' p.pk %}" class="app-btn app-btn-secondary">💳 Pagar via PIX</a>
+            {% elif p.status_pag == 'comprovante_enviado' or p.status_pag == 'confirmado' %}
+            <a href="{% url 'hospede_app_passeio_pagamento' p.pk %}" class="app-link">Ver pagamento</a>
+            {% endif %}
+
+            <form method="post" action="{% url 'hospede_app_passeio_inscricao' p.pk %}" class="app-passeio-form">
+                {% csrf_token %}
+                {% if p.status_pag == 'confirmado' %}
+                <button type="button" class="app-btn app-btn-ghost" disabled>Pagamento confirmado</button>
+                {% elif p.inscrito %}
+                <button type="submit" name="acao" value="cancelar" class="app-btn app-btn-ghost">Cancelar inscrição</button>
+                {% elif p.esgotado %}
+                <button type="button" class="app-btn app-btn-ghost" disabled>Esgotado — procure a recepção</button>
+                {% else %}
+                <button type="submit" name="acao" value="inscrever" class="app-btn app-btn-secondary">Quero participar</button>
+                {% endif %}
+            </form>
+        </article>
+        {% empty %}
+        <p class="app-empty">Nenhum passeio programado para hoje.</p>
+        {% endfor %}
+    </div>
+</section>
+
+{% if semana %}
+<section class="app-section">
+    <h2 class="app-section-title">Nos próximos dias</h2>
+    <div class="app-atividades-lista app-atividades-muted">
+        {% for p in semana %}
+        <article class="app-atividade-item">
+            <span class="app-atividade-hora">{{ p.get_dia_semana_display }}</span>
+            <h3>{{ p.titulo }}</h3>
+            <p>{{ p.descricao|truncatechars:70 }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

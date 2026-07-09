@@ -1,0 +1,38 @@
+{% extends 'hospede_app/base.html' %}
+{% load static %}
+
+{% block title %}Entrar{% endblock %}
+
+{% block bottom_nav %}{% endblock %}
+
+{% block content %}
+<div class="app-login">
+    <div class="app-login-hero">
+        <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Vulcãozinho" class="app-mascote">
+        <p class="app-login-hotel">🏨 {{ hotel.nome }}</p>
+        <h1>Olá, hóspede!</h1>
+        <p class="app-login-sub">Tudo na palma da mão — programação, passaporte e diversão.</p>
+    </div>
+
+    <form method="post" class="app-login-form">
+        {% csrf_token %}
+        <div class="app-field">
+            <label for="{{ form.apartamento.id_for_label }}">{{ form.apartamento.label }}</label>
+            {{ form.apartamento }}
+            {{ form.apartamento.errors }}
+        </div>
+        <div class="app-field">
+            <label for="{{ form.documento.id_for_label }}">{{ form.documento.label }}</label>
+            {{ form.documento }}
+            <small class="app-hint">{{ form.documento.help_text }}</small>
+            {{ form.documento.errors }}
+        </div>
+        <button type="submit" class="app-btn app-btn-primary">Entrar no app</button>
+    </form>
+
+    <p class="app-login-footer">
+        Dados do check-in na recepção.<br>
+        <a href="{% url 'home' %}">Voltar ao site</a>
+    </p>
+</div>
+{% endblock %}

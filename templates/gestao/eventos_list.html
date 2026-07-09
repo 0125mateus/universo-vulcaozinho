@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Eventos de Recreação — Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🎉 Eventos de Recreação</h2>
+    <p>{{ hotel.nome }} · {{ total }} evento(s) importados</p>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'importacao_gestao' %}" class="rec-btn rec-btn-primary">📥 Importar planilhas</a>
+    <a href="{% url 'dashboard' %}" class="rec-btn rec-btn-ghost">Dashboard</a>
+</div>
+
+<form method="get" class="rec-toolbar" style="margin-bottom:1rem;">
+    <input type="text" name="mes" value="{{ mes_filtro }}" placeholder="Filtrar mês (ex: ABRIL)" class="rec-input">
+    <button type="submit" class="rec-btn rec-btn-ghost">Filtrar</button>
+</form>
+
+<div class="rec-table-wrap">
+    <table class="rec-table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Dia</th>
+                <th>Evento</th>
+                <th>Tipo</th>
+                <th>Prestador</th>
+                <th>Responsável</th>
+                <th>Orçamento</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in eventos %}
+            <tr>
+                <td>{{ e.data_inicio|date:"d/m/Y" }}</td>
+                <td>{{ e.dia_semana|default:"—" }}</td>
+                <td>
+                    <strong>{{ e.nome }}</strong>
+                    {% if e.pacote %}<br><small>{{ e.pacote }}</small>{% endif %}
+                </td>
+                <td>{{ e.tipo_servico|default:"—" }}</td>
+                <td>{{ e.prestador|default:"—" }}</td>
+                <td>{{ e.responsavel|default:"—" }}</td>
+                <td>{% if e.orcamento %}R$ {{ e.orcamento }}{% else %}—{% endif %}</td>
+                <td><span class="rec-tag">{{ e.get_status_display }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8">Nenhum evento. <a href="{% url 'importacao_gestao' %}">Importar planilha</a>.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

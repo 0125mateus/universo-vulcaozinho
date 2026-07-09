@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 
 from django.urls import include, path
@@ -23,7 +25,12 @@ from core import views_recepcao
 
 from core import views_reuniao
 
+from core import views_importacao
+from core import views_programacao
+from core import views_programacao_gestao
+from core import views_passeios_gestao
 from core import views_telao
+from core import views_hospede_app
 
 
 
@@ -40,6 +47,20 @@ urlpatterns = [
     path('', views.HomeView.as_view(), name='home'),
 
     path('programacao/', views.ProgramacaoView.as_view(), name='programacao'),
+    path('programacao/gestao/', views_programacao_gestao.ProgramacaoGestaoListView.as_view(), name='programacao_gestao'),
+    path('programacao/gestao/nova/', views_programacao_gestao.ProgramacaoCreateView.as_view(), name='programacao_nova'),
+    path('programacao/gestao/novas/', views_programacao_gestao.ProgramacaoBulkCreateView.as_view(), name='programacao_novas'),
+    path('programacao/gestao/lote/', views_programacao_gestao.ProgramacaoBulkActionView.as_view(), name='programacao_acao_lote'),
+    path('programacao/gestao/<int:pk>/editar/', views_programacao_gestao.ProgramacaoUpdateView.as_view(), name='programacao_editar'),
+    path('programacao/gestao/<int:pk>/excluir/', views_programacao_gestao.ProgramacaoDeleteView.as_view(), name='programacao_excluir'),
+    path('programacao/publicar-telao/', views_programacao.PublicarTelaoGradeView.as_view(), name='programacao_publicar_telao'),
+    path('programacao/remover-telao/', views_programacao.RemoverTelaoGradeView.as_view(), name='programacao_remover_telao'),
+
+    path('passeios/gestao/', views_passeios_gestao.PasseiosGestaoListView.as_view(), name='passeios_gestao'),
+    path('passeios/gestao/novo/', views_passeios_gestao.PasseioCreateView.as_view(), name='passeio_novo'),
+    path('passeios/gestao/pix-preview/', views_passeios_gestao.PasseioPixPreviewView.as_view(), name='passeio_pix_preview'),
+    path('passeios/gestao/<int:pk>/editar/', views_passeios_gestao.PasseioUpdateView.as_view(), name='passeio_editar'),
+    path('passeios/gestao/<int:pk>/excluir/', views_passeios_gestao.PasseioDeleteView.as_view(), name='passeio_excluir'),
 
     path('noites/', views.NoitesView.as_view(), name='noites'),
 
@@ -76,7 +97,23 @@ urlpatterns = [
     path('dashboard/', views_dashboard.DashboardView.as_view(), name='dashboard'),
     path('dashboard/executivo/', views_dashboard_executivo.DashboardExecutivoView.as_view(), name='dashboard_executivo'),
 
+    path('gestao/importacao/', views_importacao.ImportacaoGestaoView.as_view(), name='importacao_gestao'),
+    path('gestao/eventos/', views_importacao.EventosRecreacaoListView.as_view(), name='eventos_gestao'),
+    path('gestao/analise-faixas/', views_importacao.AnaliseFaixasView.as_view(), name='analise_faixas'),
+
     path('telao/', views_telao.TelaoView.as_view(), name='telao'),
+
+    path('app/', views_hospede_app.HospedeAppHomeView.as_view(), name='hospede_app_home'),
+    path('app/entrar/', views_hospede_app.HospedeAppLoginView.as_view(), name='hospede_app_login'),
+    path('app/sair/', views_hospede_app.HospedeAppLogoutView.as_view(), name='hospede_app_logout'),
+    path('app/programacao/', views_hospede_app.HospedeAppProgramacaoView.as_view(), name='hospede_app_programacao'),
+    path('app/passeios/', views_hospede_app.HospedeAppPasseiosView.as_view(), name='hospede_app_passeios'),
+    path('app/passeios/<int:pk>/inscricao/', views_hospede_app.HospedeAppPasseioInscricaoView.as_view(), name='hospede_app_passeio_inscricao'),
+    path('app/passeios/<int:pk>/pagamento/', views_hospede_app.HospedeAppPasseioPagamentoView.as_view(), name='hospede_app_passeio_pagamento'),
+    path('app/passaporte/', views_hospede_app.HospedeAppPassaporteView.as_view(), name='hospede_app_passaporte'),
+    path('app/manifest.webmanifest', views_hospede_app.HospedeAppManifestView.as_view(), name='hospede_app_manifest'),
+    path('app/assistente/init/', views_hospede_app.HospedeAppAssistantInitView.as_view(), name='hospede_app_assistant_init'),
+    path('app/assistente/chat/', views_hospede_app.HospedeAppAssistantChatView.as_view(), name='hospede_app_assistant_chat'),
 
     path('telao/<int:hotel_id>/', views_telao.TelaoView.as_view(), name='telao_hotel'),
 
@@ -86,13 +123,19 @@ urlpatterns = [
 
     path('recepcao/hospedes/', views_recepcao.HospedeListView.as_view(), name='recepcao_hospedes'),
 
+    path('recepcao/hospedes/<int:pk>/', views_recepcao.HospedeDetailView.as_view(), name='recepcao_hospede_detalhe'),
+    path('recepcao/hospedes/<int:pk>/termo/', views_recepcao.HospedeTermoView.as_view(), name='recepcao_hospede_termo'),
     path('recepcao/hospedes/<int:pk>/checkout/', views_recepcao.HospedeCheckoutView.as_view(), name='recepcao_checkout'),
+    path('recepcao/hospedes/<int:pk>/excluir/', views_recepcao.HospedeDeleteView.as_view(), name='recepcao_hospede_excluir'),
 
     path('recepcao/agenda/', views_recepcao.AgendaDiaView.as_view(), name='recepcao_agenda'),
 
     path('recepcao/presenca/<int:pk>/', views_recepcao.RegistrarPresencaView.as_view(), name='recepcao_presenca'),
 
     path('recepcao/vincular/', views_recepcao.VincularAtividadeView.as_view(), name='recepcao_vincular'),
+
+    path('recepcao/passeios/', views_recepcao.VincularPasseioView.as_view(), name='recepcao_vincular_passeio'),
+    path('recepcao/passeios/pagamentos/', views_recepcao.PagamentosPasseioView.as_view(), name='recepcao_passeios_pagamentos'),
 
     path('api/recepcao/faixa-preview/', views_recepcao.FaixaEtariaPreviewAPI.as_view(), name='recepcao_faixa_preview'),
 
@@ -125,5 +168,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

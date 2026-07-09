@@ -1,0 +1,123 @@
+{% extends 'hospede_app/base.html' %}
+
+{% block title %}Pagamento — {{ passeio.titulo }}{% endblock %}
+
+{% block content %}
+<header class="app-page-head">
+    <h1>💳 Pagamento PIX</h1>
+    <p>{{ passeio.titulo }}</p>
+</header>
+
+<div class="app-card">
+    <p class="app-card-label">Valor do passeio</p>
+    <h2 class="app-pix-valor">R$ {{ inscricao.valor }}</h2>
+    <p class="app-card-meta">
+        Status:
+        {% if inscricao.status_pagamento == 'confirmado' %}<strong style="color:#2e9e5b">✓ Pagamento confirmado</strong>
+        {% elif inscricao.status_pagamento == 'comprovante_enviado' %}<strong style="color:#e6a700">⏳ Aguardando confirmação da recepção</strong>
+        {% elif inscricao.status_pagamento == 'rejeitado' %}<strong style="color:#e53935">✕ Comprovante recusado — envie novamente</strong>
+        {% else %}<strong style="color:#e53935">Aguardando pagamento</strong>{% endif %}
+    </p>
+</div>
+
+{% if inscricao.status_pagamento != 'confirmado' %}
+    {% if pix_indisponivel %}
+    <div class="app-card">
+        <p>O hotel ainda não configurou a chave PIX. Procure a recepção para pagar.</p>
+    </div>
+    {% else %}
+    <div class="app-card app-pix-card">
+        <p class="app-card-label">1. Pague com PIX</p>
+        {% if payload_pix %}
+        <div class="app-pix-qr">
+            <img src="https://quickchart.io/qr?text={{ payload_pix|urlencode }}&size=240&margin=2" alt="QR Code PIX" width="240" height="240" loading="lazy">
+        </div>
+        {% endif %}
+        <p class="app-pix-nome">{{ passeio.pix_beneficiario_efetivo }}</p>
+        <p class="app-pix-chave">Chave: <strong>{{ chave_pix }}</strong></p>
+        <label class="app-pix-label">PIX copia e cola</label>
+        <div class="app-pix-copia">
+            <input type="text" id="pix-payload" value="{{ payload_pix }}" readonly>
+            <button type="button" id="pix-copiar" class="app-btn app-btn-secondary">Copiar</button>
+        </div>
+        <small class="app-pix-hint">Abra o app do seu banco → PIX → Copia e cola, ou escaneie o QR.</small>
+    </div>
+    {% endif %}
+
+    <div class="app-card">
+        <p class="app-card-label">2. Envie o comprovante</p>
+        {% if inscricao.comprovante %}
+        <p class="app-card-meta">Comprovante enviado em {{ inscricao.comprovante_enviado_em|date:"d/m/Y H:i" }}.
+        Você pode reenviar se precisar.</p>
+        <div class="app-comprovante-acoes">
+            <a href="{{ inscricao.comprovante.url }}" target="_blank" class="app-link">Ver comprovante</a>
+            <button type="button" class="app-btn app-btn-ghost app-share-btn"
+                    data-url="{{ request.scheme }}://{{ request.get_host }}{{ inscricao.comprovante.url }}"
+                    data-titulo="Comprovante — {{ passeio.titulo }}">📤 Compartilhar</button>
+        </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data" class="app-comprovante-form">
+            {% csrf_token %}
+            <input type="file" name="comprovante" accept="image/*,application/pdf" class="app-file-input" required>
+            <button type="submit" class="app-btn app-btn-secondary">Enviar comprovante</button>
+        </form>
+    </div>
+{% else %}
+    <div class="app-card">
+        {% if inscricao.comprovante %}
+        <p class="app-card-label">Seu comprovante</p>
+        <div class="app-comprovante-acoes">
+            <a href="{{ inscricao.comprovante.url }}" target="_blank" class="app-link">Ver comprovante enviado</a>
+            <button type="button" class="app-btn app-btn-ghost app-share-btn"
+                    data-url="{{ request.scheme }}://{{ request.get_host }}{{ inscricao.comprovante.url }}"
+                    data-titulo="Comprovante — {{ passeio.titulo }}">📤 Compartilhar</button>
+        </div>
+        {% endif %}
+    </div>
+{% endif %}
+
+<a href="{% url 'hospede_app_passeios' %}" class="app-btn app-btn-ghost">← Voltar aos passeios</a>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var btn = document.getElementById('pix-copiar');
+    var input = document.getElementById('pix-payload');
+    if (btn && input) {
+        btn.addEventListener('click', function () {
+            input.select();
+            input.setSelectionRange(0, 99999);
+            var done = function () {
+                btn.textContent = 'Copiado!';
+                setTimeout(function () { btn.textContent = 'Copiar'; }, 2000);
+            };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(input.value).then(done, function () {
+                    document.execCommand('copy'); done();
+                });
+            } else {
+                document.execCommand('copy'); done();
+            }
+        });
+    }
+
+    document.querySelectorAll('.app-share-btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+            var url = b.dataset.url;
+            var titulo = b.dataset.titulo || 'Comprovante de pagamento';
+            if (navigator.share) {
+                navigator.share({ title: titulo, text: titulo, url: url }).catch(function () {});
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(function () {
+                    b.textContent = 'Link copiado!';
+                    setTimeout(function () { b.textContent = '📤 Compartilhar'; }, 2000);
+                });
+            } else {
+                window.open(url, '_blank');
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}

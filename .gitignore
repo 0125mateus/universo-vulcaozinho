@@ -7,6 +7,7 @@ db.sqlite3
 venv/
 env/
 staticfiles/
+media/
 *.log
 .DS_Store
 .idea/

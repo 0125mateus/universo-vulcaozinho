@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -161,6 +162,18 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}
+
+# Uploads (comprovantes de pagamento, etc.)
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -203,7 +216,16 @@ SPECTACULAR_SETTINGS = {
 # Telão — chave pública read-only (defina em produção via env)
 TELAO_API_KEY = os.environ.get('TELAO_API_KEY', 'vulcaozinho-telao-dev')
 
-# Produção (atrás de nginx / HTTPS)
+# Render.com — host e CSRF automáticos a partir da URL pública
+_render_url = os.environ.get('RENDER_EXTERNAL_URL', '').strip().rstrip('/')
+if _render_url:
+    from urllib.parse import urlparse
+
+    _render_host = urlparse(_render_url).netloc
+    if _render_host and _render_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(_render_host)
+
+# Produção (atrás de proxy / HTTPS)
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     CSRF_TRUSTED_ORIGINS = [
@@ -211,6 +233,8 @@ if not DEBUG:
         for o in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
         if o.strip()
     ]
+    if _render_url and _render_url not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_render_url)
     _secure_cookies = os.environ.get('DJANGO_SECURE_COOKIES', 'False').lower() in ('1', 'true', 'yes')
     SESSION_COOKIE_SECURE = _secure_cookies
     CSRF_COOKIE_SECURE = _secure_cookies

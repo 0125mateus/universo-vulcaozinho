@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from .documento_utils import documento_duplicado_ativo, formatar_documento
 from .models import Atividade, Hospede, Hotel, Passeio, PassaporteHospede, PresencaRegistro, ProdutoLoja, ProgramacaoDiaria, VendaLoja
 
 
@@ -38,15 +39,15 @@ class HospedeSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         hotel = attrs.get('hotel') or getattr(self.instance, 'hotel', None)
         documento = attrs.get('documento') or getattr(self.instance, 'documento', None)
+        if documento:
+            documento = formatar_documento(documento)
+            attrs['documento'] = documento
         if hotel and documento:
-            qs = Hospede.objects.filter(
-                hotel=hotel,
-                documento=documento,
-                data_checkout__isnull=True,
-            )
-            if self.instance:
-                qs = qs.exclude(pk=self.instance.pk)
-            if qs.exists():
+            if documento_duplicado_ativo(
+                hotel,
+                documento,
+                exclude_pk=self.instance.pk if self.instance else None,
+            ):
                 raise serializers.ValidationError(
                     {'documento': 'Já existe hóspede ativo com este documento neste hotel.'}
                 )
@@ -130,7 +131,8 @@ class PasseioSerializer(serializers.ModelSerializer):
         model = Passeio
         fields = [
             'id', 'hotel', 'dia_semana', 'dia_semana_label',
-            'titulo', 'descricao', 'ordem', 'ativo',
+            'titulo', 'descricao', 'hora_saida', 'hora_retorno',
+            'ponto_encontro', 'vagas', 'preco', 'ordem', 'ativo',
         ]
         read_only_fields = ['id']
 

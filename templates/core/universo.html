@@ -1,22 +1,226 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Universo Vulcãozinho — Visão Completa{% endblock %}
+{% block title %}Universo Vulcãozinho — História em Quadrinhos{% endblock %}
 
 {% block content %}
-<section class="hero">
+<section class="hero hero-quadrinho">
     <span class="hotel-badge">Universo Vulcãozinho Inn</span>
-    <h2>Mapa Completo da Recreação</h2>
-    <p>Missão, valores, faixas etárias, programação, passaporte, moedas, loja, telão e app do hóspede.</p>
+    <h2>🌋 A História do Vulcãozinho</h2>
+    <p class="hero-lema">"O calor que vem da terra. A alegria que vem do coração."</p>
 </section>
 
-<div class="universo-img-wrap">
-    <img src="{% static 'img/universo-completo.png' %}" alt="Infográfico Universo Vulcãozinho Inn" class="universo-img">
-</div>
+<nav class="universo-tabs" aria-label="Seções do Universo">
+    <a href="#historia" class="universo-tab active">📚 Quadrinhos</a>
+    <a href="#galeria" class="universo-tab">📷 Galeria</a>
+    <a href="#cristais" class="universo-tab">🌈 Cristais</a>
+    <a href="#mapa" class="universo-tab">🗺️ Mapa</a>
+</nav>
+
+<section id="historia" class="quadrinhos-section">
+    <div class="quadrinho-poster-wrap glass-card">
+        <div class="quadrinho-poster-head">
+            <h3>📖 Edição completa — O Guardião das Águas Termais</h3>
+            <button type="button" class="quadrinho-btn-zoom" id="quadrinho-zoom"
+                    data-src="{% static 'img/galeria/historia-quadrinhos.png' %}"
+                    data-caption="A História do Vulcãozinho — quadrinhos completos">
+                🔍 Ampliar
+            </button>
+        </div>
+        <button type="button" class="quadrinho-poster-btn galeria-item"
+                data-src="{% static 'img/galeria/historia-quadrinhos.png' %}"
+                data-caption="A História do Vulcãozinho — quadrinhos completos">
+            <img src="{% static 'img/galeria/historia-quadrinhos.png' %}"
+                 alt="Quadrinhos completos — A História do Vulcãozinho, O Guardião das Águas Termais"
+                 class="quadrinho-poster">
+        </button>
+        <p class="quadrinho-poster-hint">Clique na imagem para ver em tela cheia · role os painéis abaixo</p>
+    </div>
+
+    <div class="quadrinhos-reader" id="quadrinhos-reader">
+        <div class="quadrinhos-reader-toolbar">
+            <button type="button" class="quadrinho-nav" id="quad-prev" aria-label="Painel anterior">‹</button>
+            <span class="quadrinho-counter" id="quad-counter">Painel 1 de 12</span>
+            <button type="button" class="quadrinho-nav" id="quad-next" aria-label="Próximo painel">›</button>
+            <button type="button" class="quadrinho-nav quadrinho-nav-grid" id="quad-grid-toggle" title="Ver todos">⊞</button>
+        </div>
+
+        <div class="quadrinhos-panels" id="quadrinhos-panels">
+            <article class="quadrinho-panel active" data-panel="1">
+                <span class="quadrinho-num">1</span>
+                <div class="quadrinho-art quad-art-vulcao">🌋</div>
+                <div class="quadrinho-balao">
+                    <p>O vulcão era forte e poderoso. Sua energia vinha do coração da Terra!</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="2">
+                <span class="quadrinho-num">2</span>
+                <div class="quadrinho-art quad-art-agua">💧</div>
+                <div class="quadrinho-balao">
+                    <p>Com o tempo, o vulcão adormeceu. Mas sua energia ficou aqui, aquecendo as águas que brotam da terra até hoje.</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="3">
+                <span class="quadrinho-num">3</span>
+                <div class="quadrinho-art quad-art-nascimento">✨</div>
+                <div class="quadrinho-balao">
+                    <p>Diz a lenda que, no coração desse vulcão, nasceu um pequeno guardião chamado… <strong>Vulcãozinho!</strong></p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="4">
+                <span class="quadrinho-num">4</span>
+                <div class="quadrinho-art quad-art-coracao">❤️</div>
+                <div class="quadrinho-balao">
+                    <p>Ele não nasceu para destruir. Nasceu para <strong>aquecer</strong>! As águas, os corações, as amizades — e transformar cada viagem em lembrança inesquecível.</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="5">
+                <span class="quadrinho-num">5</span>
+                <div class="quadrinho-art quad-art-viagem">🧳</div>
+                <div class="quadrinho-balao">
+                    <p>Desde então, Vulcãozinho percorre os hotéis da <strong>Rede Nacional Inn</strong>, levando alegria para crianças, famílias e amigos de todo o Brasil.</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="6">
+                <span class="quadrinho-num">6</span>
+                <div class="quadrinho-art quad-art-missao">🎯</div>
+                <div class="quadrinho-balao">
+                    <p>Sua missão é simples: fazer cada hóspede sentir o <strong>calor da hospitalidade</strong> de Poços de Caldas.</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="7">
+                <span class="quadrinho-num">7</span>
+                <div class="quadrinho-art quad-art-poderes">🌈</div>
+                <div class="quadrinho-balao">
+                    <p><strong>Seus poderes:</strong> espalhar alegria · criar amizades · transformar férias em aventuras · proteger as águas termais · histórias inesquecíveis.</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="8">
+                <span class="quadrinho-num">8</span>
+                <div class="quadrinho-art quad-art-amigos">🤝</div>
+                <div class="quadrinho-balao">
+                    <p><strong>Seus amigos:</strong> Pequenos Guardiões · Liga da Aventura · Exploradores das Águas Termais · Guardiões da Memória.</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="9">
+                <span class="quadrinho-num">9</span>
+                <div class="quadrinho-art quad-art-cristais">💎</div>
+                <div class="quadrinho-balao">
+                    <p>Os <strong>Sete Cristais da Diversão</strong> e o Passaporte Vulcãozinho — cada atividade rende um carimbo!</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="10">
+                <span class="quadrinho-num">10</span>
+                <div class="quadrinho-art quad-art-semana">📅</div>
+                <div class="quadrinho-balao">
+                    <p>Cada dia da semana Vulcãozinho desperta um cristal: Alegria · Coragem · Amizade · Criatividade · Música · Aventura · Família.</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="11">
+                <span class="quadrinho-num">11</span>
+                <div class="quadrinho-art quad-art-festa">🎉</div>
+                <div class="quadrinho-balao">
+                    <p>Quando a noite chega, o vulcão se ilumina e celebra com música, dança e amizade!</p>
+                </div>
+            </article>
+            <article class="quadrinho-panel" data-panel="12">
+                <span class="quadrinho-num">12</span>
+                <div class="quadrinho-art quad-art-bemvindo">👋</div>
+                <div class="quadrinho-balao quadrinho-balao-final">
+                    <p><strong>Bem-vindo ao Universo Vulcãozinho!</strong></p>
+                    <p class="quadrinho-lema">O calor que vem da terra. A alegria que vem do coração.</p>
+                </div>
+            </article>
+        </div>
+
+        <div class="quadrinho-hoteis">
+            <div class="quadrinho-hotel quad-hotel-nacional">🟢 <strong>Nacional Inn</strong><br>Natureza, bem-estar e acolhimento</div>
+            <div class="quadrinho-hotel quad-hotel-euro">🍷 <strong>Euro Suite</strong><br>Elegância, conforto e experiências</div>
+            <div class="quadrinho-hotel quad-hotel-dan">🔵 <strong>Dan Inn</strong><br>Diversão, aventura e energia</div>
+        </div>
+
+        <p class="historia-passaporte">
+            <a href="{% url 'passaporte' %}">🛂 Ver Passaporte Vulcãozinho →</a>
+        </p>
+    </div>
+</section>
+
+<section id="galeria" class="universo-galeria">
+    <h3 class="section-title">📷 Galeria do Universo</h3>
+    <p class="section-sub">Quadrinhos, personagem, telão e mapas</p>
+    <div class="galeria-grid" id="galeria-grid">
+        <button type="button" class="galeria-item" data-src="{% static 'img/galeria/historia-quadrinhos.png' %}" data-caption="História em quadrinhos — edição completa">
+            <img src="{% static 'img/galeria/historia-quadrinhos.png' %}" alt="Quadrinhos Vulcãozinho">
+            <span>História em Quadrinhos</span>
+        </button>
+        <button type="button" class="galeria-item" data-src="{% static 'img/galeria/vulcaozinho-personagem.png' %}" data-caption="Vulcãozinho Inn — identidade visual">
+            <img src="{% static 'img/galeria/vulcaozinho-personagem.png' %}" alt="Personagem Vulcãozinho Inn">
+            <span>Identidade Vulcãozinho</span>
+        </button>
+        <button type="button" class="galeria-item" data-src="{% static 'img/galeria/telao-recreacao.png' %}" data-caption="Telão da recreação">
+            <img src="{% static 'img/galeria/telao-recreacao.png' %}" alt="Telão da recreação">
+            <span>Telão da Recreação</span>
+        </button>
+        <button type="button" class="galeria-item" data-src="{% static 'img/universo-completo.png' %}" data-caption="Mapa completo da recreação">
+            <img src="{% static 'img/universo-completo.png' %}" alt="Infográfico Universo">
+            <span>Mapa da Recreação</span>
+        </button>
+        <button type="button" class="galeria-item" data-src="{% static 'img/mascote-vulcaozinho.png' %}" data-caption="Mascote Vulcãozinho">
+            <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Mascote">
+            <span>Mascote Oficial</span>
+        </button>
+        <button type="button" class="galeria-item" data-src="{% static 'img/noites-tematicas.png' %}" data-caption="Noites temáticas">
+            <img src="{% static 'img/noites-tematicas.png' %}" alt="Noites temáticas">
+            <span>Noites Temáticas</span>
+        </button>
+    </div>
+</section>
+
+<dialog id="galeria-lightbox" class="galeria-lightbox" aria-label="Visualizador de imagem">
+    <div class="galeria-lightbox-toolbar">
+        <p id="galeria-lightbox-caption" class="galeria-lightbox-caption"></p>
+        <button type="button" class="galeria-lightbox-close" aria-label="Fechar">✕ Fechar</button>
+    </div>
+    <div class="galeria-lightbox-stage">
+        <img id="galeria-lightbox-img" src="" alt="">
+    </div>
+    <p class="galeria-lightbox-hint">Clique fora da imagem ou pressione Esc para fechar</p>
+</dialog>
+
+<section id="cristais" class="universo-cristais glass-card">
+    <h3 class="section-title">🌈 Os Sete Cristais da Diversão</h3>
+    <p>Toda semana, os hóspedes ajudam Vulcãozinho a fortalecer esses cristais participando das atividades.</p>
+    <div class="cristais-grid">
+        <div class="cristal-chip">❤️ Amor</div>
+        <div class="cristal-chip">💛 Alegria</div>
+        <div class="cristal-chip">💙 Amizade</div>
+        <div class="cristal-chip">💚 Natureza</div>
+        <div class="cristal-chip">🧡 Coragem</div>
+        <div class="cristal-chip">💜 Diversão</div>
+        <div class="cristal-chip">🤍 Família</div>
+    </div>
+    <h4 class="cristais-semana-title">Cristal do dia — programação da semana</h4>
+    <ul class="cristais-semana">
+        <li><strong>Segunda</strong> — Cristal da Alegria 😊</li>
+        <li><strong>Terça</strong> — Cristal da Coragem 💪</li>
+        <li><strong>Quarta</strong> — Cristal da Amizade 🤝</li>
+        <li><strong>Quinta</strong> — Cristal da Criatividade 🎨</li>
+        <li><strong>Sexta</strong> — Cristal da Música 🎵</li>
+        <li><strong>Sábado</strong> — Cristal da Aventura 🧭</li>
+        <li><strong>Domingo</strong> — Cristal da Família ❤️</li>
+    </ul>
+</section>
+
+<section id="mapa" class="universo-mapa">
+    <h3 class="section-title">🗺️ Mapa Completo da Recreação</h3>
+    <div class="universo-img-wrap">
+        <img src="{% static 'img/universo-completo.png' %}" alt="Infográfico Universo Vulcãozinho Inn" class="universo-img">
+    </div>
+</section>
 
 <div class="cards-grid" style="margin-top:1.5rem;">
     <div class="card">
-        <div class="card-icon">🌋</div>
+        <div class="card-icon">👥</div>
         <h3>4 Faixas (Ages)</h3>
         <p>Kids 7–12 · Teen 13–17 · Adultos 18–59 · Melhor Idade 60+</p>
         <a href="{% url 'faixas' %}" style="color:var(--hotel-primary);font-weight:700;font-size:0.875rem;">Ver faixas →</a>
@@ -40,4 +244,8 @@
         <a href="{% url 'passaporte' %}" style="color:var(--hotel-primary);font-weight:700;font-size:0.875rem;">Ver passaporte →</a>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/universo.js' %}"></script>
 {% endblock %}

@@ -3,6 +3,9 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views import View
 
+from .auth_utils import usuario_tem_papel
+from .hoteis import hoteis_rede_queryset
+from .views_programacao import PAPEIS_PUBLICAR_TELAO, grade_publicada_hoje
 from .models import (
     CategoriaProgramacao,
     Hospede,
@@ -23,7 +26,7 @@ HORARIOS_FIXOS = [
 
 
 def selecionar_hotel(request, slug):
-    if Hotel.objects.filter(slug=slug, ativo=True).exists():
+    if hoteis_rede_queryset().filter(slug=slug).exists():
         request.session['hotel_slug'] = slug
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -71,6 +74,7 @@ class ProgramacaoView(View):
         programacoes = ProgramacaoDiaria.objects.filter(
             hotel=hotel, data=hoje
         ).select_related('atividade', 'local', 'categoria', 'recreador').order_by('hora_inicio')
+        total_atividades = programacoes.count()
 
         grade = {cat.id: [] for cat in categorias}
         sem_categoria = []
@@ -82,10 +86,21 @@ class ProgramacaoView(View):
 
         colunas = [{'categoria': cat, 'programacoes': grade.get(cat.id, [])} for cat in categorias]
 
+        pub = grade_publicada_hoje(hotel, hoje)
+        pode_gestao = (
+            request.user.is_authenticated
+            and usuario_tem_papel(request.user, PAPEIS_PUBLICAR_TELAO)
+        )
+
         return render(request, 'core/programacao.html', {
             'colunas': colunas,
             'sem_categoria': sem_categoria,
             'horarios_fixos': HORARIOS_FIXOS,
+            'hoje': hoje,
+            'total_atividades': total_atividades,
+            'pode_publicar_telao': pode_gestao,
+            'pode_editar_programacao': pode_gestao,
+            'grade_no_telao': pub,
         })
 
 
@@ -190,5 +205,5 @@ class PassaporteView(View):
 def _hotel_atual(request):
     slug = request.session.get('hotel_slug')
     if slug:
-        return Hotel.objects.filter(slug=slug, ativo=True).first()
-    return Hotel.objects.filter(ativo=True).first()
+        return hoteis_rede_queryset().filter(slug=slug).first()
+    return hoteis_rede_queryset().first()

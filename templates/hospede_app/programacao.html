@@ -1,0 +1,44 @@
+{% extends 'hospede_app/base.html' %}
+
+{% block title %}Programação{% endblock %}
+
+{% block content %}
+<header class="app-page-head">
+    <h1>📅 Programação</h1>
+    <p>{{ hoje|date:"l, d/m/Y" }}</p>
+</header>
+
+{% if categoria %}
+<section class="app-section">
+    <h2 class="app-section-title" style="color: {{ categoria.cor }}">
+        {{ categoria.icone }} {{ categoria.nome }} — sua faixa
+    </h2>
+    <div class="app-atividades-lista">
+        {% for p in minha_faixa %}
+        <article class="app-atividade-item">
+            <span class="app-atividade-hora">{{ p.hora_inicio|time:"H:i" }} – {{ p.hora_fim|time:"H:i" }}</span>
+            <h3>{{ p.atividade.icone|default:"⭐" }} {{ p.atividade.nome }}</h3>
+            <p>{{ p.local.nome }}{% if p.recreador %} · {{ p.recreador.nome }}{% endif %}</p>
+        </article>
+        {% empty %}
+        <p class="app-empty">Nenhuma atividade na sua faixa hoje.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if outras %}
+<section class="app-section">
+    <h2 class="app-section-title">Outras faixas</h2>
+    <div class="app-atividades-lista app-atividades-muted">
+        {% for p in outras %}
+        <article class="app-atividade-item">
+            <span class="app-atividade-hora">{{ p.hora_inicio|time:"H:i" }}</span>
+            <h3>{{ p.atividade.nome }}</h3>
+            <p>{% if p.categoria %}{{ p.categoria.icone }} {{ p.categoria.nome }} · {% endif %}{{ p.local.nome }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

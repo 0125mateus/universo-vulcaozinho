@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestão — Passeios{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🌴 Gestão de Passeios</h2>
+    <p>{{ hotel_atual.nome }} · passeios semanais por dia</p>
+</section>
+
+<div class="rec-toolbar">
+    <div></div>
+    <a href="{% url 'passeio_novo' %}" class="rec-btn rec-btn-primary">+ Novo passeio</a>
+</div>
+
+{% for dia in dias %}
+<section class="passeios-dia">
+    <div class="passeios-dia-head">
+        <h3>{{ dia.label }}</h3>
+        <a href="{% url 'passeio_novo' %}?dia={{ dia.valor }}" class="rec-link-sm">+ adicionar neste dia</a>
+    </div>
+
+    {% if dia.passeios %}
+    <div class="rec-table-wrap">
+        <table class="rec-table">
+            <thead>
+                <tr>
+                    <th>Passeio</th>
+                    <th>Horário</th>
+                    <th>Ponto de encontro</th>
+                    <th>Vagas</th>
+                    <th>Preço</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in dia.passeios %}
+                <tr>
+                    <td><strong>{{ p.titulo }}</strong><br><small>{{ p.descricao|truncatechars:60 }}</small></td>
+                    <td>
+                        {% if p.hora_saida %}{{ p.hora_saida|time:"H:i" }}{% else %}—{% endif %}
+                        {% if p.hora_retorno %}– {{ p.hora_retorno|time:"H:i" }}{% endif %}
+                    </td>
+                    <td>{{ p.ponto_encontro|default:"—" }}</td>
+                    <td>{% if p.vagas %}{{ p.vagas }}{% else %}<span class="rec-muted">ilimitado</span>{% endif %}</td>
+                    <td>{% if p.is_gratuito %}<span class="rec-tag">Incluso</span>{% else %}R$ {{ p.preco }}{% endif %}</td>
+                    <td>{% if p.ativo %}<span class="rec-tag">Ativo</span>{% else %}<span class="rec-tag rec-tag-warn">Inativo</span>{% endif %}</td>
+                    <td class="rec-table-actions">
+                        <a href="{% url 'passeio_editar' p.pk %}" class="rec-btn rec-btn-sm rec-btn-primary">Editar</a>
+                        <a href="{% url 'passeio_excluir' p.pk %}" class="rec-btn rec-btn-sm rec-btn-danger">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="rec-empty passeios-vazio">Nenhum passeio neste dia.</p>
+    {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

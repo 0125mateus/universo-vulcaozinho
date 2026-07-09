@@ -81,7 +81,8 @@ body:has(.telao-bezel:-webkit-full-screen) {
 .telao-screen {
     display: flex;
     flex-direction: column;
-    min-height: min(78vh, 720px);
+    height: min(78vh, 720px);
+    max-height: 100vh;
     color: #fff;
     background: linear-gradient(165deg,
         color-mix(in srgb, var(--telao-primary, #003d7a) 85%, #001a33) 0%,
@@ -102,16 +103,18 @@ body:has(.telao-bezel:-webkit-full-screen) {
 .telao-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: 22% 1fr 24%;
-    gap: 1.25rem;
-    padding: 1.5rem 1.5rem 0.75rem;
+    grid-template-columns: 18% 1fr 20%;
+    gap: 0.65rem;
+    padding: 0.65rem 0.75rem 0.4rem;
     min-height: 0;
+    overflow: hidden;
 }
 
 .telao-col-left {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.45rem;
+    min-height: 0;
 }
 
 .telao-widget {
@@ -126,12 +129,12 @@ body:has(.telao-bezel:-webkit-full-screen) {
 }
 
 .telao-widget-clock {
-    flex: 1.2;
-    min-height: 120px;
+    flex: 0 0 auto;
+    min-height: 72px;
 }
 
 .telao-widget-clock span {
-    font-size: clamp(3rem, 6vw, 5rem);
+    font-size: clamp(1.75rem, 4vw, 3rem);
     font-weight: 800;
     color: var(--telao-accent, #ffcc00);
     letter-spacing: 0.02em;
@@ -139,56 +142,57 @@ body:has(.telao-bezel:-webkit-full-screen) {
 }
 
 .telao-widget-weather {
-    flex: 1;
-    min-height: 100px;
-    gap: 0.5rem;
+    flex: 0 0 auto;
+    min-height: 56px;
+    gap: 0.35rem;
     flex-direction: row;
-    padding: 1rem;
+    padding: 0.45rem;
 }
 
-.weather-icon { font-size: 2.5rem; }
+.weather-icon { font-size: 1.5rem; }
 .weather-temp {
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: clamp(1.1rem, 2.5vw, 1.75rem);
     font-weight: 800;
     color: #fff;
 }
 
 .telao-widget-weather-label {
-    min-height: 70px;
-    gap: 0.5rem;
-    font-size: 1.35rem;
+    min-height: 48px;
+    gap: 0.3rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    padding: 0.75rem;
+    padding: 0.4rem;
 }
 
 .telao-widget-passeio {
     flex-direction: column;
-    gap: 0.35rem;
-    padding: 0.85rem;
-    min-height: 90px;
-    font-size: 0.95rem;
+    gap: 0.2rem;
+    padding: 0.45rem;
+    min-height: 56px;
+    font-size: 0.72rem;
     font-weight: 700;
 }
 
 .telao-passeio-label {
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
     opacity: 0.9;
 }
 
 .telao-passeio-title {
-    font-size: 1.05rem;
-    line-height: 1.25;
+    font-size: 0.78rem;
+    line-height: 1.2;
     color: var(--telao-accent, #ffcc00);
 }
 
 /* Painel central — próxima atividade */
 .telao-col-center {
     position: relative;
-    border-radius: 20px;
+    border-radius: 14px;
     overflow: hidden;
-    border: 3px solid rgba(255, 255, 255, 0.25);
-    min-height: 320px;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    min-height: 0;
+    min-width: 0;
 }
 
 .telao-hero-bg {
@@ -203,7 +207,7 @@ body:has(.telao-bezel:-webkit-full-screen) {
 .telao-hero-content {
     position: relative;
     z-index: 2;
-    padding: 2rem 2rem 6rem;
+    padding: 0.75rem 1rem;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -213,50 +217,237 @@ body:has(.telao-bezel:-webkit-full-screen) {
 }
 
 .telao-hero-label {
-    font-size: clamp(1rem, 2vw, 1.35rem);
+    font-size: clamp(0.65rem, 1.1vw, 0.85rem);
     font-weight: 700;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.95);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.3rem;
 }
 
 .telao-hero-title {
-    font-size: clamp(2rem, 5.5vw, 4.2rem);
+    font-size: clamp(1rem, 2.4vw, 1.85rem);
     font-weight: 800;
     color: var(--telao-accent, #ffcc00);
     text-transform: uppercase;
-    line-height: 1.08;
-    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
-    margin-bottom: 0.5rem;
+    line-height: 1.1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    margin-bottom: 0.25rem;
     max-width: 95%;
 }
 
 .telao-hero-time {
-    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-size: clamp(1.1rem, 2.5vw, 2rem);
     font-weight: 800;
     color: #fff;
     line-height: 1;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .telao-hero-local {
-    margin-top: 0.5rem;
-    font-size: 1.1rem;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
     font-weight: 600;
     opacity: 0.9;
 }
 
-.telao-mascot {
-    position: absolute;
-    right: 1rem;
-    bottom: 0;
-    width: clamp(110px, 20vw, 220px);
-    height: auto;
-    z-index: 3;
-    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
-    pointer-events: none;
-    object-fit: contain;
+/* Grade completa — cards por faixa (estilo programação) */
+.telao-modo-grade {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    background: transparent;
+    border-color: color-mix(in srgb, var(--telao-accent, #ffcc00) 35%, rgba(255, 255, 255, 0.25)) !important;
+}
+
+.telao-modo-grade .telao-hero-content[hidden] {
+    display: none !important;
+}
+
+.telao-modo-grade .telao-hero-bg {
+    background: linear-gradient(165deg,
+        color-mix(in srgb, var(--telao-primary, #003d7a) 90%, #001a33) 0%,
+        color-mix(in srgb, var(--telao-secondary, var(--telao-primary, #003d7a)) 75%, #000814) 48%,
+        color-mix(in srgb, var(--telao-primary, #003d7a) 55%, #000814) 100%);
+    z-index: 0;
+}
+
+.telao-screen-grade .telao-grid {
+    grid-template-columns: 10% 1fr 13%;
+    gap: 0.5rem;
+    padding: 0.5rem 0.6rem 0.35rem;
+}
+
+.telao-screen-grade .telao-widget {
+    border-radius: 10px;
+    border-width: 1px;
+}
+
+.telao-screen-grade .telao-widget-clock {
+    min-height: 52px;
+}
+
+.telao-screen-grade .telao-widget-clock span {
+    font-size: clamp(1.35rem, 2.8vw, 2rem);
+}
+
+.telao-screen-grade .telao-widget-weather-label,
+.telao-screen-grade .telao-widget-passeio {
+    display: none;
+}
+
+.telao-screen-grade .telao-col-left {
+    gap: 0.3rem;
+}
+
+.telao-screen-grade .telao-col-right {
+    padding: 0.25rem 0;
+}
+
+.telao-screen-grade .telao-meta {
+    display: none;
+}
+
+.telao-screen-grade .telao-widget-weather {
+    min-height: 36px;
+    padding: 0.25rem;
+    font-size: 0.65rem;
+}
+
+.telao-screen-grade .weather-icon { font-size: 1.1rem; }
+.telao-screen-grade .weather-temp { font-size: 1rem; }
+
+.telao-screen-grade .telao-nivers-title {
+    font-size: 0.65rem;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+}
+
+.telao-screen-grade .telao-nivers-list li {
+    padding: 0.3rem 0;
+    font-size: 0.72rem;
+}
+
+.telao-grade-board {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0.45rem 0.5rem 0.5rem;
+    overflow: hidden;
+}
+
+.telao-grade-board-head {
+    text-align: center;
+    margin-bottom: 0.45rem;
+    flex-shrink: 0;
+}
+
+.telao-grade-board-title {
+    font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--telao-accent, #ffcc00);
+}
+
+.telao-grade-board-data {
+    font-size: clamp(0.62rem, 1vw, 0.78rem);
+    color: rgba(255, 255, 255, 0.82);
+    margin-top: 0.1rem;
+    font-weight: 600;
+}
+
+.telao-grade-colunas {
+    flex: 1;
+    display: grid;
+    gap: clamp(0.35rem, 0.8vw, 0.65rem);
+    overflow: hidden;
+    min-height: 0;
+    align-content: stretch;
+}
+
+.telao-grade-coluna {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    height: 100%;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(0, 0, 0, 0.06);
+}
+
+.telao-grade-col-head {
+    background: var(--faixa-cor, #1E6B43);
+    color: #fff;
+    padding: clamp(0.35rem, 0.9vw, 0.65rem) 0.4rem;
+    text-align: center;
+    line-height: 1.25;
+    flex-shrink: 0;
+    font-size: clamp(0.58rem, 1.05vw, 0.82rem);
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.telao-grade-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.telao-grade-atividade {
+    padding: clamp(0.3rem, 0.7vw, 0.55rem) clamp(0.35rem, 0.8vw, 0.65rem);
+    border-bottom: 2px dashed #f0e8dc;
+    line-height: 1.25;
+}
+
+.telao-grade-atividade:last-child { border-bottom: none; }
+
+.telao-grade-atividade-now {
+    background: #fffbea;
+    box-shadow: inset 3px 0 0 var(--telao-accent, #ffcc00);
+}
+
+.telao-grade-hora {
+    display: inline-block;
+    font-size: clamp(0.52rem, 0.85vw, 0.72rem);
+    font-weight: 800;
+    color: #e67e22;
+    background: #fff3e0;
+    padding: 0.1rem 0.35rem;
+    border-radius: 5px;
+    margin-bottom: 0.15rem;
+}
+
+.telao-grade-nome {
+    font-size: clamp(0.58rem, 1vw, 0.82rem);
+    font-weight: 800;
+    color: #1a1a1a;
+    line-height: 1.2;
+}
+
+.telao-grade-meta {
+    font-size: clamp(0.5rem, 0.82vw, 0.68rem);
+    color: #888;
+    font-weight: 600;
+    margin-top: 0.1rem;
+}
+
+.telao-grade-vazio {
+    padding: 0.65rem 0.5rem;
+    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    color: #999;
+    text-align: center;
+    font-weight: 600;
 }
 
 /* Aniversariantes */
@@ -309,10 +500,11 @@ body:has(.telao-bezel:-webkit-full-screen) {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     background: color-mix(in srgb, var(--telao-primary, #002b5c) 70%, #000814);
-    border-top: 3px solid rgba(255, 255, 255, 0.12);
-    margin: 0 1rem 0.5rem;
-    border-radius: 12px 12px 0 0;
+    border-top: 2px solid rgba(255, 255, 255, 0.12);
+    margin: 0 0.55rem 0.3rem;
+    border-radius: 8px 8px 0 0;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .telao-nav-item {
@@ -320,13 +512,13 @@ body:has(.telao-bezel:-webkit-full-screen) {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
-    padding: 1rem 0.5rem;
+    gap: 0.2rem;
+    padding: 0.55rem 0.35rem;
     text-decoration: none;
     color: #fff;
-    font-size: clamp(0.65rem, 1.2vw, 0.85rem);
+    font-size: clamp(0.55rem, 1vw, 0.72rem);
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     border-right: 1px solid rgba(255, 255, 255, 0.15);
     transition: background 0.2s;
 }
@@ -335,7 +527,7 @@ body:has(.telao-bezel:-webkit-full-screen) {
 .telao-nav-item:hover { background: rgba(255, 255, 255, 0.08); }
 
 .telao-nav-icon {
-    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-size: clamp(1.1rem, 2.2vw, 1.5rem);
     position: relative;
     line-height: 1;
 }
@@ -368,6 +560,9 @@ body.hotel-nacional-inn .telao-widget {
     background: rgba(0, 104, 56, 0.55);
     border-color: rgba(141, 198, 63, 0.5);
 }
+body.hotel-nacional-inn .telao-modo-grade .telao-hero-bg {
+    background: linear-gradient(165deg, #006838 0%, #004d28 50%, #003318 100%);
+}
 
 body.hotel-euro-suite .telao-screen {
     background: linear-gradient(165deg, #6B1C2F 0%, #4a1220 50%, #2a0a12 100%);
@@ -376,6 +571,9 @@ body.hotel-euro-suite .telao-widget {
     background: rgba(237, 30, 121, 0.4);
     border-color: rgba(247, 148, 29, 0.45);
 }
+body.hotel-euro-suite .telao-modo-grade .telao-hero-bg {
+    background: linear-gradient(165deg, #6B1C2F 0%, #4a1220 50%, #2a0a12 100%);
+}
 
 body.hotel-dan-inn .telao-screen {
     background: linear-gradient(165deg, #002855 0%, #001d40 50%, #001028 100%);
@@ -383,6 +581,9 @@ body.hotel-dan-inn .telao-screen {
 body.hotel-dan-inn .telao-widget {
     background: rgba(0, 174, 239, 0.35);
     border-color: rgba(0, 114, 188, 0.5);
+}
+body.hotel-dan-inn .telao-modo-grade .telao-hero-bg {
+    background: linear-gradient(165deg, #002855 0%, #001d40 50%, #001028 100%);
 }
 
 /* Responsivo TV / tablet */
@@ -425,8 +626,13 @@ body.telao-tv-mode .telao-bezel {
 }
 
 body.telao-tv-mode .telao-screen {
+    height: 100vh;
     min-height: 100vh;
     border-radius: 0;
+}
+
+body.telao-tv-mode .telao-meta {
+    display: none;
 }
 
 body.telao-tv-mode .telao-nav-bar {

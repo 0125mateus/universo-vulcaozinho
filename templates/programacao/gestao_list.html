@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestão — Programação{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>📅 Gestão da Programação</h2>
+    <p>{{ hotel_atual.nome }} · editar horários e atividades</p>
+</section>
+
+<div class="rec-toolbar programacao-gestao-toolbar">
+    <form method="get" class="programacao-data-filtro">
+        <label for="data">Dia</label>
+        <input type="date" id="data" name="data" value="{{ data_filtro|date:'Y-m-d' }}" class="rec-input">
+        <button type="submit" class="rec-btn rec-btn-ghost">Filtrar</button>
+    </form>
+    <div class="programacao-gestao-actions">
+        <a href="{% url 'programacao' %}" class="rec-btn rec-btn-ghost">Ver grade pública</a>
+        <a href="{% url 'programacao_novas' %}?data={{ data_filtro|date:'Y-m-d' }}" class="rec-btn rec-btn-ghost">☑️ Várias atividades</a>
+        <a href="{% url 'programacao_nova' %}?data={{ data_filtro|date:'Y-m-d' }}" class="rec-btn rec-btn-primary">+ Uma atividade</a>
+    </div>
+</div>
+
+<form method="post" action="{% url 'programacao_acao_lote' %}" id="form-prog-lote">
+    {% csrf_token %}
+    <input type="hidden" name="data" value="{{ data_filtro|date:'Y-m-d' }}">
+
+    <div class="prog-lote-bar" id="prog-lote-bar" hidden>
+        <span id="prog-lote-count">0 selecionada(s)</span>
+        <label class="prog-lote-duplicate">
+            Duplicar para
+            <input type="date" name="target_date" class="rec-input" value="{{ data_filtro|date:'Y-m-d' }}">
+        </label>
+        <button type="submit" name="action" value="duplicate" class="rec-btn rec-btn-sm rec-btn-ghost">Duplicar</button>
+        <button type="submit" name="action" value="delete" class="rec-btn rec-btn-sm rec-btn-primary"
+                onclick="return confirm('Excluir as atividades selecionadas?');">Excluir selecionadas</button>
+    </div>
+
+    <div class="rec-table-wrap">
+        <table class="rec-table">
+            <thead>
+                <tr>
+                    <th class="prog-col-check">
+                        <input type="checkbox" id="prog-select-all" title="Selecionar todas" aria-label="Selecionar todas">
+                    </th>
+                    <th>Horário</th>
+                    <th>Atividade</th>
+                    <th>Faixa</th>
+                    <th>Local</th>
+                    <th>Recreador</th>
+                    <th>Vagas</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in programacoes %}
+                <tr>
+                    <td class="prog-col-check">
+                        <input type="checkbox" name="ids" value="{{ p.pk }}" class="prog-row-check" aria-label="Selecionar {{ p.atividade.nome }}">
+                    </td>
+                    <td><strong>{{ p.hora_inicio|time:"H:i" }} – {{ p.hora_fim|time:"H:i" }}</strong></td>
+                    <td>{{ p.atividade.icone|default:"⭐" }} {{ p.atividade.nome }}</td>
+                    <td>{% if p.categoria %}{{ p.categoria.icone }} {{ p.categoria.nome }}{% else %}—{% endif %}</td>
+                    <td>{{ p.local.nome }}</td>
+                    <td>{{ p.recreador.nome|default:"—" }}</td>
+                    <td>{{ p.vagas_ocupadas }}/{{ p.vagas_total }}</td>
+                    <td class="rec-table-actions">
+                        <a href="{% url 'programacao_editar' p.pk %}" class="rec-btn rec-btn-sm rec-btn-primary">Editar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="rec-empty">
+                        Nenhuma atividade em {{ data_filtro|date:"d/m/Y" }}.
+                        <a href="{% url 'programacao_novas' %}?data={{ data_filtro|date:'Y-m-d' }}">Adicionar várias</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/programacao-gestao.js' %}"></script>
+{% endblock %}

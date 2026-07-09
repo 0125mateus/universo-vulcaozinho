@@ -7,6 +7,7 @@ from .models import (
     Hospede,
     Hotel,
     InscricaoAtividade,
+    InscricaoPasseio,
     LocalAtividade,
     MensagemReuniao,
     NoiteTematica,
@@ -15,6 +16,7 @@ from .models import (
     PerfilUsuario,
     PresencaRegistro,
     ProdutoLoja,
+    EventoRecreacao,
     ProgramacaoDiaria,
     Recreador,
     SalaReuniao,
@@ -24,10 +26,16 @@ from .models import (
 
 @admin.register(Hotel)
 class HotelAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'rede_marca', 'cidade', 'cor_primaria', 'ativo')
+    list_display = ('nome', 'rede_marca', 'cidade', 'cor_primaria', 'pix_chave', 'ativo')
     list_filter = ('ativo', 'rede_marca', 'estado')
     search_fields = ('nome', 'slug', 'cidade')
     prepopulated_fields = {'slug': ('nome',)}
+    fieldsets = (
+        (None, {'fields': ('nome', 'slug', 'rede_marca', 'slogan', 'ativo')}),
+        ('Localização e contato', {'fields': ('endereco', 'cidade', 'estado', 'telefone')}),
+        ('Cores do tema', {'fields': ('cor_primaria', 'cor_secundaria', 'cor_destaque', 'cor_terciaria')}),
+        ('Pagamento PIX (passeios)', {'fields': ('pix_chave', 'pix_beneficiario')}),
+    )
 
 
 @admin.register(CategoriaProgramacao)
@@ -92,7 +100,7 @@ class PresencaRegistroInline(admin.TabularInline):
 class ProgramacaoDiariaAdmin(admin.ModelAdmin):
     list_display = (
         'data', 'hora_inicio', 'atividade', 'categoria', 'local',
-        'recreador', 'hotel', 'vagas_total', 'vagas_ocupadas_display',
+        'recreador', 'hotel', 'realizado', 'vagas_total', 'vagas_ocupadas_display',
     )
     list_filter = ('hotel', 'data', 'categoria')
     search_fields = ('atividade__nome', 'local__nome')
@@ -102,6 +110,16 @@ class ProgramacaoDiariaAdmin(admin.ModelAdmin):
     @admin.display(description='inscritos')
     def vagas_ocupadas_display(self, obj):
         return obj.vagas_ocupadas
+
+
+@admin.register(EventoRecreacao)
+class EventoRecreacaoAdmin(admin.ModelAdmin):
+    list_display = (
+        'data_inicio', 'nome', 'hotel', 'prestador', 'orcamento', 'status', 'responsavel',
+    )
+    list_filter = ('hotel', 'status', 'mes_referencia')
+    search_fields = ('nome', 'prestador', 'descricao')
+    date_hierarchy = 'data_inicio'
 
 
 @admin.register(PresencaRegistro)
@@ -120,8 +138,20 @@ class NoiteTematicaAdmin(admin.ModelAdmin):
 
 @admin.register(Passeio)
 class PasseioAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'hotel', 'dia_semana', 'ativo')
+    list_display = ('titulo', 'hotel', 'dia_semana', 'hora_saida', 'vagas', 'preco', 'ativo')
     list_filter = ('hotel', 'dia_semana', 'ativo')
+    search_fields = ('titulo',)
+    fields = (
+        'hotel', 'dia_semana', 'titulo', 'descricao', 'hora_saida', 'hora_retorno',
+        'ponto_encontro', 'vagas', 'preco', 'pix_chave', 'pix_beneficiario', 'ordem', 'ativo',
+    )
+
+
+@admin.register(InscricaoPasseio)
+class InscricaoPasseioAdmin(admin.ModelAdmin):
+    list_display = ('hospede', 'passeio', 'data', 'status_pagamento', 'valor', 'criado_em')
+    list_filter = ('status_pagamento', 'data', 'passeio__hotel')
+    search_fields = ('hospede__nome_completo', 'passeio__titulo')
 
 
 @admin.register(ProdutoLoja)

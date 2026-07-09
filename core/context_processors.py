@@ -1,11 +1,12 @@
 from django.utils import timezone
 
 from .auth_utils import get_perfil, resolver_hotel_atual
+from .hoteis import hoteis_rede_queryset
 from .models import Hotel
 
 
 def hotel_context(request):
-    hoteis = Hotel.objects.filter(ativo=True)
+    hoteis = hoteis_rede_queryset()
     hotel = resolver_hotel_atual(request, hoteis)
     perfil = get_perfil(request.user) if request.user.is_authenticated else None
 

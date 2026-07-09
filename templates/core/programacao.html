@@ -9,6 +9,47 @@
     <p>Grade por faixa etária — {{ hoje|date:"d/m/Y" }}</p>
 </section>
 
+{% if pode_editar_programacao %}
+<div class="rec-toolbar programacao-gestao-toolbar">
+        <a href="{% url 'programacao_gestao' %}?data={{ hoje|date:'Y-m-d' }}" class="rec-btn rec-btn-primary">✏️ Editar programação</a>
+        <a href="{% url 'programacao_novas' %}?data={{ hoje|date:'Y-m-d' }}" class="rec-btn rec-btn-ghost">☑️ Várias atividades</a>
+        <a href="{% url 'programacao_nova' %}?data={{ hoje|date:'Y-m-d' }}" class="rec-btn rec-btn-ghost">+ Uma atividade</a>
+</div>
+{% endif %}
+
+{% if pode_publicar_telao %}
+<div class="programacao-telao-bar glass-card">
+    <div class="programacao-telao-info">
+        <strong>📺 Telão da recreação</strong>
+        {% if grade_no_telao %}
+        <p class="programacao-telao-status ok">
+            Grade publicada · {{ grade_no_telao.total_atividades }} atividades ·
+            atualizado {{ grade_no_telao.publicado_em|time:"H:i" }}
+        </p>
+        {% else %}
+        <p class="programacao-telao-status">
+            {{ total_atividades }} atividade(s) na grade — publica todas as faixas no telão
+        </p>
+        {% endif %}
+    </div>
+    <div class="programacao-telao-actions">
+        <form method="post" action="{% url 'programacao_publicar_telao' %}">
+            {% csrf_token %}
+            <button type="submit" class="rec-btn rec-btn-primary">
+                📺 {% if grade_no_telao %}Atualizar no telão{% else %}Publicar grade no telão{% endif %}
+            </button>
+        </form>
+        {% if grade_no_telao %}
+        <form method="post" action="{% url 'programacao_remover_telao' %}">
+            {% csrf_token %}
+            <button type="submit" class="rec-btn rec-btn-ghost">Remover do telão</button>
+        </form>
+        {% endif %}
+        <a href="{% url 'telao' %}" target="_blank" rel="noopener" class="rec-btn rec-btn-ghost">Abrir telão ↗</a>
+    </div>
+</div>
+{% endif %}
+
 <h2 class="section-title">⏰ Horários Fixos</h2>
 <div class="horarios-fixos">
     {% for hora, label in horarios_fixos %}
@@ -33,6 +74,9 @@
             <div class="atividade-hora">{{ prog.hora_inicio|time:"H:i" }} — {{ prog.hora_fim|time:"H:i" }}</div>
             <div class="atividade-nome">{{ prog.atividade.icone|default:"⭐" }} {{ prog.atividade.nome }}</div>
             <div class="atividade-local">{{ prog.local.nome }}{% if prog.recreador %} · {{ prog.recreador.nome }}{% endif %}</div>
+            {% if pode_editar_programacao %}
+            <a href="{% url 'programacao_editar' prog.pk %}" class="atividade-edit-link">Editar</a>
+            {% endif %}
         </div>
         {% empty %}
         <div class="atividade-item">

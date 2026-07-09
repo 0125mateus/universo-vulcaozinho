@@ -83,14 +83,15 @@
             <a href="{% url 'faixas' %}" class="{% if request.resolver_match.url_name == 'faixas' %}active{% endif %}">👥 Faixas</a>
             <a href="{% url 'programacao' %}" class="{% if request.resolver_match.url_name == 'programacao' %}active{% endif %}">📅 Programação</a>
             <a href="{% url 'noites' %}" class="{% if request.resolver_match.url_name == 'noites' %}active{% endif %}">🎭 Noites</a>
+            <a href="{% url 'passeios_gestao' %}" class="{% if request.resolver_match.url_name == 'passeios_gestao' or request.resolver_match.url_name == 'passeio_novo' or request.resolver_match.url_name == 'passeio_editar' or request.resolver_match.url_name == 'passeio_excluir' %}active{% endif %}">🌴 Passeios</a>
             <a href="{% url 'universo' %}" class="{% if request.resolver_match.url_name == 'universo' %}active{% endif %}">🌋 Universo</a>
             <a href="{% url 'loja' %}" class="{% if request.resolver_match.url_name == 'loja' %}active{% endif %}">🛍️ Loja</a>
             <a href="{% url 'passaporte' %}" class="{% if request.resolver_match.url_name == 'passaporte' %}active{% endif %}">🛂 Passaporte</a>
-            <a href="{% url 'recepcao_index' %}" class="{% if request.resolver_match.url_name == 'recepcao_index' or request.resolver_match.url_name == 'recepcao_checkin' or request.resolver_match.url_name == 'recepcao_hospedes' or request.resolver_match.url_name == 'recepcao_agenda' or request.resolver_match.url_name == 'recepcao_vincular' %}active{% endif %}">📋 Recepção</a>
+            <a href="{% url 'recepcao_index' %}" class="{% if request.resolver_match.url_name == 'recepcao_index' or request.resolver_match.url_name == 'recepcao_checkin' or request.resolver_match.url_name == 'recepcao_hospedes' or request.resolver_match.url_name == 'recepcao_hospede_detalhe' or request.resolver_match.url_name == 'recepcao_agenda' or request.resolver_match.url_name == 'recepcao_vincular' or request.resolver_match.url_name == 'recepcao_vincular_passeio' or request.resolver_match.url_name == 'recepcao_passeios_pagamentos' %}active{% endif %}">📋 Recepção</a>
             <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
+            <a href="{% url 'importacao_gestao' %}" class="{% if request.resolver_match.url_name == 'importacao_gestao' or request.resolver_match.url_name == 'eventos_gestao' %}active{% endif %}">📥 Importar</a>
             <a href="{% url 'telao' %}" class="{% if request.resolver_match.url_name == 'telao' or request.resolver_match.url_name == 'telao_hotel' %}active{% endif %}">🖥️ Telão</a>
             <a href="{% url 'reuniao' %}" class="{% if request.resolver_match.url_name == 'reuniao' %}active{% endif %}">🎥 Reunião</a>
-            <a href="/admin/">⚙️ Admin</a>
         </nav>
 
         {% block content %}{% endblock %}
@@ -100,7 +101,6 @@
         <footer class="site-footer">
             <p><strong>A energia que acolhe, cuida e faz bem!</strong></p>
             <p>Sempre pronto para receber você! · Poços de Caldas/MG</p>
-            <a href="/admin/" class="admin-link">Painel administrativo</a>
         </footer>
     </div>
     <script>

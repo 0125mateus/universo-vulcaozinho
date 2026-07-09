@@ -151,8 +151,9 @@ FALLBACK_RESPONSES = [
         'A faixa etária é calculada automaticamente pela idade.',
     ),
     (
-        r'universo|infográfico|infografico|mapa',
-        'A página **Universo** (`/universo/`) mostra o infográfico completo da recreação: '
+        r'universo|infográfico|infografico|mapa|história|historia|galeria',
+        'A página **Universo** (`/universo/`) conta a história do Vulcãozinho, galeria de fotos, '
+        'os Sete Cristais da Diversão e o infográfico completo da recreação. '
         'missão, faixas, programação, passaporte, loja e roadmap do sistema.',
     ),
     (

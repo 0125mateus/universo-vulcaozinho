@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Cruzamento Faixas × Atividades — Vulcãozinho{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🎯 Cruzamento Faixas × Atividades</h2>
+    <p>{{ hotel.nome }} · qual atividade combina melhor com cada faixa etária</p>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'importacao_gestao' %}" class="rec-btn rec-btn-ghost">← Importação</a>
+    <a href="{% url 'faixas' %}" class="rec-btn rec-btn-ghost">Ver faixas (Ages)</a>
+</div>
+
+<div class="rec-form-card glass-card" style="margin-bottom:1.25rem;">
+    <h3>Fonte dos dados</h3>
+    <p class="import-desc">
+        Selecione uma <strong>planilha de programação</strong> para analisar antes de importar,
+        ou use os <strong>dados já no sistema</strong> após importação.
+    </p>
+    <form method="post" enctype="multipart/form-data" class="import-form">
+        {% csrf_token %}
+        <div class="analise-fonte-opcoes">
+            {% for radio in form.fonte %}
+            <label class="analise-fonte-opt">{{ radio.tag }} {{ radio.choice_label }}</label>
+            {% endfor %}
+        </div>
+        <label class="pdv-label">{{ form.arquivo.label }}</label>
+        {{ form.arquivo }}
+        <small>{{ form.arquivo.help_text }}</small>
+        <label class="pdv-label" style="margin-top:1rem;">{{ form.dias.label }}</label>
+        {{ form.dias }}
+        <small>{{ form.dias.help_text }}</small>
+        <button type="submit" class="rec-btn rec-btn-primary" style="margin-top:1rem;">Analisar cruzamento</button>
+    </form>
+</div>
+
+{% if resultado %}
+<section class="analise-resumo glass-card">
+    <p>
+        <strong>{{ resultado.total_linhas }}</strong> atividades analisadas ·
+        fonte: {{ resultado.fonte }} ·
+        <strong>{{ resultado.faixas|length }}</strong> faixas
+    </p>
+</section>
+
+{% if resultado.matriz %}
+<div class="rec-form-card glass-card" style="margin-top:1rem;">
+    <h3>📊 Matriz — Top 5 por faixa</h3>
+    <div class="rec-table-wrap">
+        <table class="rec-table analise-matriz">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    {% for f in resultado.faixas %}
+                    <th>{{ f.label }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in resultado.matriz %}
+                <tr>
+                    <td>{{ row.rank }}</td>
+                    {% for cell in row.cells %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="analise-faixas-grid">
+    {% for faixa in resultado.faixas %}
+    <article class="rec-form-card glass-card analise-faixa-card">
+        <header class="analise-faixa-head">
+            <h3>{{ faixa.label }}</h3>
+            <span class="rec-tag">{{ faixa.idade_sistema }}</span>
+        </header>
+        <p class="import-meta">
+            {{ faixa.total_linhas }} horários · {{ faixa.atividades_distintas }} atividades distintas
+        </p>
+        <ol class="analise-ranking">
+            {% for ativ in faixa.top_atividades %}
+            <li>
+                <div class="analise-rank-row">
+                    <strong>{{ ativ.nome }}</strong>
+                    <span class="analise-score" title="Score de compatibilidade">{{ ativ.score }}</span>
+                </div>
+                <div class="analise-bar-wrap">
+                    <div class="analise-bar" style="width:{{ ativ.score }}%"></div>
+                </div>
+                <small>
+                    {{ ativ.ocorrencias }}× na faixa · {{ ativ.exclusividade_pct }}% exclusiva ·
+                    <em>{{ ativ.recomendacao }}</em>
+                    {% if ativ.locais_top %} · 📍 {{ ativ.locais_top|join:", " }}{% endif %}
+                </small>
+            </li>
+            {% endfor %}
+        </ol>
+    </article>
+    {% endfor %}
+</div>
+
+{% if resultado.multifaixa %}
+<div class="rec-form-card glass-card" style="margin-top:1.25rem;">
+    <h3>👨‍👩‍👧‍👦 Atividades multifaixa (família)</h3>
+    <p class="import-desc">Aparecem em 3+ faixas — ideais para programação conjunta.</p>
+    <ul class="import-help-list">
+        {% for m in resultado.multifaixa %}
+        <li><strong>{{ m.nome }}</strong> ({{ m.total }}×) — {{ m.faixas|join:", " }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="rec-form-card glass-card" style="margin-top:1rem;">
+    <h3>Como interpretar o score</h3>
+    <ul class="import-help-list">
+        <li><strong>Exclusividade alta (85%+)</strong> — atividade quase só nesta faixa → combinação ideal</li>
+        <li><strong>Score</strong> — exclusividade (70%) + frequência na faixa (30%)</li>
+        <li><strong>Multifaixa</strong> — mesmo evento em várias abas (ex.: Cassino Fest, jantar temático)</li>
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

@@ -3,6 +3,7 @@
 from django.contrib.auth.models import User
 
 from .models import Hotel, PapelUsuario, PAPEIS_ACESSO_GLOBAL, PerfilUsuario
+from .hoteis import hoteis_rede_queryset
 
 
 def get_perfil(user: User) -> PerfilUsuario | None:
@@ -50,7 +51,7 @@ def resolver_hotel_atual(request, hoteis_qs=None):
     """Hotel efetivo: perfil fixo > sessão > primeiro ativo."""
     from .models import Hotel
 
-    hoteis_qs = hoteis_qs or Hotel.objects.filter(ativo=True)
+    hoteis_qs = hoteis_qs or hoteis_rede_queryset()
     hotel_fixo = get_hotel_escopo(request.user)
     if hotel_fixo:
         return hotel_fixo

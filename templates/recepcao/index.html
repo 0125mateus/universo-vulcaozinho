@@ -30,5 +30,15 @@
         <h3>Inscrições</h3>
         <p>Vincular hóspede × atividade</p>
     </a>
+    <a href="{% url 'recepcao_vincular_passeio' %}" class="rec-card">
+        <span class="rec-card-icon">🌴</span>
+        <h3>Passeios</h3>
+        <p>Inscrever hóspede em passeios</p>
+    </a>
+    <a href="{% url 'recepcao_passeios_pagamentos' %}" class="rec-card">
+        <span class="rec-card-icon">💳</span>
+        <h3>Pagamentos</h3>
+        <p>Conferir comprovantes PIX</p>
+    </a>
 </div>
 {% endblock %}

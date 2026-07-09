@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="{{ hotel.cor_primaria|default:'#1E6B43' }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Vulcãozinho">
+    <link rel="manifest" href="{% url 'hospede_app_manifest' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/mascote-vulcaozinho.png' %}">
+    <title>{% block title %}App Hóspede{% endblock %} — Vulcãozinho</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/hospede-app.css' %}?v=5">
+    {% if hotel %}
+    <style>
+        :root {
+            --app-primary: {{ hotel.cor_primaria }};
+            --app-secondary: {{ hotel.cor_secundaria }};
+            --app-accent: {{ hotel.cor_destaque }};
+        }
+    </style>
+    {% endif %}
+</head>
+<body class="hospede-app-body hotel-{{ hotel.slug|default:'default' }}">
+    <div class="app-shell">
+        {% if messages %}
+        <div class="app-messages">
+            {% for message in messages %}
+            <p class="app-message app-message-{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <main class="app-main">
+            {% block content %}{% endblock %}
+        </main>
+
+        {% if hospede %}
+        <div class="app-assistant" id="app-assistant">
+            <button type="button" class="app-assistant-fab" id="app-assistant-fab" aria-label="Falar com o Vulcãozinho">
+                <span class="app-assistant-fab-emoji">🌋</span>
+            </button>
+            <div class="app-assistant-panel" id="app-assistant-panel" hidden>
+                <header class="app-assistant-header">
+                    <strong>Vulcãozinho</strong>
+                    <button type="button" class="app-assistant-close" id="app-assistant-close" aria-label="Fechar">×</button>
+                </header>
+                <div class="app-assistant-messages" id="app-assistant-messages"></div>
+                <div class="app-assistant-suggestions" id="app-assistant-suggestions"></div>
+                <form class="app-assistant-form" id="app-assistant-form">
+                    {% csrf_token %}
+                    <input type="text" id="app-assistant-input" placeholder="Pergunte algo…" autocomplete="off">
+                    <button type="submit" id="app-assistant-send" aria-label="Enviar">➤</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        {% block bottom_nav %}
+        <nav class="app-bottom-nav" aria-label="Menu principal">
+            <a href="{% url 'hospede_app_home' %}" class="app-nav-item {% if request.resolver_match.url_name == 'hospede_app_home' %}active{% endif %}">
+                <span class="app-nav-icon">🏠</span>
+                <span>Início</span>
+            </a>
+            <a href="{% url 'hospede_app_programacao' %}" class="app-nav-item {% if request.resolver_match.url_name == 'hospede_app_programacao' %}active{% endif %}">
+                <span class="app-nav-icon">📅</span>
+                <span>Programação</span>
+            </a>
+            <a href="{% url 'hospede_app_passeios' %}" class="app-nav-item {% if request.resolver_match.url_name == 'hospede_app_passeios' %}active{% endif %}">
+                <span class="app-nav-icon">🌴</span>
+                <span>Passeios</span>
+            </a>
+            <a href="{% url 'hospede_app_passaporte' %}" class="app-nav-item {% if request.resolver_match.url_name == 'hospede_app_passaporte' %}active{% endif %}">
+                <span class="app-nav-icon">🛂</span>
+                <span>Passaporte</span>
+            </a>
+        </nav>
+        {% endblock %}
+    </div>
+    {% if hospede %}
+    <script src="{% static 'js/hospede-app-assistant.js' %}?v=2"></script>
+    {% endif %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

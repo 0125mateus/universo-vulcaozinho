@@ -12,6 +12,7 @@ from .models import (
     PresencaRegistro,
     ProdutoLoja,
     ProgramacaoDiaria,
+    EventoRecreacao,
     VendaLoja,
 )
 from .realtime import broadcast_all_hotels, broadcast_hotel_update
@@ -79,4 +80,10 @@ def on_produto_change(sender, instance, **kwargs):
 @receiver(post_save, sender=VendaLoja)
 @receiver(post_delete, sender=VendaLoja)
 def on_venda_change(sender, instance, **kwargs):
+    broadcast_hotel_update(instance.hotel_id)
+
+
+@receiver(post_save, sender=EventoRecreacao)
+@receiver(post_delete, sender=EventoRecreacao)
+def on_evento_change(sender, instance, **kwargs):
     broadcast_hotel_update(instance.hotel_id)

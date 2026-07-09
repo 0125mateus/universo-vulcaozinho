@@ -31,6 +31,13 @@ class Hotel(models.Model):
     cidade = models.CharField('cidade', max_length=80, default='Poços de Caldas')
     estado = models.CharField('UF', max_length=2, default='MG')
     telefone = models.CharField('telefone', max_length=20, blank=True)
+    pix_chave = models.CharField(
+        'chave PIX',
+        max_length=140,
+        blank=True,
+        help_text='CPF/CNPJ, e-mail, telefone ou chave aleatória para receber pagamentos de passeios.',
+    )
+    pix_beneficiario = models.CharField('nome do beneficiário PIX', max_length=80, blank=True)
     ativo = models.BooleanField('ativo', default=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
@@ -93,6 +100,28 @@ class Hospede(models.Model):
     data_checkin = models.DateField('data check-in', default=date.today)
     data_checkout = models.DateField('data check-out', null=True, blank=True)
     observacoes = models.TextField('observações', blank=True)
+    responsavel_nome = models.CharField('nome do responsável', max_length=200, blank=True)
+    responsavel_documento = models.CharField('documento do responsável', max_length=30, blank=True)
+    responsavel_parentesco = models.CharField(
+        'parentesco',
+        max_length=40,
+        blank=True,
+        choices=[
+            ('mae', 'Mãe'),
+            ('pai', 'Pai'),
+            ('avo', 'Avô/Avó'),
+            ('tio', 'Tio/Tia'),
+            ('responsavel_legal', 'Responsável legal'),
+            ('outro', 'Outro'),
+        ],
+    )
+    responsavel_telefone = models.CharField('telefone do responsável', max_length=30, blank=True)
+    responsavel_assinatura = models.TextField(
+        'assinatura do responsável',
+        blank=True,
+        help_text='Imagem da assinatura capturada no check-in (data URL PNG).',
+    )
+    responsavel_assinado_em = models.DateTimeField('assinado em', null=True, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
@@ -115,6 +144,14 @@ class Hospede(models.Model):
         if (hoje.month, hoje.day) < (self.data_nascimento.month, self.data_nascimento.day):
             anos -= 1
         return anos
+
+    @property
+    def is_menor_idade(self) -> bool:
+        return self.idade < 18
+
+    @property
+    def tem_assinatura_responsavel(self) -> bool:
+        return bool(self.responsavel_assinatura)
 
     @property
     def faixa_etaria(self) -> str:
@@ -141,16 +178,12 @@ class Hospede(models.Model):
         if self.data_checkout and self.data_checkout < self.data_checkin:
             raise ValidationError({'data_checkout': 'Check-out não pode ser anterior ao check-in.'})
 
-        duplicado = (
-            Hospede.objects.filter(
-                hotel=self.hotel,
-                documento=self.documento,
-                data_checkout__isnull=True,
-            )
-            .exclude(pk=self.pk)
-            .exists()
-        )
-        if duplicado:
+        if not self.hotel_id:
+            return
+
+        from .documento_utils import documento_duplicado_ativo
+
+        if documento_duplicado_ativo(self.hotel, self.documento, exclude_pk=self.pk):
             raise ValidationError(
                 {'documento': 'Já existe hóspede ativo com este documento neste hotel.'}
             )
@@ -331,6 +364,13 @@ class ProgramacaoDiaria(models.Model):
     )
     vagas_total = models.PositiveIntegerField('vagas totais')
     observacoes = models.TextField('observações', blank=True)
+    atividade_chuva = models.CharField('atividade (plano B chuva)', max_length=200, blank=True)
+    local_chuva_nome = models.CharField('local chuva', max_length=200, blank=True)
+    responsavel_nome = models.CharField('responsável', max_length=120, blank=True)
+    coordenador_nome = models.CharField('coordenador', max_length=120, blank=True)
+    musico_nome = models.CharField('músico', max_length=120, blank=True)
+    realizado = models.BooleanField('realizado', default=False)
+    auditado_por = models.CharField('auditado por', max_length=120, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -363,6 +403,38 @@ class ProgramacaoDiaria(models.Model):
 
     def lotado(self) -> bool:
         return self.vagas_ocupadas >= self.vagas_total
+
+
+class TelaoGradePublicada(models.Model):
+    """Marca a grade do dia como publicada no telão da recreação."""
+
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name='grades_telao',
+        verbose_name='hotel',
+    )
+    data = models.DateField('data da grade')
+    total_atividades = models.PositiveIntegerField('total de atividades', default=0)
+    ativo = models.BooleanField('ativa no telão', default=True)
+    publicado_em = models.DateTimeField('publicado em', auto_now=True)
+    publicado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='grades_telao_publicadas',
+        verbose_name='publicado por',
+    )
+
+    class Meta:
+        verbose_name = 'grade publicada no telão'
+        verbose_name_plural = 'grades publicadas no telão'
+        unique_together = [('hotel', 'data')]
+        ordering = ['-publicado_em']
+
+    def __str__(self):
+        return f'{self.hotel.nome} — {self.data:%d/%m/%Y}'
 
 
 class InscricaoAtividade(models.Model):
@@ -491,6 +563,33 @@ class Passeio(models.Model):
     dia_semana = models.IntegerField('dia da semana', choices=DiaSemana.choices)
     titulo = models.CharField('título', max_length=120)
     descricao = models.TextField('descrição')
+    hora_saida = models.TimeField('horário de saída', null=True, blank=True)
+    hora_retorno = models.TimeField('horário de retorno', null=True, blank=True)
+    ponto_encontro = models.CharField('ponto de encontro', max_length=160, blank=True)
+    vagas = models.PositiveSmallIntegerField(
+        'vagas',
+        default=0,
+        help_text='0 = sem limite de vagas.',
+    )
+    preco = models.DecimalField(
+        'preço (R$)',
+        max_digits=8,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Deixe em branco para passeio gratuito / incluso.',
+    )
+    pix_chave = models.CharField(
+        'chave PIX do passeio',
+        max_length=140,
+        blank=True,
+        help_text='Opcional. Se vazio, usa a chave PIX do hotel.',
+    )
+    pix_beneficiario = models.CharField(
+        'beneficiário PIX do passeio',
+        max_length=80,
+        blank=True,
+    )
     ordem = models.PositiveSmallIntegerField('ordem', default=0)
     ativo = models.BooleanField('ativo', default=True)
 
@@ -502,6 +601,124 @@ class Passeio(models.Model):
 
     def __str__(self):
         return f'{self.get_dia_semana_display()} — {self.titulo}'
+
+    def vagas_ocupadas(self, data=None) -> int:
+        qs = self.inscricoes.all()
+        if data is not None:
+            qs = qs.filter(data=data)
+        return qs.count()
+
+    def vagas_restantes(self, data=None):
+        if not self.vagas:
+            return None
+        return max(self.vagas - self.vagas_ocupadas(data), 0)
+
+    def lotado(self, data=None) -> bool:
+        if not self.vagas:
+            return False
+        return self.vagas_ocupadas(data) >= self.vagas
+
+    @property
+    def is_gratuito(self) -> bool:
+        return self.preco is None or self.preco == 0
+
+    @property
+    def pix_chave_efetiva(self) -> str:
+        return self.pix_chave or (self.hotel.pix_chave if self.hotel_id else '')
+
+    @property
+    def pix_beneficiario_efetivo(self) -> str:
+        if self.pix_beneficiario:
+            return self.pix_beneficiario
+        if self.hotel_id:
+            return self.hotel.pix_beneficiario or self.hotel.nome
+        return ''
+
+
+class StatusPagamentoPasseio(models.TextChoices):
+    ISENTO = 'isento', 'Incluso / gratuito'
+    PENDENTE = 'pendente', 'Aguardando pagamento'
+    COMPROVANTE_ENVIADO = 'comprovante_enviado', 'Comprovante enviado'
+    CONFIRMADO = 'confirmado', 'Pagamento confirmado'
+    REJEITADO = 'rejeitado', 'Comprovante rejeitado'
+
+
+def comprovante_upload_path(instance, filename):
+    import os
+    ext = os.path.splitext(filename)[1].lower()
+    return f'comprovantes_passeio/{instance.data:%Y/%m}/insc_{instance.pk or "novo"}{ext}'
+
+
+class InscricaoPasseio(models.Model):
+    """Inscrição de um hóspede em um passeio para uma data específica."""
+
+    passeio = models.ForeignKey(
+        Passeio,
+        on_delete=models.CASCADE,
+        related_name='inscricoes',
+        verbose_name='passeio',
+    )
+    hospede = models.ForeignKey(
+        'Hospede',
+        on_delete=models.CASCADE,
+        related_name='inscricoes_passeio',
+        verbose_name='hóspede',
+    )
+    data = models.DateField('data do passeio')
+    valor = models.DecimalField(
+        'valor (R$)',
+        max_digits=8,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    status_pagamento = models.CharField(
+        'status do pagamento',
+        max_length=25,
+        choices=StatusPagamentoPasseio.choices,
+        default=StatusPagamentoPasseio.PENDENTE,
+    )
+    comprovante = models.FileField(
+        'comprovante de pagamento',
+        upload_to=comprovante_upload_path,
+        blank=True,
+        null=True,
+    )
+    comprovante_enviado_em = models.DateTimeField('comprovante enviado em', null=True, blank=True)
+    pagamento_confirmado_em = models.DateTimeField('pagamento confirmado em', null=True, blank=True)
+    pagamento_confirmado_por = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pagamentos_passeio_confirmados',
+        verbose_name='confirmado por',
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-data', 'passeio__ordem']
+        verbose_name = 'inscrição em passeio'
+        verbose_name_plural = 'inscrições em passeios'
+        unique_together = [('passeio', 'hospede', 'data')]
+        indexes = [
+            models.Index(fields=['passeio', 'data']),
+            models.Index(fields=['status_pagamento']),
+        ]
+
+    def __str__(self):
+        return f'{self.hospede.nome_completo} → {self.passeio.titulo} ({self.data:%d/%m})'
+
+    @property
+    def pago(self) -> bool:
+        return self.status_pagamento in (
+            StatusPagamentoPasseio.CONFIRMADO,
+            StatusPagamentoPasseio.ISENTO,
+        )
+
+    @property
+    def aguardando_analise(self) -> bool:
+        return self.status_pagamento == StatusPagamentoPasseio.COMPROVANTE_ENVIADO
 
 
 class CategoriaProduto(models.TextChoices):
@@ -704,6 +921,63 @@ class VendaLoja(models.Model):
         if not self.valor_total:
             return 0.0
         return round(float(self.lucro_bruto / self.valor_total * 100), 1)
+
+
+class StatusEventoRecreacao(models.TextChoices):
+    PENDENTE = 'pendente', 'Pendente'
+    AGENDADO = 'agendado', 'Agendado'
+    REALIZADO = 'realizado', 'Realizado'
+    CANCELADO = 'cancelado', 'Cancelado'
+    NAO_AUTORIZADO = 'nao_autorizado', 'Não autorizado'
+
+
+class EventoRecreacao(models.Model):
+    """Eventos especiais importados da planilha de eventos (shows, passeios, fornecedores)."""
+
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.PROTECT,
+        related_name='eventos_recreacao',
+        verbose_name='hotel',
+    )
+    pacote = models.CharField('pacote / tema', max_length=80, blank=True)
+    mes_referencia = models.CharField('mês referência', max_length=40, blank=True)
+    nome = models.CharField('evento', max_length=200)
+    descricao = models.TextField('descrição', blank=True)
+    tipo_servico = models.CharField('tipo serviço / fornecedor', max_length=80, blank=True)
+    nivel_atracao = models.CharField('nível atração', max_length=60, blank=True)
+    contrato_assinado = models.CharField('contrato assinado', max_length=40, blank=True)
+    prestador = models.CharField('prestador / fornecedor', max_length=120, blank=True)
+    responsavel = models.CharField('responsável', max_length=120, blank=True)
+    dia_semana = models.CharField('dia da semana', max_length=20, blank=True)
+    data_inicio = models.DateField('data inicial')
+    data_fim = models.DateField('data final', null=True, blank=True)
+    orcamento = models.DecimalField(
+        'orçamento (R$)',
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    status = models.CharField(
+        'status',
+        max_length=20,
+        choices=StatusEventoRecreacao.choices,
+        default=StatusEventoRecreacao.AGENDADO,
+    )
+    importado_em = models.DateTimeField('importado em', auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['data_inicio', 'nome']
+        verbose_name = 'evento de recreação'
+        verbose_name_plural = 'eventos de recreação'
+        indexes = [
+            models.Index(fields=['hotel', 'data_inicio']),
+        ]
+
+    def __str__(self):
+        return f'{self.data_inicio:%d/%m/%Y} — {self.nome}'
 
 
 class SalaReuniao(models.Model):

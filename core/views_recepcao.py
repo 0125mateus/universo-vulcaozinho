@@ -5,18 +5,22 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, DetailView, ListView
 
 from .auth_utils import filtrar_queryset_por_hotel, resolver_hotel_atual, usuario_tem_papel
 from .forms import HospedeForm
 from .mixins import PapelRequeridoMixin
 from .models import (
+    DiaSemana,
     FaixaEtaria,
     Hospede,
     InscricaoAtividade,
+    InscricaoPasseio,
     PapelUsuario,
+    Passeio,
     PresencaRegistro,
     ProgramacaoDiaria,
+    StatusPagamentoPasseio,
 )
 
 PAPEIS_RECEPCAO = [
@@ -120,6 +124,10 @@ class CheckinCreateView(RecepcaoMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['faixas'] = FaixaEtaria.choices
+        ctx['hospedes_ativos'] = (
+            _hospedes_ativos_qs(self.hotel)
+            .order_by('apartamento', 'nome_completo')[:50]
+        )
         return ctx
 
     def form_valid(self, form):
@@ -156,6 +164,42 @@ class HospedeListView(RecepcaoMixin, ListView):
         return ctx
 
 
+class HospedeDetailView(RecepcaoMixin, DetailView):
+    model = Hospede
+    template_name = 'recepcao/hospede_detail.html'
+    context_object_name = 'hospede'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.hotel:
+            return self.hotel_required_response()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.escopo_queryset(Hospede.objects.all())
+
+
+class HospedeTermoView(RecepcaoMixin, DetailView):
+    """Termo de responsabilidade imprimível (salvar em PDF pelo navegador)."""
+
+    model = Hospede
+    template_name = 'recepcao/hospede_termo.html'
+    context_object_name = 'hospede'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.hotel:
+            return self.hotel_required_response()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.escopo_queryset(Hospede.objects.all())
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['hotel_atual'] = self.hotel
+        ctx['emitido_em'] = timezone.now()
+        return ctx
+
+
 class HospedeCheckoutView(RecepcaoMixin, View):
     def post(self, request, pk):
         if not self.hotel:
@@ -170,6 +214,22 @@ class HospedeCheckoutView(RecepcaoMixin, View):
             hospede.data_checkout = timezone.localdate()
             hospede.save(update_fields=['data_checkout', 'atualizado_em'])
             messages.success(request, f'Check-out de {hospede.nome_completo} registrado.')
+        return redirect('recepcao_hospedes')
+
+
+class HospedeDeleteView(RecepcaoMixin, View):
+    """Remove hóspede e registros vinculados (inscrições, presença, passaporte)."""
+
+    def post(self, request, pk):
+        if not self.hotel:
+            return self.hotel_required_response()
+        hospede = get_object_or_404(
+            self.escopo_queryset(Hospede.objects.all()),
+            pk=pk,
+        )
+        nome = hospede.nome_completo
+        hospede.delete()
+        messages.success(request, f'Hóspede {nome} excluído do sistema.')
         return redirect('recepcao_hospedes')
 
 
@@ -317,6 +377,150 @@ class VincularAtividadeView(RecepcaoMixin, View):
             messages.info(request, 'Nenhuma nova inscrição (hóspedes já inscritos ou lista vazia).')
 
         return redirect(f'{reverse("recepcao_vincular")}?programacao={programacao.pk}')
+
+
+class VincularPasseioView(RecepcaoMixin, View):
+    """Inscrição de hóspedes em passeios do dia."""
+
+    template_name = 'recepcao/vincular_passeio.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.hotel:
+            return self.hotel_required_response()
+        return super().dispatch(request, *args, **kwargs)
+
+    def _data_ref(self, request):
+        raw = request.GET.get('data') or request.POST.get('data')
+        if raw:
+            try:
+                from datetime import datetime
+                return datetime.strptime(raw, '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                pass
+        return timezone.localdate()
+
+    def _passeios_do_dia(self, data):
+        dia = (data.weekday() + 1) % 7
+        return (
+            self.escopo_queryset(Passeio.objects.all())
+            .filter(dia_semana=dia, ativo=True)
+            .order_by('ordem', 'titulo')
+        )
+
+    def get(self, request):
+        data = self._data_ref(request)
+        passeios = self._passeios_do_dia(data)
+        passeio_id = request.GET.get('passeio')
+        passeio = passeios.filter(pk=passeio_id).first() if passeio_id else passeios.first()
+
+        hospedes = _hospedes_ativos_qs(self.hotel).order_by('nome_completo')
+        inscritos = set()
+        if passeio:
+            inscritos = set(
+                passeio.inscricoes.filter(data=data).values_list('hospede_id', flat=True)
+            )
+
+        return render(request, self.template_name, {
+            'data_ref': data,
+            'passeios': passeios,
+            'passeio': passeio,
+            'hospedes': hospedes,
+            'inscritos': inscritos,
+            'dia_label': dict(DiaSemana.choices).get((data.weekday() + 1) % 7, ''),
+        })
+
+    def post(self, request):
+        data = self._data_ref(request)
+        passeio_id = request.POST.get('passeio')
+        passeio = get_object_or_404(
+            self._passeios_do_dia(data),
+            pk=passeio_id,
+        )
+        selecionados = {int(x) for x in request.POST.getlist('hospedes') if x.isdigit()}
+        validos = set(_hospedes_ativos_qs(self.hotel).values_list('pk', flat=True))
+        selecionados &= validos
+
+        inscritos = 0
+        avisos = []
+        for hid in selecionados:
+            if passeio.lotado(data):
+                avisos.append(f'Passeio lotado ({passeio.vagas} vagas).')
+                break
+            _, created = InscricaoPasseio.objects.get_or_create(
+                passeio=passeio, hospede_id=hid, data=data,
+            )
+            if created:
+                inscritos += 1
+
+        if inscritos:
+            messages.success(request, f'{inscritos} inscrição(ões) em "{passeio.titulo}" confirmada(s).')
+        for aviso in avisos:
+            messages.warning(request, aviso)
+        if not inscritos and not avisos:
+            messages.info(request, 'Nenhuma nova inscrição (já inscritos ou lista vazia).')
+
+        return redirect(
+            f'{reverse("recepcao_vincular_passeio")}?passeio={passeio.pk}&data={data.isoformat()}'
+        )
+
+
+class PagamentosPasseioView(RecepcaoMixin, View):
+    """Revisão dos comprovantes de pagamento de passeios."""
+
+    template_name = 'recepcao/passeios_pagamentos.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.hotel:
+            return self.hotel_required_response()
+        return super().dispatch(request, *args, **kwargs)
+
+    def _inscricoes_qs(self):
+        return InscricaoPasseio.objects.filter(
+            passeio__hotel=self.hotel,
+        ).select_related('passeio', 'hospede')
+
+    def get(self, request):
+        filtro = request.GET.get('status', 'comprovante_enviado')
+        qs = self._inscricoes_qs()
+        if filtro and filtro != 'todos':
+            qs = qs.filter(status_pagamento=filtro)
+        qs = qs.order_by('-comprovante_enviado_em', '-data')
+
+        pendentes = self._inscricoes_qs().filter(
+            status_pagamento=StatusPagamentoPasseio.COMPROVANTE_ENVIADO,
+        ).count()
+
+        return render(request, self.template_name, {
+            'inscricoes': qs[:200],
+            'filtro': filtro,
+            'pendentes': pendentes,
+            'status_choices': StatusPagamentoPasseio.choices,
+        })
+
+    def post(self, request):
+        inscricao = get_object_or_404(
+            self._inscricoes_qs(),
+            pk=request.POST.get('inscricao'),
+        )
+        acao = request.POST.get('acao')
+
+        if acao == 'confirmar':
+            inscricao.status_pagamento = StatusPagamentoPasseio.CONFIRMADO
+            inscricao.pagamento_confirmado_em = timezone.now()
+            inscricao.pagamento_confirmado_por = request.user
+            inscricao.save(update_fields=[
+                'status_pagamento', 'pagamento_confirmado_em', 'pagamento_confirmado_por',
+            ])
+            messages.success(request, f'Pagamento de {inscricao.hospede.nome_completo} confirmado.')
+        elif acao == 'rejeitar':
+            inscricao.status_pagamento = StatusPagamentoPasseio.REJEITADO
+            inscricao.save(update_fields=['status_pagamento'])
+            messages.warning(request, f'Comprovante de {inscricao.hospede.nome_completo} rejeitado.')
+        else:
+            messages.error(request, 'Ação inválida.')
+
+        filtro = request.POST.get('status', 'comprovante_enviado')
+        return redirect(f'{reverse("recepcao_passeios_pagamentos")}?status={filtro}')
 
 
 class FaixaEtariaPreviewAPI(RecepcaoMixin, View):

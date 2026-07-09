@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir — Programação{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🗑️ Excluir atividade</h2>
+</section>
+
+<div class="rec-form-card">
+    <p>Tem certeza que dese excluir esta atividade da programação?</p>
+    <ul class="rec-delete-summary">
+        <li><strong>Data:</strong> {{ object.data|date:"d/m/Y" }}</li>
+        <li><strong>Horário:</strong> {{ object.hora_inicio|time:"H:i" }} – {{ object.hora_fim|time:"H:i" }}</li>
+        <li><strong>Atividade:</strong> {{ object.atividade.nome }}</li>
+        <li><strong>Local:</strong> {{ object.local.nome }}</li>
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        <div class="rec-actions">
+            <a href="{% url 'programacao_gestao' %}?data={{ object.data|date:'Y-m-d' }}" class="rec-btn rec-btn-ghost">Cancelar</a>
+            <button type="submit" class="rec-btn rec-btn-primary" style="background:#c0392b;border-color:#c0392b;">Excluir</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

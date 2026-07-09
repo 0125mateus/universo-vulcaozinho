@@ -16,7 +16,7 @@
 
     {% load static %}
 
-    <link rel="stylesheet" href="{% static 'css/telao.css' %}">
+    <link rel="stylesheet" href="{% static 'css/telao.css' %}?v=9">
 
     <style>
 
@@ -117,7 +117,21 @@
 
                         <div class="telao-hero-bg"></div>
 
-                        <div class="telao-hero-content">
+                        <div class="telao-grade-board" id="telao-grade-board" hidden>
+
+                            <div class="telao-grade-board-head">
+
+                                <p class="telao-grade-board-title">Grade por Faixa (Ages)</p>
+
+                                <p class="telao-grade-board-data" id="telao-grade-data"></p>
+
+                            </div>
+
+                            <div class="telao-grade-colunas" id="telao-grade-colunas"></div>
+
+                        </div>
+
+                        <div class="telao-hero-content" id="telao-hero-single">
 
                             <p class="telao-hero-label" id="telao-hero-label">PRÓXIMA ATIVIDADE</p>
 
@@ -128,8 +142,6 @@
                             <p class="telao-hero-local" id="telao-atividade-local"></p>
 
                         </div>
-
-                        <img class="telao-mascot" src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Vulcãozinho">
 
                     </main>
 
@@ -151,52 +163,6 @@
 
 
 
-                <nav class="telao-nav-bar">
-
-                    <a href="/programacao/" class="telao-nav-item" target="_blank" rel="noopener">
-
-                        <span class="telao-nav-icon">📅</span>
-
-                        <span>PROGRAMAÇÃO</span>
-
-                    </a>
-
-                    <a href="/universo/" class="telao-nav-item" target="_blank" rel="noopener">
-
-                        <span class="telao-nav-icon">📷</span>
-
-                        <span>FOTOS</span>
-
-                    </a>
-
-                    <a href="/programacao/" class="telao-nav-item" target="_blank" rel="noopener">
-
-                        <span class="telao-nav-icon">🌴</span>
-
-                        <span>PASSEIOS</span>
-
-                    </a>
-
-                    <a href="/noites/" class="telao-nav-item" target="_blank" rel="noopener">
-
-                        <span class="telao-nav-icon">🌙</span>
-
-                        <span>NOITES</span>
-
-                    </a>
-
-                    <a href="/" class="telao-nav-item telao-nav-avisos" target="_blank" rel="noopener">
-
-                        <span class="telao-nav-icon">🔔<i class="telao-nav-dot"></i></span>
-
-                        <span>AVISOS</span>
-
-                    </a>
-
-                </nav>
-
-
-
                 <div class="telao-meta">
 
                     <span class="telao-hotel-name">🏨 {{ hotel.nome }}</span>
@@ -211,7 +177,7 @@
 
     </div>
 
-    <script src="{% static 'js/telao.js' %}"></script>
+    <script src="{% static 'js/telao.js' %}?v=10"></script>
 
 </body>
 

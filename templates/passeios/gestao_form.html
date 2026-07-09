@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Editar{% else %}Novo{% endif %} — Passeio{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>{% if object %}✏️ Editar passeio{% else %}➕ Novo passeio{% endif %}</h2>
+    <p>{{ hotel_atual.nome }}</p>
+</section>
+
+<form method="post" class="rec-form-card">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="auth-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <div class="rec-form-grid">
+        {% for field in form %}
+        <div class="rec-field {% if field.name == 'descricao' or field.name == 'titulo' or field.name == 'ponto_encontro' or field.name == 'pix_chave' %}rec-field-full{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<small class="field-hint">{{ field.help_text }}</small>{% endif %}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="pix-preview-box" id="pix-preview-box">
+        <div class="pix-preview-head">
+            <strong>💳 Pagamento PIX</strong>
+            <button type="button" id="pix-gerar" class="rec-btn rec-btn-sm rec-btn-primary">Gerar QR / chave PIX</button>
+        </div>
+        <p class="field-hint">Preencha o <strong>preço</strong> e a <strong>chave PIX</strong> (ou deixe a chave em branco para usar a do hotel) e clique em gerar para conferir.</p>
+        <div id="pix-preview-result" hidden>
+            <div class="pix-preview-grid">
+                <img id="pix-qr" src="" alt="QR Code PIX" width="200" height="200">
+                <div class="pix-preview-info">
+                    <label class="rec-detail-label">PIX copia e cola</label>
+                    <textarea id="pix-payload" class="rec-input" rows="4" readonly></textarea>
+                    <button type="button" id="pix-copiar" class="rec-btn rec-btn-sm rec-btn-ghost">Copiar chave</button>
+                </div>
+            </div>
+        </div>
+        <p id="pix-preview-erro" class="pix-preview-erro" hidden></p>
+    </div>
+
+    <div class="rec-actions">
+        <a href="{% url 'passeios_gestao' %}" class="rec-btn rec-btn-ghost">Cancelar</a>
+        <button type="submit" class="rec-btn rec-btn-primary">Salvar</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var btn = document.getElementById('pix-gerar');
+    var box = document.getElementById('pix-preview-result');
+    var erro = document.getElementById('pix-preview-erro');
+    var qr = document.getElementById('pix-qr');
+    var payloadEl = document.getElementById('pix-payload');
+    var copiar = document.getElementById('pix-copiar');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        var preco = (document.getElementById('id_preco') || {}).value || '';
+        var chave = (document.getElementById('id_pix_chave') || {}).value || '';
+        var nome = (document.getElementById('id_pix_beneficiario') || {}).value || '';
+        erro.hidden = true;
+
+        var params = new URLSearchParams({ valor: preco, chave: chave, nome: nome });
+        fetch('{% url "passeio_pix_preview" %}?' + params.toString(), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (!data.ok) {
+                    box.hidden = true;
+                    erro.textContent = data.erro || 'Não foi possível gerar o PIX.';
+                    erro.hidden = false;
+                    return;
+                }
+                payloadEl.value = data.payload;
+                qr.src = 'https://quickchart.io/qr?text=' + encodeURIComponent(data.payload) + '&size=200&margin=2';
+                box.hidden = false;
+            })
+            .catch(function () {
+                erro.textContent = 'Erro ao gerar o PIX.';
+                erro.hidden = false;
+            });
+    });
+
+    if (copiar) {
+        copiar.addEventListener('click', function () {
+            payloadEl.select();
+            payloadEl.setSelectionRange(0, 99999);
+            var done = function () {
+                copiar.textContent = 'Copiado!';
+                setTimeout(function () { copiar.textContent = 'Copiar chave'; }, 2000);
+            };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(payloadEl.value).then(done, function () { document.execCommand('copy'); done(); });
+            } else {
+                document.execCommand('copy'); done();
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

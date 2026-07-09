@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Pagamentos de passeios — Recepção{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>💳 Pagamentos de passeios</h2>
+    <p>{{ hotel_atual.nome }}{% if pendentes %} · <strong>{{ pendentes }}</strong> aguardando análise{% endif %}</p>
+</section>
+
+<div class="rec-toolbar">
+    <form method="get" class="rec-search-form">
+        <select name="status" class="rec-input rec-select" onchange="this.form.submit()">
+            <option value="comprovante_enviado" {% if filtro == 'comprovante_enviado' %}selected{% endif %}>Aguardando análise</option>
+            <option value="confirmado" {% if filtro == 'confirmado' %}selected{% endif %}>Confirmados</option>
+            <option value="pendente" {% if filtro == 'pendente' %}selected{% endif %}>Aguardando pagamento</option>
+            <option value="rejeitado" {% if filtro == 'rejeitado' %}selected{% endif %}>Rejeitados</option>
+            <option value="todos" {% if filtro == 'todos' %}selected{% endif %}>Todos</option>
+        </select>
+    </form>
+    <a href="{% url 'recepcao_vincular_passeio' %}" class="rec-btn rec-btn-ghost">← Inscrições</a>
+</div>
+
+<div class="rec-table-wrap">
+    <table class="rec-table">
+        <thead>
+            <tr>
+                <th>Hóspede</th>
+                <th>Passeio</th>
+                <th>Data</th>
+                <th>Valor</th>
+                <th>Comprovante</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for insc in inscricoes %}
+            <tr>
+                <td><strong>{{ insc.hospede.nome_completo }}</strong><br><small>apt. {{ insc.hospede.apartamento }}</small></td>
+                <td>{{ insc.passeio.titulo }}</td>
+                <td>{{ insc.data|date:"d/m/Y" }}</td>
+                <td>{% if insc.valor %}R$ {{ insc.valor }}{% else %}—{% endif %}</td>
+                <td>
+                    {% if insc.comprovante %}
+                    <a href="{{ insc.comprovante.url }}" target="_blank" class="rec-link-sm">📎 Ver</a>
+                    {% else %}<span class="rec-muted">—</span>{% endif %}
+                </td>
+                <td>
+                    {% if insc.status_pagamento == 'confirmado' %}<span class="rec-tag">Confirmado</span>
+                    {% elif insc.status_pagamento == 'comprovante_enviado' %}<span class="rec-tag rec-tag-warn">Em análise</span>
+                    {% elif insc.status_pagamento == 'pendente' %}<span class="rec-tag rec-tag-warn">Aguardando</span>
+                    {% elif insc.status_pagamento == 'rejeitado' %}<span class="rec-tag rec-tag-warn">Rejeitado</span>
+                    {% else %}<span class="rec-tag">Incluso</span>{% endif %}
+                </td>
+                <td class="rec-table-actions">
+                    {% if insc.status_pagamento != 'confirmado' and insc.status_pagamento != 'isento' %}
+                    <form method="post" class="rec-inline-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="inscricao" value="{{ insc.pk }}">
+                        <input type="hidden" name="status" value="{{ filtro }}">
+                        <button type="submit" name="acao" value="confirmar" class="rec-btn rec-btn-sm rec-btn-primary">Confirmar</button>
+                        <button type="submit" name="acao" value="rejeitar" class="rec-btn rec-btn-sm rec-btn-danger"
+                                onclick="return confirm('Rejeitar o comprovante deste hóspede?');">Rejeitar</button>
+                    </form>
+                    {% else %}
+                    <span class="rec-muted">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="rec-empty">Nenhuma inscrição neste filtro.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

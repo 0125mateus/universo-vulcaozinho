@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Passeios — Recepção{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🌴 Inscrição em passeios</h2>
+    <p>{{ hotel_atual.nome }} · {{ dia_label }}, {{ data_ref|date:"d/m/Y" }}</p>
+</section>
+
+<div class="rec-toolbar">
+    <div></div>
+    <a href="{% url 'recepcao_passeios_pagamentos' %}" class="rec-btn rec-btn-ghost">💳 Pagamentos / comprovantes</a>
+</div>
+
+<form method="get" class="rec-form-card rec-form-card-compact">
+    <div class="rec-form-grid">
+        <div class="rec-field">
+            <label for="data">Data</label>
+            <input type="date" id="data" name="data" value="{{ data_ref|date:'Y-m-d' }}" class="rec-input" onchange="this.form.submit()">
+        </div>
+        <div class="rec-field">
+            <label for="passeio">Passeio</label>
+            <select name="passeio" id="passeio" class="rec-input rec-select" onchange="this.form.submit()">
+                {% for p in passeios %}
+                <option value="{{ p.pk }}" {% if passeio and passeio.pk == p.pk %}selected{% endif %}>
+                    {{ p.titulo }}{% if p.hora_saida %} ({{ p.hora_saida|time:"H:i" }}){% endif %}
+                </option>
+                {% empty %}
+                <option value="">Nenhum passeio neste dia</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</form>
+
+{% if passeio %}
+<form method="post" class="rec-form-card">
+    {% csrf_token %}
+    <input type="hidden" name="passeio" value="{{ passeio.pk }}">
+    <input type="hidden" name="data" value="{{ data_ref|date:'Y-m-d' }}">
+
+    <div class="rec-passeio-info">
+        <p>{{ passeio.descricao }}</p>
+        <ul class="rec-passeio-meta">
+            {% if passeio.hora_saida %}<li>🕒 Saída {{ passeio.hora_saida|time:"H:i" }}{% if passeio.hora_retorno %} · retorno {{ passeio.hora_retorno|time:"H:i" }}{% endif %}</li>{% endif %}
+            {% if passeio.ponto_encontro %}<li>📍 {{ passeio.ponto_encontro }}</li>{% endif %}
+            <li>{% if passeio.is_gratuito %}🎟️ Incluso{% else %}💰 R$ {{ passeio.preco }}{% endif %}</li>
+            <li>👥 {% if passeio.vagas %}{{ inscritos|length }}/{{ passeio.vagas }} vagas{% else %}{{ inscritos|length }} inscrito(s) · sem limite{% endif %}</li>
+        </ul>
+    </div>
+
+    {% if passeio.vagas and inscritos|length >= passeio.vagas %}
+    <div class="auth-error">⚠️ Passeio lotado ({{ passeio.vagas }} vagas).</div>
+    {% endif %}
+
+    <div class="rec-checklist">
+        {% for h in hospedes %}
+        <label class="rec-check-item">
+            <input type="checkbox" name="hospedes" value="{{ h.pk }}" {% if h.pk in inscritos %}checked disabled{% endif %}>
+            <span>
+                <strong>{{ h.nome_completo }}</strong>
+                <small>apt. {{ h.apartamento }} · {{ h.get_faixa_etaria_display }}</small>
+                {% if h.pk in inscritos %}<em> (já inscrito)</em>{% endif %}
+            </span>
+        </label>
+        {% empty %}
+        <p class="rec-empty">Nenhum hóspede ativo.</p>
+        {% endfor %}
+    </div>
+
+    {% if hospedes %}
+    <div class="rec-actions">
+        <a href="{% url 'recepcao_index' %}" class="rec-btn rec-btn-ghost">Voltar</a>
+        <button type="submit" class="rec-btn rec-btn-primary">Confirmar inscrições</button>
+    </div>
+    {% endif %}
+</form>
+{% endif %}
+{% endblock %}

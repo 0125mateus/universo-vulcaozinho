@@ -1,0 +1,48 @@
+{% extends 'hospede_app/base.html' %}
+
+{% block title %}Passaporte{% endblock %}
+
+{% block content %}
+<header class="app-page-head">
+    <h1>🛂 Passaporte da Diversão</h1>
+    <p>{{ hospede.nome_completo }}</p>
+</header>
+
+<div class="app-passaporte-stats">
+    {% if passaporte %}
+    <div class="app-stat">
+        <span class="app-stat-value">🪙 {{ passaporte.moedas }}</span>
+        <span class="app-stat-label">Moedas</span>
+    </div>
+    <div class="app-stat">
+        <span class="app-stat-value">{{ passaporte.total_carimbos }}/7</span>
+        <span class="app-stat-label">Carimbos</span>
+    </div>
+    <div class="app-stat">
+        <span class="app-stat-value app-stat-nivel">{{ passaporte.nivel }}</span>
+        <span class="app-stat-label">Nível</span>
+    </div>
+    {% else %}
+    <p class="app-empty">Seu passaporte será ativado pela equipe de recreação. Participe das noites temáticas!</p>
+    {% endif %}
+</div>
+
+{% if passaporte %}
+<div class="app-progress-wrap">
+    <div class="app-progress-bar" style="width: {{ passaporte.progresso_pct }}%"></div>
+</div>
+{% endif %}
+
+<h2 class="app-section-title">Noites temáticas</h2>
+<div class="app-carimbos-grid">
+    {% for noite in noites %}
+    <div class="app-carimbo {% if noite.id in carimbo_ids %}ok{% endif %}" title="{{ noite.tema }}">
+        <span class="app-carimbo-dia">{{ noite.get_dia_semana_display|slice:":3" }}</span>
+        <span class="app-carimbo-tema">{{ noite.tema }}</span>
+        {% if noite.id in carimbo_ids %}<span class="app-carimbo-check">✓</span>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<p class="app-passaporte-dica">Colete os 7 carimbos e ganhe um presente especial do Vulcãozinho!</p>
+{% endblock %}

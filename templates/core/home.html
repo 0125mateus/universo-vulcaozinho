@@ -15,6 +15,7 @@
     <span class="hotel-badge">🏨 {{ hotel_atual.nome }}</span>
     <h2>{{ hotel_atual.slogan|default:"A energia que acolhe, cuida e faz bem!" }}</h2>
     <p>🎉 Diversão garantida · Programação por idade · Noites temáticas · Passaporte da diversão!</p>
+    <a href="{% url 'hospede_app_login' %}" class="rec-btn rec-btn-primary" style="margin-top:0.75rem;display:inline-flex;">📱 App do hóspede</a>
 </section>
 
 <div class="values-strip">

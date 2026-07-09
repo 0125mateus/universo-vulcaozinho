@@ -15,6 +15,7 @@ from core.viewsets import (
 )
 from core.views_telao_api import (
     TelaoAniversariantesHojeView,
+    TelaoGradePublicadaView,
     TelaoPasseiosHojeView,
     TelaoProgramacaoAtualView,
 )
@@ -46,6 +47,11 @@ urlpatterns = [
         'telao/<int:hotel_id>/passeios-hoje/',
         TelaoPasseiosHojeView.as_view(),
         name='telao-passeios-hoje',
+    ),
+    path(
+        'telao/<int:hotel_id>/grade-publicada/',
+        TelaoGradePublicadaView.as_view(),
+        name='telao-grade-publicada',
     ),
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),

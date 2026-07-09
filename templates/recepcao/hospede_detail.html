@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load vulcaozinho_extras %}
+
+{% block title %}{{ hospede.nome_completo }} — Recepção{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>👤 {{ hospede.nome_completo }}{% if hospede.is_menor_idade %}<span class="rec-menor-badge">Menor de idade</span>{% endif %}</h2>
+    <p>{{ hotel_atual.nome }} — Apto {{ hospede.apartamento }}</p>
+</section>
+
+<div class="rec-layout">
+    <div class="rec-form-card">
+        <div class="rec-detail-grid">
+            <div class="rec-detail-item">
+                <span class="rec-detail-label">Documento</span>
+                <span class="rec-detail-value">{{ hospede.documento|doc_formatado }}</span>
+            </div>
+            <div class="rec-detail-item">
+                <span class="rec-detail-label">Faixa etária</span>
+                <span class="rec-detail-value"><span class="rec-tag">{{ hospede.get_faixa_etaria_display }}</span></span>
+            </div>
+            <div class="rec-detail-item">
+                <span class="rec-detail-label">Nascimento</span>
+                <span class="rec-detail-value">{{ hospede.data_nascimento|date:"d/m/Y" }}</span>
+            </div>
+            <div class="rec-detail-item">
+                <span class="rec-detail-label">Apartamento</span>
+                <span class="rec-detail-value">{{ hospede.apartamento }}</span>
+            </div>
+            <div class="rec-detail-item">
+                <span class="rec-detail-label">Check-in</span>
+                <span class="rec-detail-value">{{ hospede.data_checkin|date:"d/m/Y" }}</span>
+            </div>
+            <div class="rec-detail-item">
+                <span class="rec-detail-label">Check-out</span>
+                <span class="rec-detail-value">{% if hospede.data_checkout %}{{ hospede.data_checkout|date:"d/m/Y" }}{% else %}—{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="rec-detail-obs">
+            <span class="rec-detail-label">Observações</span>
+            {% if hospede.observacoes %}
+            <p class="rec-detail-obs-text">{{ hospede.observacoes|linebreaksbr }}</p>
+            {% else %}
+            <p class="rec-muted">Nenhuma observação registrada para este hóspede.</p>
+            {% endif %}
+        </div>
+
+        {% if hospede.is_menor_idade or hospede.responsavel_nome %}
+        <div class="rec-detail-obs">
+            <span class="rec-detail-label">👨‍👩‍👧 Responsável legal</span>
+            {% if hospede.responsavel_nome %}
+            <div class="rec-detail-grid">
+                <div class="rec-detail-item">
+                    <span class="rec-detail-label">Nome</span>
+                    <span class="rec-detail-value">{{ hospede.responsavel_nome }}</span>
+                </div>
+                <div class="rec-detail-item">
+                    <span class="rec-detail-label">Documento</span>
+                    <span class="rec-detail-value">{{ hospede.responsavel_documento|doc_formatado }}</span>
+                </div>
+                <div class="rec-detail-item">
+                    <span class="rec-detail-label">Parentesco</span>
+                    <span class="rec-detail-value">{{ hospede.get_responsavel_parentesco_display|default:hospede.responsavel_parentesco|default:"—" }}</span>
+                </div>
+                <div class="rec-detail-item">
+                    <span class="rec-detail-label">Telefone</span>
+                    <span class="rec-detail-value">{{ hospede.responsavel_telefone|default:"—" }}</span>
+                </div>
+            </div>
+            {% if hospede.responsavel_assinatura %}
+            <span class="rec-detail-label">Assinatura {% if hospede.responsavel_assinado_em %}<small>({{ hospede.responsavel_assinado_em|date:"d/m/Y H:i" }})</small>{% endif %}</span>
+            <div class="rec-signature-view">
+                <img src="{{ hospede.responsavel_assinatura }}" alt="Assinatura do responsável">
+            </div>
+            {% else %}
+            <p class="rec-muted">Assinatura não registrada.</p>
+            {% endif %}
+            {% else %}
+            <p class="rec-muted">Dados do responsável não registrados.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="rec-actions">
+            <a href="{% url 'recepcao_hospedes' %}" class="rec-btn rec-btn-ghost">← Voltar para a lista</a>
+            {% if hospede.is_menor_idade or hospede.responsavel_nome %}
+            <a href="{% url 'recepcao_hospede_termo' hospede.pk %}" target="_blank" class="rec-btn rec-btn-primary">🖨️ Gerar termo de responsabilidade</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

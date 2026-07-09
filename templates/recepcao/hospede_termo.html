@@ -1,0 +1,155 @@
+{% load vulcaozinho_extras %}<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Termo de Responsabilidade — {{ hospede.nome_completo }}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #1a1a1a;
+            margin: 0;
+            padding: 32px 40px;
+            line-height: 1.55;
+            font-size: 13.5px;
+        }
+        .termo-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .termo-actions { display: flex; gap: 8px; }
+        .termo-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 9px 16px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #fff;
+            background: #2FAE63;
+        }
+        .termo-btn.ghost { background: #6c757d; }
+        h1 {
+            font-size: 20px;
+            text-align: center;
+            margin: 0 0 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .termo-hotel { text-align: center; color: #555; margin-bottom: 22px; font-weight: 600; }
+        .termo-secao { margin-bottom: 18px; }
+        .termo-secao h2 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 2px solid #2FAE63;
+            padding-bottom: 4px;
+            margin: 0 0 10px;
+            color: #2FAE63;
+        }
+        .termo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 24px;
+        }
+        .termo-item { display: flex; gap: 6px; }
+        .termo-item .rot { font-weight: 700; min-width: 96px; color: #333; }
+        .termo-texto { text-align: justify; margin: 0 0 12px; }
+        .termo-assinatura {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .termo-assinatura img {
+            max-height: 120px;
+            max-width: 340px;
+            margin-bottom: 4px;
+        }
+        .termo-linha {
+            border-top: 1.5px solid #1a1a1a;
+            width: 340px;
+            text-align: center;
+            padding-top: 6px;
+            font-weight: 600;
+        }
+        .termo-rodape {
+            margin-top: 36px;
+            font-size: 11.5px;
+            color: #666;
+            text-align: center;
+        }
+        @media print {
+            .termo-topbar { display: none; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="termo-topbar">
+        <a href="{% url 'recepcao_hospede_detalhe' hospede.pk %}" class="termo-btn ghost">← Voltar</a>
+        <div class="termo-actions">
+            <button type="button" class="termo-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+        </div>
+    </div>
+
+    <h1>Termo de Responsabilidade — Menor de Idade</h1>
+    <p class="termo-hotel">{{ hotel_atual.nome }}</p>
+
+    <div class="termo-secao">
+        <h2>Dados do hóspede menor de idade</h2>
+        <div class="termo-grid">
+            <div class="termo-item"><span class="rot">Nome:</span><span>{{ hospede.nome_completo }}</span></div>
+            <div class="termo-item"><span class="rot">Nascimento:</span><span>{{ hospede.data_nascimento|date:"d/m/Y" }} ({{ hospede.idade }} anos)</span></div>
+            <div class="termo-item"><span class="rot">Documento:</span><span>{{ hospede.documento|doc_formatado }}</span></div>
+            <div class="termo-item"><span class="rot">Apartamento:</span><span>{{ hospede.apartamento }}</span></div>
+            <div class="termo-item"><span class="rot">Check-in:</span><span>{{ hospede.data_checkin|date:"d/m/Y" }}</span></div>
+            <div class="termo-item"><span class="rot">Check-out:</span><span>{% if hospede.data_checkout %}{{ hospede.data_checkout|date:"d/m/Y" }}{% else %}—{% endif %}</span></div>
+        </div>
+    </div>
+
+    <div class="termo-secao">
+        <h2>Dados do responsável legal</h2>
+        <div class="termo-grid">
+            <div class="termo-item"><span class="rot">Nome:</span><span>{{ hospede.responsavel_nome|default:"—" }}</span></div>
+            <div class="termo-item"><span class="rot">Documento:</span><span>{{ hospede.responsavel_documento|doc_formatado|default:"—" }}</span></div>
+            <div class="termo-item"><span class="rot">Parentesco:</span><span>{{ hospede.get_responsavel_parentesco_display|default:"—" }}</span></div>
+            <div class="termo-item"><span class="rot">Telefone:</span><span>{{ hospede.responsavel_telefone|default:"—" }}</span></div>
+        </div>
+    </div>
+
+    <div class="termo-secao">
+        <h2>Declaração</h2>
+        <p class="termo-texto">
+            Eu, <strong>{{ hospede.responsavel_nome|default:"________________________" }}</strong>,
+            portador(a) do documento <strong>{{ hospede.responsavel_documento|doc_formatado|default:"____________" }}</strong>,
+            na qualidade de responsável legal
+            {% if hospede.get_responsavel_parentesco_display %}({{ hospede.get_responsavel_parentesco_display }}){% endif %}
+            do(a) menor <strong>{{ hospede.nome_completo }}</strong>,
+            declaro estar ciente e autorizar a hospedagem e a participação do(a) menor nas atividades de
+            recreação oferecidas pelo hotel <strong>{{ hotel_atual.nome }}</strong>, assumindo total
+            responsabilidade pelos seus atos durante o período de estadia. Declaro ainda que as
+            informações prestadas neste termo são verdadeiras.
+        </p>
+    </div>
+
+    <div class="termo-assinatura">
+        {% if hospede.responsavel_assinatura %}
+        <img src="{{ hospede.responsavel_assinatura }}" alt="Assinatura do responsável">
+        {% endif %}
+        <div class="termo-linha">
+            {{ hospede.responsavel_nome|default:"Assinatura do responsável legal" }}
+        </div>
+    </div>
+
+    <p class="termo-rodape">
+        Documento emitido em {{ emitido_em|date:"d/m/Y H:i" }}
+        {% if hospede.responsavel_assinado_em %}• Assinado digitalmente no check-in em {{ hospede.responsavel_assinado_em|date:"d/m/Y H:i" }}{% endif %}
+    </p>
+</body>
+</html>
