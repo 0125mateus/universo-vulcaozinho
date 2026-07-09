@@ -21,7 +21,7 @@
             gap: 12px;
             margin-bottom: 24px;
         }
-        .termo-actions { display: flex; gap: 8px; }
+        .termo-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
         .termo-btn {
             border: none;
             border-radius: 8px;
@@ -98,13 +98,17 @@
 </head>
 <body>
     <div class="termo-topbar">
+        {% if not termo_publico %}
         <a href="{% url 'recepcao_hospede_detalhe' hospede.pk %}" class="termo-btn ghost">← Voltar</a>
+        {% else %}
+        <span></span>
+        {% endif %}
         <div class="termo-actions">
             <button type="button" class="termo-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
             {% if whatsapp_termo_disponivel %}
-            <a href="{{ whatsapp_termo_url }}" target="_blank" rel="noopener noreferrer" class="termo-btn whatsapp">💬 Enviar no WhatsApp</a>
+            <a href="{{ whatsapp_termo_url }}" target="_blank" rel="noopener noreferrer" class="termo-btn whatsapp">💬 Enviar termo no WhatsApp</a>
             {% else %}
-            <span class="termo-btn disabled" title="Cadastre o telefone do responsável">💬 WhatsApp</span>
+            <span class="termo-btn disabled" title="Cadastre o telefone do responsável no check-in">💬 Enviar termo no WhatsApp</span>
             {% endif %}
         </div>
     </div>
