@@ -1939,6 +1939,13 @@ body {
 .rec-btn-warn { background: var(--brand-orange); color: white; }
 .rec-btn-danger { background: #C62828; color: white; }
 .rec-btn-danger:hover { background: #B71C1C; }
+.rec-btn-whatsapp { background: #25D366; color: white; }
+.rec-btn-whatsapp:hover { background: #1ebe57; color: white; }
+.rec-btn-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
 .rec-row-actions { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
 .rec-btn-sm { padding: 0.35rem 0.75rem; font-size: 0.78rem; }
 

@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -22,6 +22,7 @@ from .models import (
     ProgramacaoDiaria,
     StatusPagamentoPasseio,
 )
+from .termo_utils import contexto_compartilhamento_termo, resolver_hospede_pk_token_termo
 
 PAPEIS_RECEPCAO = [
     PapelUsuario.ADMIN,
@@ -177,6 +178,11 @@ class HospedeDetailView(RecepcaoMixin, DetailView):
     def get_queryset(self):
         return self.escopo_queryset(Hospede.objects.all())
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.update(contexto_compartilhamento_termo(self.request, self.object, self.hotel))
+        return ctx
+
 
 class HospedeTermoView(RecepcaoMixin, DetailView):
     """Termo de responsabilidade imprimível (salvar em PDF pelo navegador)."""
@@ -197,6 +203,36 @@ class HospedeTermoView(RecepcaoMixin, DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['hotel_atual'] = self.hotel
         ctx['emitido_em'] = timezone.now()
+        ctx.update(contexto_compartilhamento_termo(self.request, self.object, self.hotel))
+        return ctx
+
+
+class HospedeTermoPublicoView(DetailView):
+    """Termo acessível por link assinado (compartilhamento WhatsApp)."""
+
+    model = Hospede
+    template_name = 'recepcao/hospede_termo.html'
+    context_object_name = 'hospede'
+
+    def get_object(self, queryset=None):
+        pk = resolver_hospede_pk_token_termo(self.kwargs['token'])
+        if not pk:
+            raise Http404('Link do termo inválido ou expirado.')
+        hospede = (
+            Hospede.objects.filter(pk=pk)
+            .select_related('hotel')
+            .first()
+        )
+        if not hospede or not (hospede.is_menor_idade or hospede.responsavel_nome):
+            raise Http404('Termo não disponível para este hóspede.')
+        return hospede
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['hotel_atual'] = self.object.hotel
+        ctx['emitido_em'] = timezone.now()
+        ctx['termo_publico'] = True
+        ctx.update(contexto_compartilhamento_termo(self.request, self.object, self.object.hotel))
         return ctx
 
 

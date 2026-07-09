@@ -34,6 +34,12 @@
             background: #2FAE63;
         }
         .termo-btn.ghost { background: #6c757d; }
+        .termo-btn.whatsapp { background: #25D366; }
+        .termo-btn.disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
         h1 {
             font-size: 20px;
             text-align: center;
@@ -95,6 +101,11 @@
         <a href="{% url 'recepcao_hospede_detalhe' hospede.pk %}" class="termo-btn ghost">← Voltar</a>
         <div class="termo-actions">
             <button type="button" class="termo-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+            {% if whatsapp_termo_disponivel %}
+            <a href="{{ whatsapp_termo_url }}" target="_blank" rel="noopener noreferrer" class="termo-btn whatsapp">💬 Enviar no WhatsApp</a>
+            {% else %}
+            <span class="termo-btn disabled" title="Cadastre o telefone do responsável">💬 WhatsApp</span>
+            {% endif %}
         </div>
     </div>
 

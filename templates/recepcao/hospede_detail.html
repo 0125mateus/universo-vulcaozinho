@@ -87,6 +87,11 @@
             <a href="{% url 'recepcao_hospedes' %}" class="rec-btn rec-btn-ghost">← Voltar para a lista</a>
             {% if hospede.is_menor_idade or hospede.responsavel_nome %}
             <a href="{% url 'recepcao_hospede_termo' hospede.pk %}" target="_blank" class="rec-btn rec-btn-primary">🖨️ Gerar termo de responsabilidade</a>
+            {% if whatsapp_termo_disponivel %}
+            <a href="{{ whatsapp_termo_url }}" target="_blank" rel="noopener noreferrer" class="rec-btn rec-btn-whatsapp">💬 Enviar termo no WhatsApp</a>
+            {% else %}
+            <span class="rec-btn rec-btn-whatsapp rec-btn-disabled" title="Cadastre o telefone do responsável para enviar">💬 WhatsApp (sem telefone)</span>
+            {% endif %}
             {% endif %}
         </div>
     </div>

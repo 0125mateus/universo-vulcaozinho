@@ -291,6 +291,44 @@ class HospedeValidationTestCase(TestCase):
         self.assertContains(resp, 'Termo de Responsabilidade')
         self.assertContains(resp, 'Responsável Termo')
 
+    def test_termo_whatsapp_e_link_publico(self):
+        from core.models import PapelUsuario, PerfilUsuario
+        from core.termo_utils import assinar_token_termo
+
+        h = Hospede.objects.create(
+            hotel=self.hotel,
+            nome_completo='Menor WhatsApp',
+            data_nascimento=date(2015, 1, 1),
+            documento='111.222.333-44',
+            apartamento='888',
+            responsavel_nome='Marcos',
+            responsavel_documento='555.666.777-88',
+            responsavel_parentesco='pai',
+            responsavel_telefone='31990666323',
+        )
+        user = User.objects.create_user('rec_termo_wa', password='testpass123')
+        PerfilUsuario.objects.create(
+            user=user,
+            papel=PapelUsuario.RECEPCAO,
+            hotel=self.hotel,
+            ativo=True,
+        )
+        self.client.login(username='rec_termo_wa', password='testpass123')
+        session = self.client.session
+        session['hotel_slug'] = self.hotel.slug
+        session.save()
+
+        resp = self.client.get(reverse('recepcao_hospede_detalhe', kwargs={'pk': h.pk}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Enviar termo no WhatsApp')
+        self.assertContains(resp, 'wa.me/5531990666323')
+
+        token = assinar_token_termo(h.pk)
+        self.client.logout()
+        resp_pub = self.client.get(reverse('termo_publico', kwargs={'token': token}))
+        self.assertEqual(resp_pub.status_code, 200)
+        self.assertContains(resp_pub, 'Menor WhatsApp')
+
 
 @override_settings(ALLOWED_HOSTS=['testserver'], TELAO_API_KEY='test-key')
 class TelaoAPITestCase(TestCase):

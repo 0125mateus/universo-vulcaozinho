@@ -126,6 +126,8 @@ urlpatterns = [
 
     path('recepcao/hospedes/<int:pk>/', views_recepcao.HospedeDetailView.as_view(), name='recepcao_hospede_detalhe'),
     path('recepcao/hospedes/<int:pk>/termo/', views_recepcao.HospedeTermoView.as_view(), name='recepcao_hospede_termo'),
+
+    path('termo/<str:token>/', views_recepcao.HospedeTermoPublicoView.as_view(), name='termo_publico'),
     path('recepcao/hospedes/<int:pk>/checkout/', views_recepcao.HospedeCheckoutView.as_view(), name='recepcao_checkout'),
     path('recepcao/hospedes/<int:pk>/excluir/', views_recepcao.HospedeDeleteView.as_view(), name='recepcao_hospede_excluir'),
 
