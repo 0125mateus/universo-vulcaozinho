@@ -39,6 +39,7 @@ HOTEIS_DEMO = [
     ('nacional', 'nacional-inn'),
     ('euro', 'euro-suite'),
     ('dan', 'dan-inn'),
+    ('cassino', 'cassino-resort'),
 ]
 
 

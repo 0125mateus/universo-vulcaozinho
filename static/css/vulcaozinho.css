@@ -151,6 +151,59 @@ body {
     letter-spacing: 0.12em;
 }
 
+/* Marca Cassino Resort — identidade da logo */
+.brand-cassino .brand-hotel-logo {
+    width: auto;
+    height: 72px;
+    max-width: 88px;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    animation: none;
+    object-fit: contain;
+}
+
+.brand-text-cassino h1 {
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 1.65rem;
+    font-weight: 900;
+    text-transform: lowercase;
+    letter-spacing: -0.03em;
+    color: #111111;
+    background: none;
+    -webkit-text-fill-color: #111111;
+}
+
+.brand-cassino-sub {
+    display: block;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    text-transform: lowercase !important;
+    letter-spacing: 0.02em !important;
+    color: #1B7A3D !important;
+}
+
+.brand-cassino-loc {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.58rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.28em !important;
+    color: #9E9E9E !important;
+}
+
+body.hotel-cassino-resort .brand-text-cassino h1 {
+    background: none;
+    -webkit-text-fill-color: #111111;
+    color: #111111;
+}
+
+body.hotel-cassino-resort .brand img.brand-hotel-logo {
+    box-shadow: none;
+    border-radius: 0;
+}
+
 .hotel-selector select {
     padding: 0.65rem 1.25rem;
     border: 3px solid var(--hotel-primary);

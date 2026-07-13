@@ -8,7 +8,13 @@ SALAS = [
         'nome': 'Diretoria — Rede Vulcãozinho',
         'slug': 'diretoria-rede',
         'hotel': None,
-        'descricao': 'Reunião geral entre diretores dos três hotéis da rede.',
+        'descricao': 'Reunião geral entre diretores dos hotéis da rede.',
+    },
+    {
+        'nome': 'Diretoria — Cassino Resort',
+        'slug': 'diretoria-cassino-resort',
+        'hotel_slug': 'cassino-resort',
+        'descricao': 'Sala de reunião do Cassino All Inclusive Resort.',
     },
     {
         'nome': 'Diretoria — Nacional Inn',

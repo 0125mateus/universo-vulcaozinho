@@ -137,7 +137,7 @@ FALLBACK_RESPONSES = [
         'Produtos cadastrados via Admin ou `python manage.py seed_loja`.',
     ),
     (
-        r'hotel|nacional|euro|dan inn|trocar|selecionar',
+        r'hotel|nacional|euro|dan inn|cassino|trocar|selecionar',
         'Use o **seletor de hotel** no canto superior direito para alternar entre:\n\n'
         '• Nacional Inn (verde)\n• Euro Suite (vinho/laranja)\n• Dan Inn (azul)\n\n'
         'Cada hotel tem programação e hóspedes próprios.',
@@ -167,7 +167,7 @@ FALLBACK_RESPONSES = [
     (
         r'seed|comando|terminal|migrate|popular',
         'Comandos úteis no terminal (pasta do projeto):\n\n'
-        '• `python manage.py seed_hoteis` — 3 hotéis\n'
+        '• `python manage.py seed_hoteis` — hotéis da rede\n'
         '• `python manage.py seed_categorias` — faixas Ages\n'
         '• `python manage.py seed_noites_tematicas` — 7 noites\n'
         '• `python manage.py seed_programacao` — atividades exemplo\n'

@@ -79,6 +79,28 @@ HOTEIS_REDE = [
 
     },
 
+    {
+
+        'nome': 'Cassino All Inclusive Resort',
+
+        'slug': 'cassino-resort',
+
+        'rede_marca': RedeMarca.CASSINO_RESORT,
+
+        'slogan': 'all inclusive resort',
+
+        # Logo: preto + verde + vermelho (naipes) + cinza
+
+        'cor_primaria': '#111111',
+
+        'cor_secundaria': '#1B7A3D',
+
+        'cor_destaque': '#D32F2F',
+
+        'cor_terciaria': '#9E9E9E',
+
+    },
+
 ]
 
 
@@ -87,7 +109,7 @@ HOTEIS_REDE = [
 
 class Command(BaseCommand):
 
-    help = 'Cadastra os três hotéis da rede Universo Vulcãozinho (idempotente).'
+    help = 'Cadastra os hotéis da rede Universo Vulcãozinho (idempotente).'
 
 
 

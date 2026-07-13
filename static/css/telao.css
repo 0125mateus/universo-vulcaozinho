@@ -586,6 +586,17 @@ body.hotel-dan-inn .telao-modo-grade .telao-hero-bg {
     background: linear-gradient(165deg, #002855 0%, #001d40 50%, #001028 100%);
 }
 
+body.hotel-cassino-resort .telao-screen {
+    background: linear-gradient(165deg, #111111 0%, #1B7A3D 55%, #0d3d1f 100%);
+}
+body.hotel-cassino-resort .telao-widget {
+    background: rgba(27, 122, 61, 0.45);
+    border-color: rgba(211, 47, 47, 0.45);
+}
+body.hotel-cassino-resort .telao-modo-grade .telao-hero-bg {
+    background: linear-gradient(165deg, #111111 0%, #1B7A3D 55%, #0d3d1f 100%);
+}
+
 /* Responsivo TV / tablet */
 @media (max-width: 1024px) {
     .telao-grid {

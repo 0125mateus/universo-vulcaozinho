@@ -1,6 +1,6 @@
 # Universo Vulcãozinho
 
-Sistema de recreação multi-hotel (Nacional Inn, Euro Suite, Dan Inn) — Poços de Caldas/MG.
+Sistema de recreação multi-hotel (Nacional Inn, Euro Suite, Dan Inn, Cassino Resort) — Poços de Caldas/MG.
 
 ## Stack
 

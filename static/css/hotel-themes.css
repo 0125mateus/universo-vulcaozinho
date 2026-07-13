@@ -114,6 +114,43 @@ body.hotel-dan-inn .wave-bg::before {
     background-image: none;
 }
 
+/* --- Cassino Resort: preto + verde + vermelho (logo) --- */
+body.hotel-cassino-resort {
+    --hotel-primary: #111111;
+    --hotel-secondary: #1B7A3D;
+    --hotel-accent: #D32F2F;
+    --hotel-tertiary: #9E9E9E;
+    --hotel-splash: #1B7A3D;
+    --brand-green: #1B7A3D;
+    --brand-green-light: #2E9B52;
+    --brand-yellow: #D32F2F;
+    --brand-orange: #9E9E9E;
+    --brand-blue: #1B7A3D;
+    --brand-pink: #D32F2F;
+    --shadow: 0 10px 40px rgba(27, 122, 61, 0.22);
+}
+
+body.hotel-cassino-resort.hotel-theme {
+    background:
+        radial-gradient(ellipse 50% 42% at 12% 18%, rgba(211, 47, 47, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 48% 40% at 88% 14%, rgba(27, 122, 61, 0.28) 0%, transparent 50%),
+        radial-gradient(ellipse 45% 38% at 82% 88%, rgba(17, 17, 17, 0.08) 0%, transparent 55%),
+        linear-gradient(165deg, #ffffff 0%, #f7faf8 45%, #fafafa 100%);
+}
+
+body.hotel-cassino-resort .hero,
+body.hotel-cassino-resort .rec-hero {
+    background: linear-gradient(125deg, #111111 0%, #1B7A3D 45%, #D32F2F 100%) !important;
+    color: #fff;
+    border-color: rgba(27, 122, 61, 0.45) !important;
+}
+
+body.hotel-cassino-resort .wave-bg::before {
+    background: linear-gradient(0deg, rgba(17, 17, 17, 0.45) 0%, rgba(27, 122, 61, 0.3) 50%, transparent 100%);
+    height: 32vh;
+    background-image: none;
+}
+
 /* ===== Overrides globais quando hotel selecionado ===== */
 body.hotel-theme .card {
     border-color: color-mix(in srgb, var(--hotel-primary) 70%, transparent);

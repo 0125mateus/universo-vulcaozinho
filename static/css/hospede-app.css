@@ -889,6 +889,7 @@
 body.hotel-dan-inn { --app-primary: #002855; --app-accent: #FFED00; }
 body.hotel-nacional-inn { --app-primary: #006838; --app-accent: #8DC63F; }
 body.hotel-euro-suite { --app-primary: #6B1C2F; --app-accent: #F7941D; }
+body.hotel-cassino-resort { --app-primary: #111111; --app-accent: #1B7A3D; }
 
 /* Acessibilidade: reduz animações para quem prefere */
 @media (prefers-reduced-motion: reduce) {

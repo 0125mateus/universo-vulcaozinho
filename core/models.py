@@ -11,6 +11,7 @@ class RedeMarca(models.TextChoices):
     NACIONAL_INN = 'nacional_inn', 'Nacional Inn'
     EURO_SUITE = 'euro_suite', 'Euro Suite'
     DAN_INN = 'dan_inn', 'Dan Inn'
+    CASSINO_RESORT = 'cassino_resort', 'Cassino Resort'
 
 
 class Hotel(models.Model):

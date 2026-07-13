@@ -37,12 +37,21 @@
         </div>
         {% endif %}
         <header class="site-header">
-            <a href="{% url 'home' %}" class="brand">
+            <a href="{% url 'home' %}" class="brand{% if hotel_atual and hotel_atual.slug == 'cassino-resort' %} brand-cassino{% endif %}">
+                {% if hotel_atual and hotel_atual.slug == 'cassino-resort' %}
+                <img src="{% static 'img/hoteis/cassino-resort.png' %}" alt="Cassino All Inclusive Resort" class="brand-hotel-logo">
+                <div class="brand-text brand-text-cassino">
+                    <h1>cassino</h1>
+                    <span class="brand-cassino-sub">all inclusive resort</span>
+                    <span class="brand-cassino-loc">POÇOS DE CALDAS</span>
+                </div>
+                {% else %}
                 <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Vulcãozinho">
                 <div class="brand-text">
                     <h1>vulcãozinho — inn —</h1>
                     <span>Sistema de Recreação</span>
                 </div>
+                {% endif %}
             </a>
             {% if hoteis_disponiveis %}
             <div class="header-actions">
