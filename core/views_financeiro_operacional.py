@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
@@ -12,6 +13,14 @@ from .financeiro_operacional_import import (
     importar_atracoes_xlsx,
     importar_compras_xlsx,
     importar_eventos_recreacao_xlsx,
+)
+from .financeiro_operacional_export import (
+    exportar_atracoes_xlsx,
+    exportar_compras_xlsx,
+    exportar_extras_recreadores_xlsx,
+    nome_arquivo_atracoes,
+    nome_arquivo_compras,
+    nome_arquivo_extras,
 )
 from .forms_financeiro_operacional import (
     ExtraRecreadorFormSet,
@@ -398,3 +407,42 @@ class AtracoesListaView(FinanceiroOperacionalMixin, ListView):
 
     def get_queryset(self):
         return self.periodos_qs(TipoPeriodoOperacional.ATRACOES)
+
+
+def _xlsx_response(content: bytes, filename: str) -> HttpResponse:
+    response = HttpResponse(
+        content,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+class ExtrasRecreadoresExportView(FinanceiroOperacionalMixin, View):
+    def get(self, request, pk):
+        periodo = get_object_or_404(
+            self.periodos_qs(TipoPeriodoOperacional.EXTRAS_RECREADORES),
+            pk=pk,
+        )
+        content = exportar_extras_recreadores_xlsx(periodo)
+        return _xlsx_response(content, nome_arquivo_extras(periodo))
+
+
+class AtracoesExportView(FinanceiroOperacionalMixin, View):
+    def get(self, request, pk):
+        periodo = get_object_or_404(
+            self.periodos_qs(TipoPeriodoOperacional.ATRACOES),
+            pk=pk,
+        )
+        content = exportar_atracoes_xlsx(periodo)
+        return _xlsx_response(content, nome_arquivo_atracoes(periodo))
+
+
+class ComprasExportView(FinanceiroOperacionalMixin, View):
+    def get(self, request, pk):
+        periodo = get_object_or_404(
+            self.periodos_qs(TipoPeriodoOperacional.COMPRAS),
+            pk=pk,
+        )
+        content = exportar_compras_xlsx(periodo)
+        return _xlsx_response(content, nome_arquivo_compras(periodo))

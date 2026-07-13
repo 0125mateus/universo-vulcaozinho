@@ -22,6 +22,7 @@
 
 <div class="rec-toolbar">
     <a href="{% url 'financeiro_atracoes_lista' %}" class="rec-btn rec-btn-ghost">← Períodos</a>
+    <a href="{% url 'financeiro_atracoes_exportar' periodo.pk %}" class="rec-btn rec-btn-ghost">📥 Gerar planilha</a>
     <a href="{% url 'financeiro_atracao_novo' periodo.pk %}" class="rec-btn rec-btn-primary">+ Novo pagamento</a>
 </div>
 
