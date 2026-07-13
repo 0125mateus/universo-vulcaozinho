@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.db.models import Sum
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
@@ -21,6 +21,10 @@ from .financeiro_operacional_export import (
     nome_arquivo_atracoes,
     nome_arquivo_compras,
     nome_arquivo_extras,
+)
+from .financeiro_whatsapp_utils import (
+    contexto_whatsapp_planilha,
+    resolver_planilha_token,
 )
 from .forms_financeiro_operacional import (
     ExtraRecreadorFormSet,
@@ -80,6 +84,9 @@ class FinanceiroOperacionalMixin(PapelRequeridoMixin):
         if self.hotel:
             qs = qs.filter(hotel=self.hotel)
         return filtrar_queryset_por_hotel(qs, self.request.user, 'hotel')
+
+    def ctx_whatsapp_planilha(self, periodo, tipo: str) -> dict:
+        return contexto_whatsapp_planilha(self.request, periodo, self.hotel, tipo)
 
 
 class FinanceiroHubView(FinanceiroOperacionalMixin, View):
@@ -145,6 +152,7 @@ class ExtrasRecreadoresPeriodoView(FinanceiroOperacionalMixin, View):
             'dias': DIAS_SEMANA,
             'totais_dia': self._totais_por_dia(periodo),
             'total_geral': sum(e.total for e in periodo.extras_recreadores.all()),
+            **self.ctx_whatsapp_planilha(periodo, TipoPeriodoOperacional.EXTRAS_RECREADORES),
         })
 
     def post(self, request, pk):
@@ -173,6 +181,7 @@ class ExtrasRecreadoresPeriodoView(FinanceiroOperacionalMixin, View):
             'dias': DIAS_SEMANA,
             'totais_dia': self._totais_de_formset(formset),
             'total_geral': self._total_geral_de_formset(formset),
+            **self.ctx_whatsapp_planilha(periodo, TipoPeriodoOperacional.EXTRAS_RECREADORES),
         })
 
     def _totais_de_formset(self, formset):
@@ -219,6 +228,7 @@ class AtracoesPeriodoView(FinanceiroOperacionalMixin, View):
             'pagamentos': pagamentos,
             'total': total,
             'import_form': ImportarXlsxForm(),
+            **self.ctx_whatsapp_planilha(periodo, TipoPeriodoOperacional.ATRACOES),
         })
 
     def post(self, request, pk):
@@ -340,6 +350,7 @@ class ComprasPeriodoView(FinanceiroOperacionalMixin, View):
             'total': total,
             'import_form': ImportarXlsxForm(),
             'item_form': ItemCompraForm(),
+            **self.ctx_whatsapp_planilha(periodo, TipoPeriodoOperacional.COMPRAS),
         })
 
     def post(self, request, pk):
@@ -446,3 +457,39 @@ class ComprasExportView(FinanceiroOperacionalMixin, View):
         )
         content = exportar_compras_xlsx(periodo)
         return _xlsx_response(content, nome_arquivo_compras(periodo))
+
+
+class FinanceiroPlanilhaPublicaView(View):
+    """Download público da planilha via link assinado (compartilhamento WhatsApp)."""
+
+    def get(self, request, token):
+        resolved = resolver_planilha_token(token)
+        if not resolved:
+            raise Http404('Link da planilha inválido ou expirado.')
+
+        periodo_pk, tipo = resolved
+        periodo = PeriodoOperacional.objects.filter(pk=periodo_pk, tipo=tipo).first()
+        if not periodo:
+            raise Http404('Período não encontrado.')
+
+        exportadores = {
+            TipoPeriodoOperacional.EXTRAS_RECREADORES: (
+                exportar_extras_recreadores_xlsx,
+                nome_arquivo_extras,
+            ),
+            TipoPeriodoOperacional.ATRACOES: (
+                exportar_atracoes_xlsx,
+                nome_arquivo_atracoes,
+            ),
+            TipoPeriodoOperacional.COMPRAS: (
+                exportar_compras_xlsx,
+                nome_arquivo_compras,
+            ),
+        }
+        exportador = exportadores.get(tipo)
+        if not exportador:
+            raise Http404('Tipo de planilha inválido.')
+
+        export_fn, nome_fn = exportador
+        content = export_fn(periodo)
+        return _xlsx_response(content, nome_fn(periodo))

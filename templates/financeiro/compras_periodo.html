@@ -23,6 +23,11 @@
 <div class="rec-toolbar">
     <a href="{% url 'financeiro_compras_lista' %}" class="rec-btn rec-btn-ghost">← Períodos</a>
     <a href="{% url 'financeiro_compras_exportar' periodo.pk %}" class="rec-btn rec-btn-ghost">📥 Gerar planilha</a>
+    {% if whatsapp_planilha_disponivel %}
+    <a href="{{ whatsapp_planilha_url }}" target="_blank" rel="noopener noreferrer" class="rec-btn rec-btn-whatsapp">💬 Enviar no WhatsApp</a>
+    {% else %}
+    <span class="rec-btn rec-btn-whatsapp rec-btn-disabled" title="Configure o WhatsApp do setor de pagamentos no hotel ou nas variáveis do sistema">💬 WhatsApp (sem número)</span>
+    {% endif %}
 </div>
 
 <div class="rec-form-card glass-card" style="margin-bottom:1rem;">

@@ -32,6 +32,12 @@ class Hotel(models.Model):
     cidade = models.CharField('cidade', max_length=80, default='Poços de Caldas')
     estado = models.CharField('UF', max_length=2, default='MG')
     telefone = models.CharField('telefone', max_length=20, blank=True)
+    whatsapp_setor_pagamentos = models.CharField(
+        'WhatsApp setor de pagamentos',
+        max_length=30,
+        blank=True,
+        help_text='Número com DDD para enviar planilhas financeiras (ex.: 35999998888).',
+    )
     pix_chave = models.CharField(
         'chave PIX',
         max_length=140,

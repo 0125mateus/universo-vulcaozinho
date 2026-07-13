@@ -88,6 +88,7 @@ urlpatterns = [
     path('loja/financeiro/', views_loja.FinanceiroLojaView.as_view(), name='loja_financeiro'),
 
     path('financeiro/', views_financeiro_operacional.FinanceiroHubView.as_view(), name='financeiro_hub'),
+    path('financeiro/planilha/<str:token>/', views_financeiro_operacional.FinanceiroPlanilhaPublicaView.as_view(), name='financeiro_planilha_publica'),
     path('financeiro/periodo/novo/<str:tipo>/', views_financeiro_operacional.PeriodoCreateView.as_view(), name='financeiro_periodo_novo'),
     path('financeiro/extras/', views_financeiro_operacional.ExtrasListaView.as_view(), name='financeiro_extras_lista'),
     path('financeiro/extras/<int:pk>/', views_financeiro_operacional.ExtrasRecreadoresPeriodoView.as_view(), name='financeiro_extras_periodo'),

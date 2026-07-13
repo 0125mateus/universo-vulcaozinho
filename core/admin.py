@@ -32,7 +32,9 @@ class HotelAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('nome',)}
     fieldsets = (
         (None, {'fields': ('nome', 'slug', 'rede_marca', 'slogan', 'ativo')}),
-        ('Localização e contato', {'fields': ('endereco', 'cidade', 'estado', 'telefone')}),
+        ('Localização e contato', {
+            'fields': ('endereco', 'cidade', 'estado', 'telefone', 'whatsapp_setor_pagamentos'),
+        }),
         ('Cores do tema', {'fields': ('cor_primaria', 'cor_secundaria', 'cor_destaque', 'cor_terciaria')}),
         ('Pagamento PIX (passeios)', {'fields': ('pix_chave', 'pix_beneficiario')}),
     )

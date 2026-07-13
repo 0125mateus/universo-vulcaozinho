@@ -184,6 +184,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-4o-mini')
 
+# WhatsApp do setor de pagamentos (DDD + número). Pode ser sobrescrito por hotel.
+WHATSAPP_SETOR_PAGAMENTOS = os.environ.get('WHATSAPP_SETOR_PAGAMENTOS', '')
+
 # Autenticação
 LOGIN_URL = '/entrar/'
 LOGIN_REDIRECT_URL = '/'
