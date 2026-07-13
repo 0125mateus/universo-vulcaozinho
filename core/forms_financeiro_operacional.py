@@ -94,7 +94,7 @@ ExtraRecreadorFormSet = inlineformset_factory(
     PeriodoOperacional,
     ExtraRecreador,
     form=ExtraRecreadorForm,
-    extra=3,
+    extra=1,
     can_delete=True,
 )
 

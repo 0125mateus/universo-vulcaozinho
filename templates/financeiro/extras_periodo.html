@@ -28,9 +28,10 @@
 
 <div class="rec-toolbar">
     <a href="{% url 'financeiro_extras_lista' %}" class="rec-btn rec-btn-ghost">← Períodos</a>
+    <button type="button" id="fin-add-recreador" class="rec-btn rec-btn-primary">+ Adicionar recreador</button>
 </div>
 
-<form method="post" class="rec-form-card glass-card">
+<form method="post" class="rec-form-card glass-card" id="fin-extras-form">
     {% csrf_token %}
     {{ formset.management_form }}
 
@@ -50,9 +51,9 @@
                     <th class="fin-grid-delete"></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="fin-extras-tbody">
                 {% for form in formset %}
-                <tr>
+                <tr class="fin-extras-row">
                     {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
                     <td class="fin-col-nome">{{ form.nome }}{{ form.nome.errors }}</td>
                     <td>{{ form.valor_seg }}</td>
@@ -84,6 +85,26 @@
             </tfoot>
         </table>
     </div>
+
+    <template id="fin-extras-row-template">
+        <tr class="fin-extras-row">
+            {% with form=formset.empty_form %}
+            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+            <td class="fin-col-nome">{{ form.nome }}</td>
+            <td>{{ form.valor_seg }}</td>
+            <td>{{ form.valor_ter }}</td>
+            <td>{{ form.valor_qua }}</td>
+            <td>{{ form.valor_qui }}</td>
+            <td>{{ form.valor_sex }}</td>
+            <td>{{ form.valor_sab }}</td>
+            <td>{{ form.valor_dom }}</td>
+            <td class="fin-row-total">—</td>
+            <td class="fin-grid-delete">
+                <button type="button" class="fin-grid-trash" title="Remover linha">🗑</button>
+            </td>
+            {% endwith %}
+        </tr>
+    </template>
 
     <div class="rec-actions" style="margin-top:1rem;">
         <button type="submit" class="rec-btn rec-btn-primary">Salvar grade</button>
