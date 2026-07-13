@@ -202,3 +202,44 @@
     color: var(--brand-green, #2d8a4e);
     text-decoration: underline;
 }
+
+.fin-settings-card {
+    margin-bottom: 1rem;
+}
+
+.fin-settings-card h3 {
+    margin: 0 0 0.35rem;
+}
+
+.fin-settings-desc {
+    margin: 0 0 1rem;
+    color: var(--text-muted, #666);
+    font-size: 0.92rem;
+}
+
+.fin-settings-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.fin-settings-field {
+    flex: 1;
+    min-width: 220px;
+    margin: 0;
+}
+
+.fin-settings-actions {
+    margin: 0;
+}
+
+.fin-settings-ok {
+    color: #155724;
+    font-weight: 700;
+}
+
+.fin-settings-warn {
+    color: #856404;
+    font-weight: 700;
+}

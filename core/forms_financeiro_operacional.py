@@ -8,6 +8,7 @@ from .models import (
     PeriodoOperacional,
     StatusPagamentoOperacional,
 )
+from .termo_utils import normalizar_telefone_whatsapp
 
 
 class PeriodoOperacionalForm(forms.ModelForm):
@@ -109,3 +110,26 @@ class ImportarXlsxForm(forms.Form):
         required=False,
         initial=False,
     )
+
+
+class WhatsAppSetorPagamentosForm(forms.Form):
+    whatsapp_setor_pagamentos = forms.CharField(
+        label='WhatsApp do setor de pagamentos',
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'rec-input',
+            'placeholder': '(35) 99999-8888',
+            'inputmode': 'tel',
+            'autocomplete': 'tel',
+        }),
+        help_text='Com DDD. Este número recebe as planilhas pelo botão Enviar no WhatsApp.',
+    )
+
+    def clean_whatsapp_setor_pagamentos(self):
+        value = (self.cleaned_data.get('whatsapp_setor_pagamentos') or '').strip()
+        if not value:
+            return ''
+        if not normalizar_telefone_whatsapp(value):
+            raise forms.ValidationError('Informe um número válido com DDD (ex.: 35999998888).')
+        return value

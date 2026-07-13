@@ -25,6 +25,7 @@ from .financeiro_operacional_export import (
 from .financeiro_whatsapp_utils import (
     contexto_whatsapp_planilha,
     resolver_planilha_token,
+    telefone_setor_pagamentos,
 )
 from .forms_financeiro_operacional import (
     ExtraRecreadorFormSet,
@@ -32,6 +33,7 @@ from .forms_financeiro_operacional import (
     ItemCompraForm,
     PagamentoAtracaoForm,
     PeriodoOperacionalForm,
+    WhatsAppSetorPagamentosForm,
 )
 from .mixins import PapelRequeridoMixin
 from .models import (
@@ -92,16 +94,36 @@ class FinanceiroOperacionalMixin(PapelRequeridoMixin):
 class FinanceiroHubView(FinanceiroOperacionalMixin, View):
     template_name = 'financeiro/hub.html'
 
-    def get(self, request):
-        ctx = {
+    def _hub_context(self, form_whatsapp=None):
+        if form_whatsapp is None:
+            form_whatsapp = WhatsAppSetorPagamentosForm(initial={
+                'whatsapp_setor_pagamentos': self.hotel.whatsapp_setor_pagamentos,
+            })
+        telefone = telefone_setor_pagamentos(self.hotel)
+        return {
             'periodos_extras': self.periodos_qs(TipoPeriodoOperacional.EXTRAS_RECREADORES)[:5],
             'periodos_atracoes': self.periodos_qs(TipoPeriodoOperacional.ATRACOES)[:5],
             'periodos_compras': self.periodos_qs(TipoPeriodoOperacional.COMPRAS)[:5],
             'total_atracoes': PagamentoAtracao.objects.filter(hotel=self.hotel).aggregate(
                 t=Sum('valor'),
             )['t'] or Decimal('0'),
+            'form_whatsapp': form_whatsapp,
+            'whatsapp_setor_configurado': bool(telefone),
+            'whatsapp_setor_numero': self.hotel.whatsapp_setor_pagamentos,
         }
-        return render(request, self.template_name, ctx)
+
+    def get(self, request):
+        return render(request, self.template_name, self._hub_context())
+
+    def post(self, request):
+        form_whatsapp = WhatsAppSetorPagamentosForm(request.POST)
+        if form_whatsapp.is_valid():
+            self.hotel.whatsapp_setor_pagamentos = form_whatsapp.cleaned_data['whatsapp_setor_pagamentos']
+            self.hotel.save(update_fields=['whatsapp_setor_pagamentos', 'atualizado_em'])
+            messages.success(request, 'WhatsApp do setor de pagamentos salvo.')
+            return redirect('financeiro_hub')
+        messages.error(request, 'Não foi possível salvar o número. Verifique o formato.')
+        return render(request, self.template_name, self._hub_context(form_whatsapp=form_whatsapp))
 
 
 class PeriodoCreateView(FinanceiroOperacionalMixin, CreateView):

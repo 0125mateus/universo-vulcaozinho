@@ -13,6 +13,34 @@
     <p>{{ hotel_atual.nome }} · controle operacional semanal</p>
 </section>
 
+<div class="rec-form-card glass-card fin-settings-card">
+    <h3>💬 WhatsApp do setor de pagamentos</h3>
+    <p class="fin-settings-desc">
+        Número que recebe as planilhas ao clicar em <strong>Enviar no WhatsApp</strong>.
+        {% if whatsapp_setor_configurado %}
+        <span class="fin-settings-ok">Configurado para este hotel.</span>
+        {% else %}
+        <span class="fin-settings-warn">Ainda não configurado — cadastre abaixo.</span>
+        {% endif %}
+    </p>
+    <form method="post" class="fin-settings-form">
+        {% csrf_token %}
+        <div class="rec-field fin-settings-field">
+            <label for="{{ form_whatsapp.whatsapp_setor_pagamentos.id_for_label }}">
+                {{ form_whatsapp.whatsapp_setor_pagamentos.label }}
+            </label>
+            {{ form_whatsapp.whatsapp_setor_pagamentos }}
+            {% if form_whatsapp.whatsapp_setor_pagamentos.help_text %}
+            <small class="rec-help">{{ form_whatsapp.whatsapp_setor_pagamentos.help_text }}</small>
+            {% endif %}
+            {{ form_whatsapp.whatsapp_setor_pagamentos.errors }}
+        </div>
+        <div class="rec-actions fin-settings-actions">
+            <button type="submit" class="rec-btn rec-btn-primary">Salvar número</button>
+        </div>
+    </form>
+</div>
+
 <div class="fin-hub-grid">
     <div class="rec-form-card glass-card fin-hub-card">
         <h3>👥 Extras de recreadores</h3>
