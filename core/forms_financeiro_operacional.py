@@ -78,10 +78,16 @@ class ExtraRecreadorForm(forms.ModelForm):
                     'class': 'rec-input fin-grid-valor',
                     'step': '0.01',
                     'min': 0,
+                    'inputmode': 'decimal',
                 })
                 for d in ('seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom')
             },
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'DELETE' in self.fields:
+            self.fields['DELETE'].widget = forms.HiddenInput()
 
 
 ExtraRecreadorFormSet = inlineformset_factory(

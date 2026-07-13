@@ -155,14 +155,32 @@ class ExtrasRecreadoresPeriodoView(FinanceiroOperacionalMixin, View):
                 obj.delete()
             messages.success(request, 'Grade de extras salva.')
             return redirect('financeiro_extras_periodo', pk=pk)
+
         messages.error(request, 'Corrija os erros na grade.')
+        extras = [f.instance for f in formset.forms if f not in formset.deleted_forms and f.cleaned_data.get('nome')]
         return render(request, self.template_name, {
             'periodo': periodo,
             'formset': formset,
             'dias': DIAS_SEMANA,
-            'totais_dia': self._totais_por_dia(periodo),
-            'total_geral': Decimal('0'),
+            'totais_dia': self._totais_de_formset(formset),
+            'total_geral': self._total_geral_de_formset(formset),
         })
+
+    def _totais_de_formset(self, formset):
+        totais = {dia: Decimal('0') for dia, _ in DIAS_SEMANA}
+        for form in formset.forms:
+            if form in formset.deleted_forms:
+                continue
+            if not form.cleaned_data:
+                continue
+            if not form.cleaned_data.get('nome'):
+                continue
+            for dia, _ in DIAS_SEMANA:
+                totais[dia] += form.cleaned_data.get(f'valor_{dia}') or Decimal('0')
+        return totais
+
+    def _total_geral_de_formset(self, formset):
+        return sum(self._totais_de_formset(formset).values())
 
     def _totais_por_dia(self, periodo):
         extras = periodo.extras_recreadores.all()

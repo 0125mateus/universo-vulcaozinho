@@ -21,7 +21,7 @@
             {% if periodo.qtd_pax %}
             <div class="fin-stat-pill">Hóspedes<strong>{{ periodo.qtd_pax }}</strong></div>
             {% endif %}
-            <div class="fin-stat-pill">Total geral<strong>R$ {{ total_geral }}</strong></div>
+            <div class="fin-stat-pill">Total geral<strong id="fin-total-geral">R$ {{ total_geral }}</strong></div>
         </div>
     </div>
 </section>
@@ -62,11 +62,9 @@
                     <td>{{ form.valor_sex }}</td>
                     <td>{{ form.valor_sab }}</td>
                     <td>{{ form.valor_dom }}</td>
-                    <td class="fin-row-total">
-                        {% if form.instance.pk %}R$ {{ form.instance.total }}{% else %}—{% endif %}
-                    </td>
+                    <td class="fin-row-total">—</td>
                     <td class="fin-grid-delete">
-                        {% if form.DELETE %}{{ form.DELETE }}<label for="{{ form.DELETE.id_for_label }}" title="Remover">🗑</label>{% endif %}
+                        <button type="button" class="fin-grid-trash" title="Remover linha">🗑</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -74,14 +72,14 @@
             <tfoot>
                 <tr>
                     <td class="fin-col-nome"><strong>Totais do dia</strong></td>
-                    <td><strong>R$ {{ totais_dia.seg }}</strong></td>
-                    <td><strong>R$ {{ totais_dia.ter }}</strong></td>
-                    <td><strong>R$ {{ totais_dia.qua }}</strong></td>
-                    <td><strong>R$ {{ totais_dia.qui }}</strong></td>
-                    <td><strong>R$ {{ totais_dia.sex }}</strong></td>
-                    <td><strong>R$ {{ totais_dia.sab }}</strong></td>
-                    <td><strong>R$ {{ totais_dia.dom }}</strong></td>
-                    <td colspan="2"><strong>R$ {{ total_geral }}</strong></td>
+                    <td data-dia="seg"><strong>R$ 0,00</strong></td>
+                    <td data-dia="ter"><strong>R$ 0,00</strong></td>
+                    <td data-dia="qua"><strong>R$ 0,00</strong></td>
+                    <td data-dia="qui"><strong>R$ 0,00</strong></td>
+                    <td data-dia="sex"><strong>R$ 0,00</strong></td>
+                    <td data-dia="sab"><strong>R$ 0,00</strong></td>
+                    <td data-dia="dom"><strong>R$ 0,00</strong></td>
+                    <td data-total-geral colspan="2"><strong>R$ {{ total_geral }}</strong></td>
                 </tr>
             </tfoot>
         </table>
@@ -91,4 +89,8 @@
         <button type="submit" class="rec-btn rec-btn-primary">Salvar grade</button>
     </div>
 </form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/financeiro-extras-grid.js' %}"></script>
 {% endblock %}
