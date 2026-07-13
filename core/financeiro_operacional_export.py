@@ -45,15 +45,31 @@ def _style_header_row(ws, row: int, cols: int) -> None:
         cell.alignment = Alignment(horizontal='center')
 
 
+def _hotel_prefix(periodo: PeriodoOperacional) -> str:
+    if periodo.hotel_id and periodo.hotel:
+        return f'{_safe_filename(periodo.hotel.nome)}_'
+    return ''
+
+
 def _write_periodo_info(ws, periodo: PeriodoOperacional, titulo: str) -> int:
+    hotel = periodo.hotel if periodo.hotel_id else None
     ws['A1'] = titulo
     ws['A1'].font = Font(bold=True, size=14)
-    ws['A2'] = f'Período: {periodo.titulo}'
-    ws['A3'] = (
+    row = 2
+    if hotel:
+        ws[f'A{row}'] = f'Hotel: {hotel.nome}'
+        ws[f'A{row}'].font = Font(bold=True, size=12)
+        row += 1
+        if hotel.cidade:
+            ws[f'A{row}'] = f'Local: {hotel.cidade}/{hotel.estado}'
+            row += 1
+    ws[f'A{row}'] = f'Período: {periodo.titulo}'
+    row += 1
+    ws[f'A{row}'] = (
         f'{periodo.data_inicio.strftime("%d/%m/%Y")} a '
         f'{periodo.data_fim.strftime("%d/%m/%Y")}'
     )
-    row = 4
+    row += 1
     if periodo.ocupacao_pct is not None:
         ws[f'A{row}'] = f'Ocupação: {periodo.ocupacao_pct}%'
         row += 1
@@ -206,12 +222,12 @@ def exportar_compras_xlsx(periodo: PeriodoOperacional) -> bytes:
 
 
 def nome_arquivo_extras(periodo: PeriodoOperacional) -> str:
-    return f'{_safe_filename(periodo.titulo)}_extras_recreadores.xlsx'
+    return f'{_hotel_prefix(periodo)}{_safe_filename(periodo.titulo)}_extras_recreadores.xlsx'
 
 
 def nome_arquivo_atracoes(periodo: PeriodoOperacional) -> str:
-    return f'{_safe_filename(periodo.titulo)}_atracoes.xlsx'
+    return f'{_hotel_prefix(periodo)}{_safe_filename(periodo.titulo)}_atracoes.xlsx'
 
 
 def nome_arquivo_compras(periodo: PeriodoOperacional) -> str:
-    return f'{_safe_filename(periodo.titulo)}_compras.xlsx'
+    return f'{_hotel_prefix(periodo)}{_safe_filename(periodo.titulo)}_compras.xlsx'

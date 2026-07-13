@@ -490,7 +490,7 @@ class FinanceiroPlanilhaPublicaView(View):
             raise Http404('Link da planilha inválido ou expirado.')
 
         periodo_pk, tipo = resolved
-        periodo = PeriodoOperacional.objects.filter(pk=periodo_pk, tipo=tipo).first()
+        periodo = PeriodoOperacional.objects.select_related('hotel').filter(pk=periodo_pk, tipo=tipo).first()
         if not periodo:
             raise Http404('Período não encontrado.')
 
