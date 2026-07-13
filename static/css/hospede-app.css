@@ -103,6 +103,17 @@
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
 }
 
+.app-hotel-logo.is-hotel-logo,
+.app-welcome-mascote.app-hotel-logo {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
 .app-login-hotel {
     font-size: 0.85rem;
     font-weight: 700;

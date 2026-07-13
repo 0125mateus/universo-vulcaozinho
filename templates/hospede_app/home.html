@@ -1,5 +1,5 @@
 {% extends 'hospede_app/base.html' %}
-{% load static %}
+{% load static vulcaozinho_extras %}
 
 {% block title %}Início{% endblock %}
 
@@ -7,7 +7,7 @@
 <section class="app-welcome">
     <div class="app-welcome-bg"></div>
     <div class="app-welcome-content">
-        <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="" class="app-welcome-mascote">
+        <img src="{% static hotel|hotel_logo %}" alt="{{ hotel.nome }}" class="app-welcome-mascote app-hotel-logo">
         <h1>Olá, {{ primeiro_nome }}!</h1>
         <p>Sejam bem-vindos ao {{ hotel.nome }}</p>
         <span class="app-badge">Apt. {{ hospede.apartamento }}</span>

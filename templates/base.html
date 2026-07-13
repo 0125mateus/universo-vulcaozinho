@@ -1,4 +1,4 @@
-{% load static %}
+{% load static vulcaozinho_extras %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -32,18 +32,26 @@
     <div class="app-shell">
         {% if hotel_atual %}
         <div class="hotel-theme-bar">
-            <span class="hotel-theme-bar-name">🏨 {{ hotel_atual.nome }}</span>
+            <span class="hotel-theme-bar-name">
+                <img src="{% static hotel_atual|hotel_logo %}" alt="" class="hotel-theme-bar-logo">
+                {{ hotel_atual.nome }}
+            </span>
             <span class="hotel-theme-bar-slogan">{{ hotel_atual.slogan }}</span>
         </div>
         {% endif %}
         <header class="site-header">
-            <a href="{% url 'home' %}" class="brand{% if hotel_atual and hotel_atual.slug == 'cassino-resort' %} brand-cassino{% endif %}">
-                {% if hotel_atual and hotel_atual.slug == 'cassino-resort' %}
-                <img src="{% static 'img/hoteis/cassino-resort.png' %}" alt="Cassino All Inclusive Resort" class="brand-hotel-logo">
-                <div class="brand-text brand-text-cassino">
+            <a href="{% url 'home' %}" class="brand brand-hotel">
+                {% if hotel_atual %}
+                <img src="{% static hotel_atual|hotel_logo %}" alt="{{ hotel_atual.nome }}" class="brand-hotel-logo">
+                <div class="brand-text{% if hotel_atual.slug == 'cassino-resort' %} brand-text-cassino{% endif %}">
+                    {% if hotel_atual.slug == 'cassino-resort' %}
                     <h1>cassino</h1>
                     <span class="brand-cassino-sub">all inclusive resort</span>
                     <span class="brand-cassino-loc">POÇOS DE CALDAS</span>
+                    {% else %}
+                    <h1>{{ hotel_atual.nome }}</h1>
+                    <span>{{ hotel_atual.slogan|default:"Sistema de Recreação" }}</span>
+                    {% endif %}
                 </div>
                 {% else %}
                 <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Vulcãozinho">
@@ -70,13 +78,24 @@
                 <a href="{% url 'login' %}" class="user-login-btn">Entrar</a>
                 {% endif %}
                 {% if pode_trocar_hotel %}
-                <select id="hotel-select" class="hotel-selector-select" aria-label="Selecionar hotel">
-                    {% for h in hoteis_disponiveis %}
-                    <option value="{{ h.slug }}" {% if hotel_atual.slug == h.slug %}selected{% endif %}>{{ h.nome }}</option>
-                    {% endfor %}
-                </select>
+                <div class="hotel-selector-wrap">
+                    <img
+                        id="hotel-select-logo"
+                        src="{% if hotel_atual %}{% static hotel_atual|hotel_logo %}{% else %}{% static 'img/mascote-vulcaozinho.png' %}{% endif %}"
+                        alt=""
+                        class="hotel-selector-logo"
+                    >
+                    <select id="hotel-select" class="hotel-selector-select" aria-label="Selecionar hotel">
+                        {% for h in hoteis_disponiveis %}
+                        <option value="{{ h.slug }}" {% if hotel_atual and hotel_atual.slug == h.slug %}selected{% endif %}>{{ h.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 {% elif hotel_atual %}
-                <span class="hotel-locked">🏨 {{ hotel_atual.nome }}</span>
+                <span class="hotel-locked">
+                    <img src="{% static hotel_atual|hotel_logo %}" alt="" class="hotel-selector-logo hotel-locked-logo">
+                    {{ hotel_atual.nome }}
+                </span>
                 {% endif %}
             </div>
             {% endif %}
@@ -117,8 +136,12 @@
     </div>
     <script>
         const sel = document.getElementById('hotel-select');
+        const hotelLogo = document.getElementById('hotel-select-logo');
         if (sel) {
             sel.addEventListener('change', () => {
+                if (hotelLogo) {
+                    hotelLogo.src = '/static/img/hoteis/' + sel.value + '.png';
+                }
                 window.location.href = '/hotel/' + sel.value + '/';
             });
         }

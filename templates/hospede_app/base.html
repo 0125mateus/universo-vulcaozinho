@@ -1,4 +1,4 @@
-{% load static %}
+{% load static vulcaozinho_extras %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -9,11 +9,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Vulcãozinho">
     <link rel="manifest" href="{% url 'hospede_app_manifest' %}">
-    <link rel="apple-touch-icon" href="{% static 'img/mascote-vulcaozinho.png' %}">
-    <title>{% block title %}App Hóspede{% endblock %} — Vulcãozinho</title>
+    <link rel="apple-touch-icon" href="{% if hotel %}{% static hotel|hotel_logo %}{% else %}{% static 'img/mascote-vulcaozinho.png' %}{% endif %}">
+    <title>{% block title %}App Hóspede{% endblock %}{% if hotel %} — {{ hotel.nome }}{% else %} — Vulcãozinho{% endif %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/hospede-app.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/hospede-app.css' %}?v=6">
     {% if hotel %}
     <style>
         :root {

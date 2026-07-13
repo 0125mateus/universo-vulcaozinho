@@ -6,6 +6,8 @@
     var detectBox = document.getElementById('app-hotel-detect');
     var detectNome = document.getElementById('app-hotel-detect-nome');
     var defaultLabel = document.getElementById('app-hotel-default');
+    var logoEl = document.getElementById('app-hotel-logo');
+    var defaultLogo = logoEl ? (logoEl.dataset.defaultSrc || logoEl.src) : '';
     var timer = null;
 
     if (!aptInput || !docInput || !detectBox) {
@@ -21,6 +23,10 @@
         if (defaultLabel) {
             defaultLabel.hidden = false;
         }
+        if (logoEl && defaultLogo) {
+            logoEl.src = defaultLogo;
+            logoEl.classList.remove('is-hotel-logo');
+        }
         document.documentElement.style.removeProperty('--app-primary');
     }
 
@@ -29,6 +35,10 @@
         detectBox.hidden = false;
         if (defaultLabel) {
             defaultLabel.hidden = true;
+        }
+        if (logoEl && data.hotel_slug) {
+            logoEl.src = '/static/img/hoteis/' + data.hotel_slug + '.png';
+            logoEl.classList.add('is-hotel-logo');
         }
         if (data.hotel_cor) {
             document.documentElement.style.setProperty('--app-primary', data.hotel_cor);

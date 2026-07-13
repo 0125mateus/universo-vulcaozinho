@@ -1,5 +1,5 @@
 {% extends 'hospede_app/base.html' %}
-{% load static %}
+{% load static vulcaozinho_extras %}
 
 {% block title %}Entrar{% endblock %}
 
@@ -8,7 +8,13 @@
 {% block content %}
 <div class="app-login">
     <div class="app-login-hero">
-        <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Vulcãozinho" class="app-mascote">
+        <img
+            src="{% static 'img/mascote-vulcaozinho.png' %}"
+            data-default-src="{% static 'img/mascote-vulcaozinho.png' %}"
+            alt="Logo do hotel"
+            class="app-mascote app-hotel-logo"
+            id="app-hotel-logo"
+        >
         <p class="app-login-hotel app-login-hotel-detect" id="app-hotel-detect" hidden>
             <span class="app-hotel-detect-label">🏨</span>
             <span id="app-hotel-detect-nome"></span>

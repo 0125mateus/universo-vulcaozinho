@@ -151,16 +151,24 @@ body {
     letter-spacing: 0.12em;
 }
 
-/* Marca Cassino Resort — identidade da logo */
-.brand-cassino .brand-hotel-logo {
-    width: auto;
+/* Marca do hotel — logo circular (Dan, Nacional, Euro, Cassino) */
+.brand-hotel .brand-hotel-logo,
+.brand-hotel-logo {
+    width: 72px;
     height: 72px;
-    max-width: 88px;
+    max-width: 72px;
+    object-fit: contain;
     border-radius: 0;
     background: transparent;
     box-shadow: none;
     animation: none;
-    object-fit: contain;
+    padding: 4px;
+}
+
+.brand-cassino .brand-hotel-logo {
+    width: auto;
+    height: 72px;
+    max-width: 88px;
 }
 
 .brand-text-cassino h1 {
@@ -202,6 +210,45 @@ body.hotel-cassino-resort .brand-text-cassino h1 {
 body.hotel-cassino-resort .brand img.brand-hotel-logo {
     box-shadow: none;
     border-radius: 0;
+}
+
+body.hotel-theme .brand img.brand-hotel-logo {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-radius: 0;
+    background: #fff;
+    padding: 6px;
+}
+
+.hotel-selector-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hotel-selector-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 8px;
+    padding: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hotel-theme-bar-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 0.35rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    padding: 2px;
+}
+
+.hotel-theme-bar-name {
+    display: inline-flex;
+    align-items: center;
 }
 
 .hotel-selector select {
@@ -1680,12 +1727,20 @@ body.hotel-cassino-resort .brand img.brand-hotel-logo {
 }
 
 .hotel-locked {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     font-weight: 800;
     font-size: 0.85rem;
     color: var(--hotel-primary);
     padding: 0.4rem 0.85rem;
     background: rgba(255, 212, 61, 0.3);
     border-radius: 999px;
+}
+
+.hotel-locked-logo {
+    width: 28px;
+    height: 28px;
 }
 
 /* Flash messages */

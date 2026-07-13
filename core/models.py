@@ -60,6 +60,11 @@ class Hotel(models.Model):
             'terciaria': self.cor_terciaria,
         }
 
+    @property
+    def logo_static(self) -> str:
+        from .hotel_brand import hotel_logo_static_path
+        return hotel_logo_static_path(self.slug)
+
 
 class FaixaEtaria(models.TextChoices):
     BEBE = 'bebe', 'Bebê (0-2 anos)'
@@ -1098,4 +1103,177 @@ class PerfilUsuario(models.Model):
     @property
     def acesso_global(self) -> bool:
         return self.papel in PAPEIS_ACESSO_GLOBAL and self.hotel_id is None
+
+
+class TipoPeriodoOperacional(models.TextChoices):
+    EXTRAS_RECREADORES = 'extras_recreadores', 'Extras de recreadores'
+    ATRACOES = 'atracoes', 'Atrações / artistas'
+    COMPRAS = 'compras', 'Compras semanais'
+
+
+class StatusPagamentoOperacional(models.TextChoices):
+    PENDENTE = 'pendente', 'Pendente'
+    AUTORIZADO = 'autorizado', 'Autorizado'
+    PAGO = 'pago', 'Pago'
+    CANCELADO = 'cancelado', 'Cancelado'
+
+
+class PeriodoOperacional(models.Model):
+    """Semana ou período de controle (extras, atrações ou compras)."""
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name='periodos_operacionais',
+        verbose_name='hotel',
+    )
+    tipo = models.CharField(
+        'tipo',
+        max_length=30,
+        choices=TipoPeriodoOperacional.choices,
+    )
+    titulo = models.CharField('título', max_length=120)
+    data_inicio = models.DateField('data início')
+    data_fim = models.DateField('data fim')
+    ocupacao_pct = models.DecimalField(
+        'ocupação %',
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    qtd_pax = models.PositiveIntegerField('qtd. hóspedes', null=True, blank=True)
+    criado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='periodos_operacionais_criados',
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-data_inicio', 'titulo']
+        verbose_name = 'período operacional'
+        verbose_name_plural = 'períodos operacionais'
+
+    def __str__(self):
+        return f'{self.titulo} ({self.get_tipo_display()})'
+
+
+class PagamentoAtracao(models.Model):
+    """Pagamentos de artistas, bandas e entretenimento."""
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name='pagamentos_atracoes',
+    )
+    periodo = models.ForeignKey(
+        PeriodoOperacional,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pagamentos',
+    )
+    data_label = models.CharField('dia / referência', max_length=80, blank=True)
+    data_evento = models.DateField('data do evento', null=True, blank=True)
+    artista = models.CharField('artista / prestador', max_length=200)
+    atracao = models.CharField('atração / tipo', max_length=200, blank=True)
+    valor = models.DecimalField('valor (R$)', max_digits=10, decimal_places=2, default=Decimal('0'))
+    chave_pix = models.CharField('chave PIX', max_length=200, blank=True)
+    evento = models.CharField('evento', max_length=200, blank=True)
+    pacote = models.CharField('pacote', max_length=120, blank=True)
+    tipo_servico = models.CharField('tipo de serviço', max_length=120, blank=True)
+    responsavel = models.CharField('responsável', max_length=120, blank=True)
+    horario = models.CharField('horário', max_length=40, blank=True)
+    local_dept = models.CharField('local / dept.', max_length=120, blank=True)
+    status = models.CharField(
+        'status',
+        max_length=20,
+        choices=StatusPagamentoOperacional.choices,
+        default=StatusPagamentoOperacional.PENDENTE,
+    )
+    autorizacao_diretoria = models.CharField('autorização diretoria', max_length=80, blank=True)
+    observacoes = models.TextField('observações', blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['data_evento', 'artista']
+        verbose_name = 'pagamento de atração'
+        verbose_name_plural = 'pagamentos de atrações'
+
+    def __str__(self):
+        return f'{self.artista} — R$ {self.valor}'
+
+
+class ExtraRecreador(models.Model):
+    """Extras semanais por recreador (grade Seg–Dom)."""
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name='extras_recreadores',
+    )
+    periodo = models.ForeignKey(
+        PeriodoOperacional,
+        on_delete=models.CASCADE,
+        related_name='extras_recreadores',
+    )
+    nome = models.CharField('recreador', max_length=120)
+    valor_seg = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0'))
+    valor_ter = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0'))
+    valor_qua = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0'))
+    valor_qui = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0'))
+    valor_sex = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0'))
+    valor_sab = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0'))
+    valor_dom = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0'))
+    ordem = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['ordem', 'nome']
+        verbose_name = 'extra de recreador'
+        verbose_name_plural = 'extras de recreadores'
+
+    def __str__(self):
+        return self.nome
+
+    @property
+    def total(self) -> Decimal:
+        return (
+            self.valor_seg + self.valor_ter + self.valor_qua + self.valor_qui
+            + self.valor_sex + self.valor_sab + self.valor_dom
+        )
+
+
+class ItemCompraSemanal(models.Model):
+    """Itens da planilha de compras de materiais."""
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name='compras_semanais',
+    )
+    periodo = models.ForeignKey(
+        PeriodoOperacional,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='itens_compra',
+    )
+    descricao = models.CharField('material / item', max_length=300)
+    quantidade = models.PositiveIntegerField('quantidade', default=1)
+    link_fornecedor = models.URLField('link fornecedor', max_length=500, blank=True)
+    preco_unitario = models.DecimalField('preço unitário', max_digits=10, decimal_places=2, default=Decimal('0'))
+    ordem = models.PositiveSmallIntegerField(default=0)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['ordem', 'descricao']
+        verbose_name = 'item de compra'
+        verbose_name_plural = 'itens de compra'
+
+    def __str__(self):
+        return self.descricao[:60]
+
+    @property
+    def preco_total(self) -> Decimal:
+        return self.preco_unitario * self.quantidade
 
