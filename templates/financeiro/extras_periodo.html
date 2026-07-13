@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Extras — {{ periodo.titulo }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/financeiro-operacional.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <div class="fin-periodo-header">
+        <div>
+            <h2>👥 Extras de recreadores</h2>
+            <p>{{ periodo.titulo }} · {{ periodo.data_inicio|date:"d/m" }} – {{ periodo.data_fim|date:"d/m" }}</p>
+        </div>
+        <div class="fin-periodo-stats">
+            {% if periodo.ocupacao_pct %}
+            <div class="fin-stat-pill">Ocupação<strong>{{ periodo.ocupacao_pct }}%</strong></div>
+            {% endif %}
+            {% if periodo.qtd_pax %}
+            <div class="fin-stat-pill">Hóspedes<strong>{{ periodo.qtd_pax }}</strong></div>
+            {% endif %}
+            <div class="fin-stat-pill">Total geral<strong>R$ {{ total_geral }}</strong></div>
+        </div>
+    </div>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'financeiro_extras_lista' %}" class="rec-btn rec-btn-ghost">← Períodos</a>
+</div>
+
+<form method="post" class="rec-form-card glass-card">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <div class="fin-grid-wrap">
+        <table class="fin-grid-table">
+            <thead>
+                <tr>
+                    <th class="fin-col-nome">Recreador</th>
+                    <th>Seg</th>
+                    <th>Ter</th>
+                    <th>Qua</th>
+                    <th>Qui</th>
+                    <th>Sex</th>
+                    <th>Sáb</th>
+                    <th>Dom</th>
+                    <th>Total</th>
+                    <th class="fin-grid-delete"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                <tr>
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                    <td class="fin-col-nome">{{ form.nome }}{{ form.nome.errors }}</td>
+                    <td>{{ form.valor_seg }}</td>
+                    <td>{{ form.valor_ter }}</td>
+                    <td>{{ form.valor_qua }}</td>
+                    <td>{{ form.valor_qui }}</td>
+                    <td>{{ form.valor_sex }}</td>
+                    <td>{{ form.valor_sab }}</td>
+                    <td>{{ form.valor_dom }}</td>
+                    <td class="fin-row-total">
+                        {% if form.instance.pk %}R$ {{ form.instance.total }}{% else %}—{% endif %}
+                    </td>
+                    <td class="fin-grid-delete">
+                        {% if form.DELETE %}{{ form.DELETE }}<label for="{{ form.DELETE.id_for_label }}" title="Remover">🗑</label>{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td class="fin-col-nome"><strong>Totais do dia</strong></td>
+                    <td><strong>R$ {{ totais_dia.seg }}</strong></td>
+                    <td><strong>R$ {{ totais_dia.ter }}</strong></td>
+                    <td><strong>R$ {{ totais_dia.qua }}</strong></td>
+                    <td><strong>R$ {{ totais_dia.qui }}</strong></td>
+                    <td><strong>R$ {{ totais_dia.sex }}</strong></td>
+                    <td><strong>R$ {{ totais_dia.sab }}</strong></td>
+                    <td><strong>R$ {{ totais_dia.dom }}</strong></td>
+                    <td colspan="2"><strong>R$ {{ total_geral }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="rec-actions" style="margin-top:1rem;">
+        <button type="submit" class="rec-btn rec-btn-primary">Salvar grade</button>
+    </div>
+</form>
+{% endblock %}

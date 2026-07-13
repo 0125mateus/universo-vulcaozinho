@@ -1260,7 +1260,7 @@ class ItemCompraSemanal(models.Model):
     )
     descricao = models.CharField('material / item', max_length=300)
     quantidade = models.PositiveIntegerField('quantidade', default=1)
-    link_fornecedor = models.URLField('link fornecedor', max_length=500, blank=True)
+    link_fornecedor = models.CharField('link fornecedor', max_length=500, blank=True)
     preco_unitario = models.DecimalField('preço unitário', max_digits=10, decimal_places=2, default=Decimal('0'))
     ordem = models.PositiveSmallIntegerField(default=0)
     criado_em = models.DateTimeField(auto_now_add=True)

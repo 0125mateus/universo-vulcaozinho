@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Atrações — {{ periodo.titulo }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/financeiro-operacional.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <div class="fin-periodo-header">
+        <div>
+            <h2>🎤 Pagamentos de atrações</h2>
+            <p>{{ periodo.titulo }} · {{ periodo.data_inicio|date:"d/m" }} – {{ periodo.data_fim|date:"d/m" }}</p>
+        </div>
+        <div class="fin-periodo-stats">
+            <div class="fin-stat-pill">Total<strong>R$ {{ total }}</strong></div>
+        </div>
+    </div>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'financeiro_atracoes_lista' %}" class="rec-btn rec-btn-ghost">← Períodos</a>
+    <a href="{% url 'financeiro_atracao_novo' periodo.pk %}" class="rec-btn rec-btn-primary">+ Novo pagamento</a>
+</div>
+
+<div class="rec-form-card glass-card">
+    <div class="rec-table-wrap">
+        <table class="rec-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Artista</th>
+                    <th>Atração</th>
+                    <th>Valor</th>
+                    <th>Chave PIX</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pagamentos %}
+                <tr>
+                    <td>
+                        {% if p.data_evento %}{{ p.data_evento|date:"d/m" }}{% elif p.data_label %}{{ p.data_label }}{% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ p.artista }}</strong>
+                        {% if p.evento %}<br><small>{{ p.evento }}</small>{% endif %}
+                    </td>
+                    <td>{{ p.atracao|default:"—" }}</td>
+                    <td>R$ {{ p.valor }}</td>
+                    <td><small>{{ p.chave_pix|default:"—" }}</small></td>
+                    <td><span class="fin-status fin-status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+                    <td class="rec-table-actions">
+                        <a href="{% url 'financeiro_atracao_editar' periodo.pk p.pk %}" class="rec-btn rec-btn-sm rec-btn-primary">Editar</a>
+                        <a href="{% url 'financeiro_atracao_excluir' periodo.pk p.pk %}" class="rec-btn rec-btn-sm rec-btn-danger">Excluir</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="rec-empty">Nenhum pagamento neste período.</td></tr>
+                {% endfor %}
+            </tbody>
+            {% if pagamentos %}
+            <tfoot>
+                <tr>
+                    <td colspan="3"><strong>Total</strong></td>
+                    <td colspan="4"><strong>R$ {{ total }}</strong></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+
+<div class="fin-import-box glass-card">
+    <h4>📥 Importar planilha Excel</h4>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="fin-import-row">
+            <div class="rec-field">
+                <label for="{{ import_form.arquivo.id_for_label }}">{{ import_form.arquivo.label }}</label>
+                {{ import_form.arquivo }}
+            </div>
+            <div class="rec-field">
+                <label>
+                    {{ import_form.substituir }}
+                    {{ import_form.substituir.label }}
+                </label>
+            </div>
+            <div class="rec-field">
+                <label for="tipo_import">Tipo de planilha</label>
+                <select name="tipo_import" id="tipo_import" class="rec-input">
+                    <option value="atracoes">Atrações / artistas (pagamentos)</option>
+                    <option value="eventos">Eventos de recreação</option>
+                </select>
+            </div>
+            <button type="submit" class="rec-btn rec-btn-primary">Importar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

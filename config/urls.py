@@ -31,6 +31,7 @@ from core import views_programacao_gestao
 from core import views_passeios_gestao
 from core import views_telao
 from core import views_hospede_app
+from core import views_financeiro_operacional
 
 
 
@@ -85,6 +86,19 @@ urlpatterns = [
     path('loja/pdv/', views_loja.LojaPDVView.as_view(), name='loja_pdv'),
 
     path('loja/financeiro/', views_loja.FinanceiroLojaView.as_view(), name='loja_financeiro'),
+
+    path('financeiro/', views_financeiro_operacional.FinanceiroHubView.as_view(), name='financeiro_hub'),
+    path('financeiro/periodo/novo/<str:tipo>/', views_financeiro_operacional.PeriodoCreateView.as_view(), name='financeiro_periodo_novo'),
+    path('financeiro/extras/', views_financeiro_operacional.ExtrasListaView.as_view(), name='financeiro_extras_lista'),
+    path('financeiro/extras/<int:pk>/', views_financeiro_operacional.ExtrasRecreadoresPeriodoView.as_view(), name='financeiro_extras_periodo'),
+    path('financeiro/atracoes/', views_financeiro_operacional.AtracoesListaView.as_view(), name='financeiro_atracoes_lista'),
+    path('financeiro/atracoes/<int:pk>/', views_financeiro_operacional.AtracoesPeriodoView.as_view(), name='financeiro_atracoes_periodo'),
+    path('financeiro/atracoes/<int:periodo_pk>/novo/', views_financeiro_operacional.PagamentoAtracaoCreateView.as_view(), name='financeiro_atracao_novo'),
+    path('financeiro/atracoes/<int:periodo_pk>/<int:pagamento_pk>/editar/', views_financeiro_operacional.PagamentoAtracaoUpdateView.as_view(), name='financeiro_atracao_editar'),
+    path('financeiro/atracoes/<int:periodo_pk>/<int:pagamento_pk>/excluir/', views_financeiro_operacional.PagamentoAtracaoDeleteView.as_view(), name='financeiro_atracao_excluir'),
+    path('financeiro/compras/', views_financeiro_operacional.ComprasListaView.as_view(), name='financeiro_compras_lista'),
+    path('financeiro/compras/<int:pk>/', views_financeiro_operacional.ComprasPeriodoView.as_view(), name='financeiro_compras_periodo'),
+    path('financeiro/compras/item/<int:pk>/excluir/', views_financeiro_operacional.ItemCompraDeleteView.as_view(), name='financeiro_compra_excluir'),
 
     path('faixas/', views.FaixasView.as_view(), name='faixas'),
 

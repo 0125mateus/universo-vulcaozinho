@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pagamentos e Compras{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/financeiro-operacional.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>💰 Pagamentos e Compras</h2>
+    <p>{{ hotel_atual.nome }} · controle operacional semanal</p>
+</section>
+
+<div class="fin-hub-grid">
+    <div class="rec-form-card glass-card fin-hub-card">
+        <h3>👥 Extras de recreadores</h3>
+        <p>Grade semanal Seg–Dom por recreador, como na planilha de extras.</p>
+        <ul class="fin-periodo-list">
+            {% for p in periodos_extras %}
+            <li>
+                <a href="{% url 'financeiro_extras_periodo' p.pk %}">{{ p.titulo }}</a>
+                <span class="fin-periodo-meta">{{ p.data_inicio|date:"d/m" }} – {{ p.data_fim|date:"d/m" }}</span>
+            </li>
+            {% empty %}
+            <li class="rec-empty">Nenhum período ainda.</li>
+            {% endfor %}
+        </ul>
+        <div class="fin-hub-actions">
+            <a href="{% url 'financeiro_extras_lista' %}" class="rec-btn rec-btn-ghost">Ver todos</a>
+            <a href="{% url 'financeiro_periodo_novo' 'extras_recreadores' %}" class="rec-btn rec-btn-primary">+ Novo período</a>
+        </div>
+    </div>
+
+    <div class="rec-form-card glass-card fin-hub-card">
+        <h3>🎤 Atrações e artistas</h3>
+        <p>Pagamentos de cantores, bandas e entretenimento com PIX.</p>
+        <ul class="fin-periodo-list">
+            {% for p in periodos_atracoes %}
+            <li>
+                <a href="{% url 'financeiro_atracoes_periodo' p.pk %}">{{ p.titulo }}</a>
+                <span class="fin-periodo-meta">{{ p.data_inicio|date:"d/m" }} – {{ p.data_fim|date:"d/m" }}</span>
+            </li>
+            {% empty %}
+            <li class="rec-empty">Nenhum período ainda.</li>
+            {% endfor %}
+        </ul>
+        <div class="fin-hub-actions">
+            <a href="{% url 'financeiro_atracoes_lista' %}" class="rec-btn rec-btn-ghost">Ver todos</a>
+            <a href="{% url 'financeiro_periodo_novo' 'atracoes' %}" class="rec-btn rec-btn-primary">+ Novo período</a>
+        </div>
+    </div>
+
+    <div class="rec-form-card glass-card fin-hub-card">
+        <h3>🛒 Compras semanais</h3>
+        <p>Materiais, quantidade, link do fornecedor e preços.</p>
+        <ul class="fin-periodo-list">
+            {% for p in periodos_compras %}
+            <li>
+                <a href="{% url 'financeiro_compras_periodo' p.pk %}">{{ p.titulo }}</a>
+                <span class="fin-periodo-meta">{{ p.data_inicio|date:"d/m" }} – {{ p.data_fim|date:"d/m" }}</span>
+            </li>
+            {% empty %}
+            <li class="rec-empty">Nenhum período ainda.</li>
+            {% endfor %}
+        </ul>
+        <div class="fin-hub-actions">
+            <a href="{% url 'financeiro_compras_lista' %}" class="rec-btn rec-btn-ghost">Ver todos</a>
+            <a href="{% url 'financeiro_periodo_novo' 'compras' %}" class="rec-btn rec-btn-primary">+ Novo período</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

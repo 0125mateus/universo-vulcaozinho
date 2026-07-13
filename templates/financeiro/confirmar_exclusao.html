@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>🗑️ {{ titulo }}</h2>
+    <p>{{ periodo.titulo }}</p>
+</section>
+
+<div class="rec-form-card glass-card">
+    <p>Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="rec-actions">
+            <a href="{{ voltar_url }}" class="rec-btn rec-btn-ghost">Cancelar</a>
+            <button type="submit" class="rec-btn rec-btn-primary" style="background:#c0392b;border-color:#c0392b;">Excluir</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

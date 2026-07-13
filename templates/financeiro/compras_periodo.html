@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Compras — {{ periodo.titulo }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/financeiro-operacional.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <div class="fin-periodo-header">
+        <div>
+            <h2>🛒 Compras de materiais</h2>
+            <p>{{ periodo.titulo }} · {{ periodo.data_inicio|date:"d/m" }} – {{ periodo.data_fim|date:"d/m" }}</p>
+        </div>
+        <div class="fin-periodo-stats">
+            <div class="fin-stat-pill">Total<strong>R$ {{ total }}</strong></div>
+        </div>
+    </div>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'financeiro_compras_lista' %}" class="rec-btn rec-btn-ghost">← Períodos</a>
+</div>
+
+<div class="rec-form-card glass-card" style="margin-bottom:1rem;">
+    <h3 style="margin-top:0;">➕ Adicionar item</h3>
+    <form method="post">
+        {% csrf_token %}
+        <div class="rec-form-grid">
+            {% for field in item_form %}
+            <div class="rec-field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {{ field.errors }}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="rec-actions">
+            <button type="submit" class="rec-btn rec-btn-primary">Adicionar</button>
+        </div>
+    </form>
+</div>
+
+<div class="rec-form-card glass-card">
+    <div class="rec-table-wrap">
+        <table class="rec-table">
+            <thead>
+                <tr>
+                    <th>Material</th>
+                    <th>Qtd</th>
+                    <th>Link</th>
+                    <th>Preço unit.</th>
+                    <th>Preço total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens %}
+                <tr>
+                    <td><strong>{{ item.descricao }}</strong></td>
+                    <td>{{ item.quantidade }}</td>
+                    <td class="fin-link-cell">
+                        {% if item.link_fornecedor %}
+                        <a href="{{ item.link_fornecedor }}" target="_blank" rel="noopener">{{ item.link_fornecedor }}</a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>R$ {{ item.preco_unitario }}</td>
+                    <td>R$ {{ item.preco_total }}</td>
+                    <td class="rec-table-actions">
+                        <a href="{% url 'financeiro_compra_excluir' item.pk %}" class="rec-btn rec-btn-sm rec-btn-danger">Excluir</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="rec-empty">Nenhum item neste período.</td></tr>
+                {% endfor %}
+            </tbody>
+            {% if itens %}
+            <tfoot>
+                <tr>
+                    <td colspan="4"><strong>Total</strong></td>
+                    <td colspan="2"><strong>R$ {{ total }}</strong></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+
+<div class="fin-import-box glass-card">
+    <h4>📥 Importar planilha de compras (.xlsx)</h4>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="importar" value="1">
+        <div class="fin-import-row">
+            <div class="rec-field">
+                <label for="{{ import_form.arquivo.id_for_label }}">{{ import_form.arquivo.label }}</label>
+                {{ import_form.arquivo }}
+            </div>
+            <div class="rec-field">
+                <label>
+                    {{ import_form.substituir }}
+                    {{ import_form.substituir.label }}
+                </label>
+            </div>
+            <button type="submit" class="rec-btn rec-btn-primary">Importar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

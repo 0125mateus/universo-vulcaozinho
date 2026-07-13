@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo período — {{ tipo_label }}{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>📅 Novo período</h2>
+    <p>{{ tipo_label }} · {{ hotel_atual.nome }}</p>
+</section>
+
+<form method="post" class="rec-form-card glass-card">
+    {% csrf_token %}
+    <div class="rec-form-grid">
+        {% for field in form %}
+        <div class="rec-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="rec-actions">
+        <a href="{% url 'financeiro_hub' %}" class="rec-btn rec-btn-ghost">Cancelar</a>
+        <button type="submit" class="rec-btn rec-btn-primary">Criar período</button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Extras de recreadores{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>👥 Extras de recreadores</h2>
+    <p>{{ hotel_atual.nome }}</p>
+</section>
+
+<div class="rec-toolbar">
+    <a href="{% url 'financeiro_hub' %}" class="rec-btn rec-btn-ghost">← Voltar</a>
+    <a href="{% url 'financeiro_periodo_novo' 'extras_recreadores' %}" class="rec-btn rec-btn-primary">+ Novo período</a>
+</div>
+
+<div class="rec-form-card glass-card">
+    <div class="rec-table-wrap">
+        <table class="rec-table">
+            <thead>
+                <tr>
+                    <th>Período</th>
+                    <th>Datas</th>
+                    <th>Ocupação</th>
+                    <th>Pax</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in periodos %}
+                <tr>
+                    <td><strong>{{ p.titulo }}</strong></td>
+                    <td>{{ p.data_inicio|date:"d/m/Y" }} – {{ p.data_fim|date:"d/m/Y" }}</td>
+                    <td>{% if p.ocupacao_pct %}{{ p.ocupacao_pct }}%{% else %}—{% endif %}</td>
+                    <td>{% if p.qtd_pax %}{{ p.qtd_pax }}{% else %}—{% endif %}</td>
+                    <td class="rec-table-actions">
+                        <a href="{% url 'financeiro_extras_periodo' p.pk %}" class="rec-btn rec-btn-sm rec-btn-primary">Abrir grade</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="rec-empty">Nenhum período cadastrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

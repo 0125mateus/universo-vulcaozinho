@@ -1,0 +1,189 @@
+.fin-hub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.fin-hub-card {
+    padding: 1.25rem;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.fin-hub-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.fin-hub-card p {
+    margin: 0;
+    color: var(--text-muted, #666);
+    font-size: 0.9rem;
+}
+
+.fin-hub-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.fin-periodo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+}
+
+.fin-periodo-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 0.9rem;
+}
+
+.fin-periodo-list li:last-child {
+    border-bottom: none;
+}
+
+.fin-periodo-meta {
+    color: var(--text-muted, #666);
+    font-size: 0.82rem;
+}
+
+.fin-grid-wrap {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.fin-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+    font-size: 0.88rem;
+}
+
+.fin-grid-table th,
+.fin-grid-table td {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.35rem 0.45rem;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.fin-grid-table th {
+    background: rgba(0, 0, 0, 0.04);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.fin-grid-table th.fin-col-nome,
+.fin-grid-table td.fin-col-nome {
+    text-align: left;
+    min-width: 140px;
+}
+
+.fin-grid-table .fin-grid-nome {
+    min-width: 130px;
+}
+
+.fin-grid-table .fin-grid-valor {
+    width: 72px;
+    text-align: right;
+    padding: 0.25rem;
+}
+
+.fin-grid-table tfoot td {
+    font-weight: 800;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.fin-grid-table .fin-row-total {
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.fin-grid-delete {
+    width: 36px;
+}
+
+.fin-import-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px dashed rgba(0, 0, 0, 0.12);
+}
+
+.fin-import-box h4 {
+    margin: 0 0 0.75rem;
+}
+
+.fin-import-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.fin-import-row .rec-field {
+    flex: 1;
+    min-width: 180px;
+}
+
+.fin-status {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.fin-status-pendente { background: #fff3cd; color: #856404; }
+.fin-status-autorizado { background: #d1ecf1; color: #0c5460; }
+.fin-status-pago { background: #d4edda; color: #155724; }
+.fin-status-cancelado { background: #f8d7da; color: #721c24; }
+
+.fin-periodo-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.fin-periodo-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.fin-stat-pill {
+    padding: 0.4rem 0.75rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+}
+
+.fin-stat-pill strong {
+    display: block;
+    font-size: 1rem;
+}
+
+.fin-link-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fin-link-cell a {
+    color: var(--brand-green, #2d8a4e);
+    text-decoration: underline;
+}

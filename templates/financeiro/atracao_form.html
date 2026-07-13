@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar{% else %}Novo{% endif %} pagamento{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>{% if object %}✏️ Editar pagamento{% else %}➕ Novo pagamento{% endif %}</h2>
+    <p>{{ periodo.titulo }} · {{ hotel_atual.nome }}</p>
+</section>
+
+<form method="post" class="rec-form-card glass-card">
+    {% csrf_token %}
+    <div class="rec-form-grid">
+        {% for field in form %}
+        <div class="rec-field {% if field.name == 'observacoes' %}rec-field-full{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="rec-actions">
+        <a href="{% url 'financeiro_atracoes_periodo' periodo.pk %}" class="rec-btn rec-btn-ghost">Cancelar</a>
+        <button type="submit" class="rec-btn rec-btn-primary">Salvar</button>
+    </div>
+</form>
+{% endblock %}
