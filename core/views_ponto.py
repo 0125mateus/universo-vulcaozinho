@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime, time as dtime, timedelta
 
 from django.contrib import messages
@@ -14,11 +15,13 @@ from .auth_utils import resolver_hotel_atual
 from .mixins import PapelRequeridoMixin
 from .models import PapelUsuario, PontoBatida, Recreador, TipoPontoBatida
 from .ponto_service import (
+    FACE_VERIFY_TTL,
     PontoErro,
     autenticar_por_nome_pin,
     estado_ponto_hoje,
     registrar_batida,
     validar_pin,
+    verificar_rosto,
 )
 
 
@@ -30,6 +33,7 @@ PAPEIS_PONTO_GESTAO = [
 ]
 
 SESSION_RECREADOR_ID = 'ponto_recreador_id'
+SESSION_FACE_OK = 'ponto_face_ok'  # {recreador_id, expiso}
 
 
 def _client_ip(request) -> str | None:
@@ -46,6 +50,34 @@ def _recreador_da_sessao(request) -> Recreador | None:
     return Recreador.objects.filter(pk=rid, ativo=True).select_related('hotel').first()
 
 
+def _marcar_rosto_ok(request, recreador: Recreador) -> None:
+    request.session[SESSION_FACE_OK] = {
+        'recreador_id': recreador.id,
+        'exp': (timezone.now() + FACE_VERIFY_TTL).isoformat(),
+    }
+
+
+def _rosto_ok(request, recreador: Recreador) -> bool:
+    data = request.session.get(SESSION_FACE_OK) or {}
+    if data.get('recreador_id') != recreador.id:
+        return False
+    exp = data.get('exp')
+    if not exp:
+        return False
+    try:
+        exp_dt = datetime.fromisoformat(exp)
+        if timezone.is_naive(exp_dt):
+            exp_dt = timezone.make_aware(exp_dt)
+        return timezone.now() <= exp_dt
+    except (TypeError, ValueError):
+        return False
+
+
+def _exigir_rosto_se_cadastrado(request, recreador: Recreador) -> None:
+    if recreador.tem_reconhecimento_facial and not _rosto_ok(request, recreador):
+        raise PontoErro('Confirme o reconhecimento facial antes de bater o ponto.')
+
+
 def _estado_payload(recreador: Recreador) -> dict:
     estado = estado_ponto_hoje(recreador)
     return {
@@ -54,6 +86,7 @@ def _estado_payload(recreador: Recreador) -> dict:
         'nome': recreador.nome,
         'foto_url': recreador.foto.url if recreador.foto else '',
         'tem_pin': recreador.tem_pin,
+        'tem_reconhecimento_facial': recreador.tem_reconhecimento_facial,
         'proxima_acao': estado.proxima_acao,
         'proxima_acao_label': 'Entrada' if estado.proxima_acao == TipoPontoBatida.ENTRADA else 'Saída',
         'ultima_batida': (
@@ -138,6 +171,7 @@ class PontoRegistrarAPI(View):
         foto = request.FILES.get('foto_auditoria')
 
         try:
+            _exigir_rosto_se_cadastrado(request, recreador)
             batida = registrar_batida(
                 recreador=recreador,
                 hotel=hotel,
@@ -152,6 +186,7 @@ class PontoRegistrarAPI(View):
         except PontoErro as e:
             return JsonResponse({'ok': False, 'erro': str(e)}, status=400)
 
+        request.session.pop(SESSION_FACE_OK, None)
         return JsonResponse({
             'ok': True,
             'tipo': batida.tipo,
@@ -164,6 +199,36 @@ class PontoRegistrarAPI(View):
                 + (' (extra/plantão)' if batida.extra_plantao else '')
             ),
         })
+
+
+class PontoVerificarRostoAPI(View):
+    """Compara descritor ao vivo com o cadastro."""
+
+    def post(self, request, pk):
+        hotel = resolver_hotel_atual(request)
+        recreador = get_object_or_404(Recreador, pk=pk, ativo=True)
+        if not hotel or recreador.hotel_id != hotel.id:
+            return JsonResponse({'ok': False, 'erro': 'Recreador inválido para este hotel.'}, status=400)
+
+        pin = request.POST.get('pin', '')
+        if pin:
+            try:
+                validar_pin(recreador, pin)
+            except PontoErro as e:
+                return JsonResponse({'ok': False, 'erro': str(e)}, status=400)
+        else:
+            sess = _recreador_da_sessao(request)
+            if not sess or sess.id != recreador.id:
+                return JsonResponse({'ok': False, 'erro': 'Sessão inválida para reconhecimento.'}, status=400)
+
+        descritor = request.POST.get('face_descriptor', '')
+        try:
+            dist = verificar_rosto(recreador, descritor)
+        except PontoErro as e:
+            return JsonResponse({'ok': False, 'erro': str(e)}, status=400)
+
+        _marcar_rosto_ok(request, recreador)
+        return JsonResponse({'ok': True, 'distancia': round(dist, 4), 'mensagem': 'Rosto confirmado.'})
 
 
 class PontoAppLoginView(View):
@@ -242,6 +307,7 @@ class PontoAppHomeView(View):
         extra = request.POST.get('extra_plantao') in ('1', 'true', 'on', 'yes')
         foto = request.FILES.get('foto_auditoria')
         try:
+            _exigir_rosto_se_cadastrado(request, recreador)
             batida = registrar_batida(
                 recreador=recreador,
                 hotel=hotel,
@@ -252,6 +318,7 @@ class PontoAppHomeView(View):
                 user_agent=request.META.get('HTTP_USER_AGENT', ''),
                 exigir_pin=False,
             )
+            request.session.pop(SESSION_FACE_OK, None)
             messages.success(
                 request,
                 f'{batida.get_tipo_display()} registrada às '
@@ -317,6 +384,16 @@ class PontoRecreadorConfigView(PapelRequeridoMixin, View):
         recreador.ativo = request.POST.get('ativo') in ('1', 'on', 'true')
         if request.FILES.get('foto'):
             recreador.foto = request.FILES['foto']
+        face_raw = request.POST.get('face_descriptor', '').strip()
+        if face_raw:
+            try:
+                recreador.set_face_descriptor(face_raw)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                messages.error(request, 'Descritor facial inválido. Tire a foto novamente.')
+                return render(request, self.template_name, {'hotel': hotel, 'recreador': recreador})
+        elif request.FILES.get('foto'):
+            # Nova foto sem descritor: limpa cadastro facial antigo
+            recreador.face_descriptor = None
         pin = request.POST.get('pin', '').strip()
         pin2 = request.POST.get('pin_confirm', '').strip()
         if pin:
@@ -328,5 +405,14 @@ class PontoRecreadorConfigView(PapelRequeridoMixin, View):
                 return render(request, self.template_name, {'hotel': hotel, 'recreador': recreador})
             recreador.set_pin(pin)
         recreador.save()
-        messages.success(request, f'Recreador {recreador.nome} atualizado.')
+        if recreador.foto and not recreador.tem_reconhecimento_facial:
+            messages.warning(
+                request,
+                f'{recreador.nome} salvo, mas o reconhecimento facial não foi gerado. '
+                'Abra de novo e use “Tirar foto com a câmera” aguardando “Rosto detectado”.',
+            )
+        elif recreador.tem_reconhecimento_facial:
+            messages.success(request, f'{recreador.nome} atualizado com reconhecimento facial.')
+        else:
+            messages.success(request, f'Recreador {recreador.nome} atualizado.')
         return redirect('ponto_gestao')

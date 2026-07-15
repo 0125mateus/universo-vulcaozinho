@@ -12,10 +12,32 @@ from django.utils import timezone
 from .models import Hotel, PontoBatida, Recreador, TipoPontoBatida
 
 ANTI_DOUBLE_TAP = timedelta(seconds=60)
+FACE_MATCH_THRESHOLD = 0.55
+FACE_VERIFY_TTL = timedelta(minutes=5)
 
 
 class PontoErro(Exception):
     """Erro de negócio no ponto."""
+
+
+def distancia_facial(a, b) -> float:
+    if not a or not b or len(a) != len(b):
+        raise PontoErro('Descritor facial inválido.')
+    return sum((float(x) - float(y)) ** 2 for x, y in zip(a, b)) ** 0.5
+
+
+def verificar_rosto(recreador: Recreador, descritor_vivo) -> float:
+    if not recreador.tem_reconhecimento_facial:
+        raise PontoErro('Recreador sem reconhecimento facial cadastrado. Atualize a foto na gestão.')
+    if isinstance(descritor_vivo, str):
+        import json
+        descritor_vivo = json.loads(descritor_vivo)
+    if not isinstance(descritor_vivo, (list, tuple)) or len(descritor_vivo) < 64:
+        raise PontoErro('Não foi possível ler o rosto. Posicione o face na câmera e tente de novo.')
+    dist = distancia_facial(recreador.face_descriptor, descritor_vivo)
+    if dist > FACE_MATCH_THRESHOLD:
+        raise PontoErro('Rosto não confere com o cadastro. Tente de novo com boa iluminação.')
+    return dist
 
 
 @dataclass

@@ -216,6 +216,12 @@ class Recreador(models.Model):
         blank=True,
         null=True,
     )
+    face_descriptor = models.JSONField(
+        'descritor facial',
+        blank=True,
+        null=True,
+        help_text='Vetor 128-D gerado no cadastro da foto para reconhecimento.',
+    )
     pin_hash = models.CharField('PIN (hash)', max_length=128, blank=True)
     pin_atualizado_em = models.DateTimeField('PIN atualizado em', null=True, blank=True)
     ativo = models.BooleanField('ativo', default=True)
@@ -246,6 +252,19 @@ class Recreador(models.Model):
     @property
     def tem_pin(self) -> bool:
         return bool(self.pin_hash)
+
+    @property
+    def tem_reconhecimento_facial(self) -> bool:
+        return bool(self.face_descriptor) and isinstance(self.face_descriptor, list) and len(self.face_descriptor) >= 64
+
+    def set_face_descriptor(self, valores) -> None:
+        if not valores:
+            self.face_descriptor = None
+            return
+        if isinstance(valores, str):
+            import json
+            valores = json.loads(valores)
+        self.face_descriptor = [float(x) for x in valores]
 
 
 class TipoPontoBatida(models.TextChoices):

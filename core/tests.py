@@ -1324,6 +1324,26 @@ class PontoRecreadorTestCase(TestCase):
         self.assertContains(home, 'Ana Rec')
         batida = self.client.post(reverse('ponto_app_home'), {'tipo': 'entrada', 'extra_plantao': '1'})
         self.assertEqual(batida.status_code, 302)
-        self.rec.refresh_from_db()
         from core.models import PontoBatida
         self.assertTrue(PontoBatida.objects.filter(recreador=self.rec, tipo=TipoPontoBatida.ENTRADA).exists())
+
+    def test_rosto_deve_bater(self):
+        from core.ponto_service import verificar_rosto
+        base = [0.01 * i for i in range(128)]
+        self.rec.face_descriptor = base
+        self.rec.save(update_fields=['face_descriptor'])
+        dist = verificar_rosto(self.rec, base)
+        self.assertLess(dist, 0.01)
+        wrong = [1.0] * 128
+        with self.assertRaises(PontoErro):
+            verificar_rosto(self.rec, wrong)
+
+    def test_registrar_exige_rosto_quando_cadastrado(self):
+        self.rec.face_descriptor = [0.01 * i for i in range(128)]
+        self.rec.save(update_fields=['face_descriptor'])
+        resp = self.client.post(
+            reverse('ponto_api_registrar', args=[self.rec.pk]),
+            {'pin': '1234', 'tipo': 'entrada'},
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn('reconhecimento facial', resp.json()['erro'].lower())

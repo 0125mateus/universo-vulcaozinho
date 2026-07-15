@@ -209,14 +209,15 @@
 }
 .ponto-toggle input { width: 1.25rem; height: 1.25rem; }
 .ponto-camera-wrap { text-align: center; margin-bottom: 0.75rem; }
-#ponto-video, .ponto-preview {
+#ponto-video, #ponto-face-video, .ponto-preview {
     width: 100%;
-    max-height: 180px;
+    max-height: 220px;
     border-radius: 12px;
     object-fit: cover;
     margin-bottom: 0.5rem;
     background: #111;
 }
+.ponto-face-box { margin: 0.85rem 0 1rem; }
 .ponto-sucesso {
     text-align: center;
     font-size: 1.4rem;

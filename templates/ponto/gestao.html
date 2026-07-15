@@ -22,7 +22,7 @@
         <img src="{{ r.foto.url }}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;margin-bottom:0.5rem;">
         {% endif %}
         <h3>{{ r.nome }}</h3>
-        <p>{% if r.ativo %}Ativo{% else %}Inativo{% endif %} · {% if r.tem_pin %}PIN ok{% else %}Sem PIN{% endif %}</p>
+        <p>{% if r.ativo %}Ativo{% else %}Inativo{% endif %} · {% if r.tem_pin %}PIN ok{% else %}Sem PIN{% endif %} · {% if r.tem_reconhecimento_facial %}Facial ok{% else %}Sem facial{% endif %}</p>
         <a href="{% url 'ponto_recreador_config' r.pk %}" class="card-link">Configurar →</a>
     </div>
     {% empty %}

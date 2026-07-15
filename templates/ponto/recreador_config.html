@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Configurar {{ recreador.nome }} — Ponto{% endblock %}
 
@@ -11,6 +12,7 @@
 <div class="rec-layout">
     <form method="post" enctype="multipart/form-data" class="rec-form-card" id="recreador-config-form">
         {% csrf_token %}
+        <input type="hidden" name="face_descriptor" id="face_descriptor" value="">
         <div class="rec-field">
             <label for="nome">Nome</label>
             <input class="rec-input" type="text" name="nome" id="nome" value="{{ recreador.nome }}" required>
@@ -25,7 +27,15 @@
             </label>
         </div>
         <div class="rec-field">
-            <label for="foto">Foto (reconhecimento visual)</label>
+            <label for="foto">Foto + reconhecimento facial</label>
+            <p>
+                Status:
+                {% if recreador.tem_reconhecimento_facial %}
+                <strong style="color:#165A38;">facial cadastrado</strong>
+                {% else %}
+                <strong style="color:#c0392b;">ainda sem facial</strong> — use a câmera e aguarde “Rosto detectado”
+                {% endif %}
+            </p>
             <p id="foto-atual-wrap" {% if not recreador.foto %}hidden{% endif %}>
                 {% if recreador.foto %}
                 <img src="{{ recreador.foto.url }}" alt="" id="foto-atual" style="width:96px;height:96px;border-radius:50%;object-fit:cover;">
@@ -40,10 +50,10 @@
             <canvas id="foto-canvas" hidden></canvas>
             <div class="rec-actions" style="justify-content:flex-start;flex-wrap:wrap;gap:0.5rem;margin:0.5rem 0;">
                 <button type="button" class="rec-btn rec-btn-primary" id="foto-camera-btn">Tirar foto com a câmera</button>
-                <button type="button" class="rec-btn rec-btn-ghost" id="foto-capturar-btn" hidden>Capturar</button>
+                <button type="button" class="rec-btn rec-btn-ghost" id="foto-capturar-btn" hidden>Capturar e ler rosto</button>
                 <button type="button" class="rec-btn rec-btn-ghost" id="foto-cancelar-btn" hidden>Cancelar câmera</button>
             </div>
-            <p class="field-hint" style="margin:0.35rem 0;">Ou escolha um arquivo:</p>
+            <p class="field-hint" style="margin:0.35rem 0;">Ou escolha um arquivo (também tenta ler o rosto):</p>
             <input class="rec-input" type="file" name="foto" id="foto" accept="image/*" capture="user">
             <p class="field-hint" id="foto-status" hidden></p>
         </div>
@@ -64,12 +74,14 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/ponto-face.js' %}?v=1"></script>
 <script>
 (() => {
   const video = document.getElementById('foto-video');
   const canvas = document.getElementById('foto-canvas');
   const preview = document.getElementById('foto-preview');
   const fileInput = document.getElementById('foto');
+  const faceInput = document.getElementById('face_descriptor');
   const camBtn = document.getElementById('foto-camera-btn');
   const captureBtn = document.getElementById('foto-capturar-btn');
   const cancelBtn = document.getElementById('foto-cancelar-btn');
@@ -86,7 +98,6 @@
     captureBtn.hidden = true;
     cancelBtn.hidden = true;
     camBtn.hidden = false;
-    camBtn.textContent = 'Tirar foto com a câmera';
   }
 
   function setStatus(msg) {
@@ -101,12 +112,20 @@
     fileInput.files = dt.files;
     preview.src = URL.createObjectURL(blob);
     preview.hidden = false;
-    setStatus('Foto capturada — clique em Salvar para gravar.');
+  }
+
+  async function extractFrom(el) {
+    if (!window.PontoFace) throw new Error('Biblioteca facial não carregada.');
+    await window.PontoFace.ensureModels();
+    const descriptor = await window.PontoFace.descriptorFrom(el);
+    faceInput.value = JSON.stringify(descriptor);
+    return descriptor;
   }
 
   camBtn.addEventListener('click', async () => {
-    setStatus('');
+    setStatus('Carregando câmera e modelos…');
     try {
+      if (window.PontoFace) await window.PontoFace.ensureModels();
       stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user' },
         audio: false,
@@ -116,36 +135,53 @@
       captureBtn.hidden = false;
       cancelBtn.hidden = false;
       camBtn.hidden = true;
+      setStatus('Posicione o rosto e clique em Capturar.');
     } catch (err) {
-      setStatus('Câmera indisponível. Use “Escolher ficheiro” ou permita o acesso à câmera.');
+      setStatus('Câmera indisponível. Use arquivo ou permita a câmera.');
     }
   });
 
-  cancelBtn.addEventListener('click', () => {
-    stopCamera();
-  });
+  cancelBtn.addEventListener('click', stopCamera);
 
-  captureBtn.addEventListener('click', () => {
+  captureBtn.addEventListener('click', async () => {
     if (!stream) return;
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        setStatus('Não foi possível capturar a foto.');
-        return;
-      }
+    captureBtn.disabled = true;
+    setStatus('Lendo rosto…');
+    try {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      await extractFrom(canvas);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+      if (!blob) throw new Error('Falha ao capturar imagem.');
       assignFile(blob);
       stopCamera();
-    }, 'image/jpeg', 0.9);
+      setStatus('Rosto detectado — clique em Salvar.');
+    } catch (err) {
+      faceInput.value = '';
+      setStatus(err.message || 'Não foi possível ler o rosto.');
+    } finally {
+      captureBtn.disabled = false;
+    }
   });
 
-  fileInput.addEventListener('change', () => {
+  fileInput.addEventListener('change', async () => {
     const file = fileInput.files && fileInput.files[0];
     if (!file) return;
+    faceInput.value = '';
     preview.src = URL.createObjectURL(file);
     preview.hidden = false;
-    setStatus('Arquivo selecionado — clique em Salvar para gravar.');
+    setStatus('Lendo rosto no arquivo…');
+    try {
+      const img = new Image();
+      img.src = preview.src;
+      await img.decode();
+      await extractFrom(img);
+      setStatus('Rosto detectado no arquivo — clique em Salvar.');
+    } catch (err) {
+      faceInput.value = '';
+      setStatus(err.message || 'Arquivo sem rosto legível. Prefira a câmera.');
+    }
   });
 })();
 </script>

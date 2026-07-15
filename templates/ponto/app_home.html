@@ -7,7 +7,7 @@
     <title>Ponto — {{ recreador.nome }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=3">
     <style>
         :root {
             --hotel-primary: {{ hotel.cor_primaria }};
@@ -28,7 +28,11 @@
         </form>
     </header>
 
-    <main class="ponto-app-shell">
+    <main class="ponto-app-shell"
+          id="ponto-app-home"
+          data-csrf="{{ csrf_token }}"
+          data-rosto-url="{% url 'ponto_api_rosto' recreador.pk %}"
+          data-exige-rosto="{% if recreador.tem_reconhecimento_facial %}1{% else %}0{% endif %}">
         {% if messages %}
         <ul class="ponto-msg-list">
             {% for message in messages %}
@@ -55,7 +59,19 @@
             </p>
             {% endif %}
 
-            <form method="post" enctype="multipart/form-data" class="ponto-app-form" id="ponto-app-batida">
+            {% if recreador.tem_reconhecimento_facial %}
+            <div id="ponto-face-box" class="ponto-face-box">
+                <p class="ponto-step-label">Reconhecimento facial</p>
+                <video id="ponto-face-video" playsinline muted autoplay style="width:100%;border-radius:12px;background:#111;"></video>
+                <button type="button" class="ponto-btn ponto-btn-primary" id="ponto-face-btn" style="margin-top:0.65rem;">Verificar rosto</button>
+                <p class="ponto-erro" id="ponto-face-erro" hidden></p>
+                <p class="ponto-app-meta" id="ponto-face-ok" hidden style="color:#165A38;">Rosto confirmado — pode registrar.</p>
+            </div>
+            {% else %}
+            <p class="ponto-app-meta">Sem reconhecimento facial cadastrado. Peça à gestão para tirar a foto na configuração.</p>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="ponto-app-form" id="ponto-app-batida" {% if recreador.tem_reconhecimento_facial %}hidden{% endif %}>
                 {% csrf_token %}
                 <input type="hidden" name="tipo" value="{{ estado.proxima_acao }}">
                 <label class="ponto-toggle">
@@ -72,5 +88,62 @@
             </form>
         </div>
     </main>
+
+    <script src="{% static 'js/ponto-face.js' %}?v=1"></script>
+    <script>
+    (() => {
+      const root = document.getElementById('ponto-app-home');
+      if (!root || root.dataset.exigeRosto !== '1') return;
+      const csrf = root.dataset.csrf;
+      const url = root.dataset.rostoUrl;
+      const video = document.getElementById('ponto-face-video');
+      const btn = document.getElementById('ponto-face-btn');
+      const erro = document.getElementById('ponto-face-erro');
+      const ok = document.getElementById('ponto-face-ok');
+      const form = document.getElementById('ponto-app-batida');
+      let stream = null;
+
+      (async () => {
+        try {
+          if (window.PontoFace) await window.PontoFace.ensureModels();
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+          video.srcObject = stream;
+          await video.play();
+        } catch (e) {
+          erro.textContent = 'Câmera indisponível. Permita o acesso para reconhecer o rosto.';
+          erro.hidden = false;
+        }
+      })();
+
+      btn.addEventListener('click', async () => {
+        erro.hidden = true;
+        btn.disabled = true;
+        btn.textContent = 'Verificando…';
+        try {
+          const descriptor = await window.PontoFace.descriptorFrom(video);
+          const body = new FormData();
+          body.append('face_descriptor', JSON.stringify(descriptor));
+          body.append('csrfmiddlewaretoken', csrf);
+          const res = await fetch(url, { method: 'POST', body });
+          const data = await res.json();
+          if (!data.ok) throw new Error(data.erro || 'Rosto não confere.');
+          ok.hidden = false;
+          form.hidden = false;
+          if (stream) {
+            stream.getTracks().forEach((t) => t.stop());
+            stream = null;
+          }
+          video.hidden = true;
+          btn.hidden = true;
+        } catch (e) {
+          erro.textContent = e.message || 'Falha no reconhecimento.';
+          erro.hidden = false;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Verificar rosto';
+        }
+      });
+    })();
+    </script>
 </body>
 </html>

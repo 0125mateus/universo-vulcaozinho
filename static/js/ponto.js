@@ -4,6 +4,7 @@
 
   const csrf = app.dataset.csrf;
   const autenticarUrl = app.dataset.autenticarUrl;
+  const rostoTpl = app.dataset.rostoUrlTemplate;
   const registrarTpl = app.dataset.registrarUrlTemplate;
 
   const modal = document.getElementById('ponto-modal');
@@ -11,18 +12,22 @@
   const nomeEl = document.getElementById('ponto-modal-nome');
   const fotoEl = document.getElementById('ponto-modal-foto');
   const fotoEmpty = document.getElementById('ponto-modal-foto-empty');
+  const stepRosto = document.getElementById('ponto-step-rosto');
   const stepAcao = document.getElementById('ponto-step-acao');
   const stepOk = document.getElementById('ponto-step-ok');
   const pinDisplay = document.getElementById('ponto-pin-display');
   const pinErro = document.getElementById('ponto-pin-erro');
+  const faceErro = document.getElementById('ponto-face-erro');
   const acaoErro = document.getElementById('ponto-acao-erro');
   const acaoSugerida = document.getElementById('ponto-acao-sugerida');
   const extraToggle = document.getElementById('ponto-extra');
   const sucessoMsg = document.getElementById('ponto-sucesso-msg');
   const video = document.getElementById('ponto-video');
+  const faceVideo = document.getElementById('ponto-face-video');
   const canvas = document.getElementById('ponto-canvas');
   const preview = document.getElementById('ponto-preview');
   const fotoBtn = document.getElementById('ponto-foto-btn');
+  const faceBtn = document.getElementById('ponto-face-btn');
   const clockEl = document.getElementById('ponto-clock');
   const nomeInput = document.getElementById('ponto-nome');
   const loginForm = document.getElementById('ponto-login-form');
@@ -32,7 +37,9 @@
     nome: '',
     pin: '',
     proxima: 'entrada',
+    precisaRosto: false,
     stream: null,
+    faceStream: null,
     blob: null,
   };
 
@@ -42,8 +49,7 @@
 
   function updateClock() {
     if (!clockEl) return;
-    const now = new Date();
-    clockEl.textContent = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    clockEl.textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   }
   updateClock();
   setInterval(updateClock, 15000);
@@ -54,16 +60,25 @@
   }
 
   function showStep(step) {
+    stepRosto.hidden = step !== 'rosto';
     stepAcao.hidden = step !== 'acao';
     stepOk.hidden = step !== 'ok';
   }
 
-  function stopCamera() {
-    if (state.stream) {
-      state.stream.getTracks().forEach((t) => t.stop());
-      state.stream = null;
+  function stopStream(key, videoEl) {
+    if (state[key]) {
+      state[key].getTracks().forEach((t) => t.stop());
+      state[key] = null;
     }
-    video.hidden = true;
+    if (videoEl) {
+      videoEl.srcObject = null;
+      if (videoEl !== faceVideo) videoEl.hidden = true;
+    }
+  }
+
+  function stopAllCameras() {
+    stopStream('stream', video);
+    stopStream('faceStream', faceVideo);
   }
 
   function resetLogin() {
@@ -75,8 +90,9 @@
 
   function closeModal() {
     modal.hidden = true;
-    stopCamera();
-    state = { id: null, nome: '', pin: '', proxima: 'entrada', stream: null, blob: null };
+    stopAllCameras();
+    state = { id: null, nome: '', pin: '', proxima: 'entrada', precisaRosto: false, stream: null, faceStream: null, blob: null };
+    faceErro.hidden = true;
     acaoErro.hidden = true;
     extraToggle.checked = false;
     preview.hidden = true;
@@ -95,6 +111,40 @@
       fotoEl.hidden = true;
       fotoEmpty.hidden = false;
       fotoEmpty.textContent = (nome || '?').charAt(0).toUpperCase();
+    }
+  }
+
+  async function startFaceCamera() {
+    stopStream('faceStream', faceVideo);
+    state.faceStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user' },
+      audio: false,
+    });
+    faceVideo.srcObject = state.faceStream;
+    await faceVideo.play();
+  }
+
+  async function goAfterAuth(data) {
+    state.id = data.recreador_id;
+    state.nome = data.nome;
+    state.proxima = data.proxima_acao;
+    state.precisaRosto = !!data.tem_reconhecimento_facial;
+    nomeEl.textContent = data.nome;
+    acaoSugerida.textContent = data.proxima_acao_label;
+    applyFoto(data, data.nome);
+    modal.hidden = false;
+    if (state.precisaRosto) {
+      showStep('rosto');
+      faceErro.hidden = true;
+      try {
+        if (window.PontoFace) await window.PontoFace.ensureModels();
+        await startFaceCamera();
+      } catch (err) {
+        faceErro.textContent = err.message || 'Câmera/modelos indisponíveis.';
+        faceErro.hidden = false;
+      }
+    } else {
+      showStep('acao');
     }
   }
 
@@ -145,17 +195,35 @@
         pinDisplay.textContent = '••••';
         return;
       }
-      state.id = data.recreador_id;
-      state.nome = data.nome;
-      state.proxima = data.proxima_acao;
-      nomeEl.textContent = data.nome;
-      acaoSugerida.textContent = data.proxima_acao_label;
-      applyFoto(data, data.nome);
-      showStep('acao');
-      modal.hidden = false;
+      await goAfterAuth(data);
     } catch (err) {
       pinErro.textContent = 'Falha de conexão. Tente de novo.';
       pinErro.hidden = false;
+    }
+  });
+
+  faceBtn.addEventListener('click', async () => {
+    faceErro.hidden = true;
+    faceBtn.disabled = true;
+    faceBtn.textContent = 'Verificando…';
+    try {
+      if (!window.PontoFace) throw new Error('Biblioteca facial não carregada.');
+      const descriptor = await window.PontoFace.descriptorFrom(faceVideo);
+      const body = new FormData();
+      body.append('pin', state.pin);
+      body.append('face_descriptor', JSON.stringify(descriptor));
+      body.append('csrfmiddlewaretoken', csrf);
+      const res = await fetch(urlFor(rostoTpl, state.id), { method: 'POST', body });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.erro || 'Rosto não confere.');
+      stopStream('faceStream', faceVideo);
+      showStep('acao');
+    } catch (err) {
+      faceErro.textContent = err.message || 'Falha no reconhecimento.';
+      faceErro.hidden = false;
+    } finally {
+      faceBtn.disabled = false;
+      faceBtn.textContent = 'Verificar rosto';
     }
   });
 
@@ -181,7 +249,7 @@
         state.blob = blob;
         preview.src = URL.createObjectURL(blob);
         preview.hidden = false;
-        stopCamera();
+        stopStream('stream', video);
         fotoBtn.textContent = 'Tirar outra';
       }, 'image/jpeg', 0.85);
     } catch (err) {
@@ -197,9 +265,7 @@
     body.append('tipo', state.proxima);
     body.append('extra_plantao', extraToggle.checked ? '1' : '0');
     body.append('csrfmiddlewaretoken', csrf);
-    if (state.blob) {
-      body.append('foto_auditoria', state.blob, 'batida.jpg');
-    }
+    if (state.blob) body.append('foto_auditoria', state.blob, 'batida.jpg');
     try {
       const res = await fetch(urlFor(registrarTpl, state.id), { method: 'POST', body });
       const data = await res.json();

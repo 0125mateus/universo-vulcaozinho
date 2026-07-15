@@ -125,6 +125,8 @@ PIN demo dos recreadores (seed_ponto): `1234`
 
 Fotos de recreadores/batidas ficam em `MEDIA_ROOT` (servidas em `/media/`). No Render free o disco é efêmero — após redeploy pode ser preciso reenviar a foto (ou use volume persistente).
 
+Reconhecimento facial: na gestão, tire a foto com a câmera até aparecer “Rosto detectado”. No tablet/app, após nome+PIN o sistema compara o rosto ao vivo com o cadastro (face-api no navegador).
+
 ## Deploy
 
 Guia completo passo a passo: **[DEPLOY.md](DEPLOY.md)**

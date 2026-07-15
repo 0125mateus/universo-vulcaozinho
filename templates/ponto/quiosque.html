@@ -7,7 +7,7 @@
     <title>Ponto — {{ hotel.nome }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=3">
     <style>
         :root {
             --hotel-primary: {{ hotel.cor_primaria }};
@@ -31,6 +31,7 @@
     <main class="ponto-main" id="ponto-app"
           data-csrf="{{ csrf_token }}"
           data-autenticar-url="{% url 'ponto_api_autenticar' %}"
+          data-rosto-url-template="{% url 'ponto_api_rosto' 0 %}"
           data-registrar-url-template="{% url 'ponto_api_registrar' 0 %}">
         {% csrf_token %}
         <p class="ponto-hint">Digite seu nome e PIN para bater o ponto</p>
@@ -66,6 +67,7 @@
                     <div class="ponto-card-foto ponto-card-foto-empty">{{ r.nome|make_list|first }}</div>
                     {% endif %}
                     <strong>{{ r.nome }}</strong>
+                    {% if r.tem_reconhecimento_facial %}<small>Facial ok</small>{% endif %}
                 </div>
                 {% empty %}
                 <p class="ponto-empty">Nenhum recreador ativo neste hotel.</p>
@@ -83,7 +85,17 @@
                 <h2 id="ponto-modal-nome">—</h2>
             </div>
 
-            <div id="ponto-step-acao">
+            <div id="ponto-step-rosto" hidden>
+                <p class="ponto-step-label">Reconhecimento facial</p>
+                <p class="ponto-app-meta">Olhe para a câmera para confirmar que é você</p>
+                <div class="ponto-camera-wrap">
+                    <video id="ponto-face-video" playsinline muted autoplay></video>
+                </div>
+                <button type="button" class="ponto-btn ponto-btn-primary" id="ponto-face-btn">Verificar rosto</button>
+                <p class="ponto-erro" id="ponto-face-erro" hidden></p>
+            </div>
+
+            <div id="ponto-step-acao" hidden>
                 <p class="ponto-step-label">Confirmar batida</p>
                 <p class="ponto-acao-sugerida" id="ponto-acao-sugerida">—</p>
                 <label class="ponto-toggle">
@@ -93,7 +105,7 @@
                 <div class="ponto-camera-wrap">
                     <video id="ponto-video" playsinline muted autoplay hidden></video>
                     <canvas id="ponto-canvas" hidden></canvas>
-                    <button type="button" class="ponto-btn ponto-btn-ghost" id="ponto-foto-btn">Usar câmera (opcional)</button>
+                    <button type="button" class="ponto-btn ponto-btn-ghost" id="ponto-foto-btn">Foto de auditoria (opcional)</button>
                     <img id="ponto-preview" class="ponto-preview" alt="" hidden>
                 </div>
                 <button type="button" class="ponto-btn ponto-btn-primary" id="ponto-confirmar">Registrar</button>
@@ -107,6 +119,7 @@
         </div>
     </div>
 
-    <script src="{% static 'js/ponto.js' %}?v=2"></script>
+    <script src="{% static 'js/ponto-face.js' %}?v=1"></script>
+    <script src="{% static 'js/ponto.js' %}?v=3"></script>
 </body>
 </html>
