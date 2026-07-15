@@ -1,0 +1,119 @@
+/* Hybrid polish — overlays remote vulcaozinho.css without removing module styles */
+
+body {
+    background:
+        radial-gradient(ellipse 80% 50% at 0% 0%, rgba(232, 107, 31, 0.16) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(245, 197, 24, 0.18) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 45% at 100% 100%, rgba(42, 155, 87, 0.16) 0%, transparent 55%),
+        linear-gradient(165deg, #1a3d2a 0%, #2d5a3d 16%, #e8f0e4 40%, #f5efe4 72%, #f0e6d4 100%) !important;
+    background-attachment: fixed !important;
+}
+
+.wave-bg::after {
+    content: none !important;
+}
+
+.site-header {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(31, 26, 20, 0.08) !important;
+    box-shadow: 0 8px 28px rgba(22, 90, 56, 0.12) !important;
+}
+
+.site-header::before {
+    height: 3px !important;
+    background: linear-gradient(90deg, var(--hotel-primary, #165A38), var(--brand-orange, #E86B1F), var(--hotel-accent, #F5C518)) !important;
+}
+
+.brand-text h1 {
+    letter-spacing: -0.03em;
+}
+
+.main-nav {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(31, 26, 20, 0.08) !important;
+    border-style: solid !important;
+    box-shadow: 0 2px 12px rgba(22, 90, 56, 0.08);
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.main-nav a {
+    border-radius: 10px !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: var(--text-muted, #5E564C) !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.main-nav a:hover {
+    color: var(--hotel-primary, #165A38) !important;
+    background: rgba(22, 90, 56, 0.06) !important;
+    transform: none !important;
+}
+
+.main-nav a.active {
+    background: var(--hotel-primary, #165A38) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 14px rgba(22, 90, 56, 0.28) !important;
+    transform: none !important;
+}
+
+.hero {
+    border: none !important;
+    box-shadow: 0 8px 28px rgba(22, 90, 56, 0.14) !important;
+    background: linear-gradient(125deg, var(--hotel-primary, #165A38) 0%, var(--hotel-secondary, #2A9B57) 48%, var(--brand-orange, #E86B1F) 100%) !important;
+    background-size: 140% 140%;
+    animation: hybridHeroShift 12s ease-in-out infinite;
+}
+
+@keyframes hybridHeroShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.hero::after {
+    content: none !important;
+}
+
+.card,
+.rec-card,
+.produto-card,
+.passaporte-gestao-card,
+.noite-card,
+.coluna-categoria {
+    border-width: 1px !important;
+    box-shadow: 0 2px 12px rgba(22, 90, 56, 0.08) !important;
+}
+
+.card:hover,
+.rec-card:hover,
+.produto-card:hover {
+    transform: translateY(-3px) !important;
+}
+
+.site-footer {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(31, 26, 20, 0.08) !important;
+}
+
+.assistant-fab {
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, var(--brand-orange, #E86B1F) 0%, var(--hotel-primary, #165A38) 100%) !important;
+    box-shadow: 0 8px 24px rgba(232, 107, 31, 0.35) !important;
+}
+
+.assistant-header {
+    background: linear-gradient(135deg, var(--brand-orange, #E86B1F) 0%, var(--hotel-primary, #165A38) 100%) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero {
+        animation: none !important;
+    }
+}
