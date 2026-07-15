@@ -1,13 +1,28 @@
 /* Hybrid polish — overlays remote vulcaozinho.css without removing module styles */
 
-body {
+/*
+ * Fundo sem hotel: usa as variáveis padrão / injetadas.
+ * Com .hotel-theme, NÃO sobrescreve — hotel-themes.css define o clima de cada hotel.
+ */
+body:not(.hotel-theme) {
     background:
-        radial-gradient(ellipse 80% 50% at 0% 0%, rgba(232, 107, 31, 0.16) 0%, transparent 55%),
-        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(245, 197, 24, 0.18) 0%, transparent 50%),
-        radial-gradient(ellipse 70% 45% at 100% 100%, rgba(42, 155, 87, 0.16) 0%, transparent 55%),
-        linear-gradient(165deg, #1a3d2a 0%, #2d5a3d 16%, #e8f0e4 40%, #f5efe4 72%, #f0e6d4 100%) !important;
+        radial-gradient(ellipse 80% 50% at 0% 0%, color-mix(in srgb, var(--hotel-secondary, #2A9B57) 28%, transparent) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, color-mix(in srgb, var(--hotel-accent, #F5C518) 30%, transparent) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 45% at 100% 100%, color-mix(in srgb, var(--brand-orange, var(--hotel-tertiary, #E86B1F)) 22%, transparent) 0%, transparent 55%),
+        linear-gradient(
+            165deg,
+            color-mix(in srgb, var(--hotel-primary, #165A38) 82%, #0a1210) 0%,
+            color-mix(in srgb, var(--hotel-primary, #165A38) 38%, #eef4ef) 20%,
+            color-mix(in srgb, var(--hotel-accent, #F5C518) 8%, #f5efe4) 58%,
+            color-mix(in srgb, var(--hotel-secondary, #2A9B57) 6%, #f0e6d4) 100%
+        ) !important;
     background-attachment: fixed !important;
 }
+
+body.hotel-theme {
+    background-attachment: fixed;
+}
+
 
 .wave-bg::after {
     content: none !important;
