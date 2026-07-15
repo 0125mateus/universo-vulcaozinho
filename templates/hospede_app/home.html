@@ -62,7 +62,7 @@
 
 {% if passeios_count %}
 <div class="app-card app-card-passeios">
-    <p class="app-card-label">🌴 Passeios de hoje</p>
+    <p class="app-card-label">Passeios de hoje</p>
     <h3>{{ passeios_count }} passeio(s) disponível(is)</h3>
     {% if meus_passeios_count %}
     <p class="app-card-meta">✓ Você está inscrito em {{ meus_passeios_count }}</p>
@@ -73,7 +73,7 @@
 
 {% if noite_hoje %}
 <div class="app-card app-card-noite">
-    <p class="app-card-label">🌙 Noite temática de hoje</p>
+    <p class="app-card-label">Noite temática de hoje</p>
     <h3>{{ noite_hoje.tema }}</h3>
     {% if noite_hoje.vista_se %}<p class="app-noite-linha"><strong>Vista-se:</strong> {{ noite_hoje.vista_se }}</p>{% endif %}
     {% if noite_hoje.atracao_musical %}<p class="app-noite-linha"><strong>Música:</strong> {{ noite_hoje.atracao_musical }}</p>{% endif %}
@@ -82,7 +82,7 @@
 {% endif %}
 
 <div class="app-card app-card-passaporte">
-    <p class="app-card-label">🛂 Passaporte</p>
+    <p class="app-card-label">Passaporte</p>
     {% if passaporte %}
     <div class="app-passaporte-mini">
         <span class="app-moedas">🪙 {{ passaporte.moedas }}</span>
