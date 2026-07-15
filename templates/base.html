@@ -121,7 +121,7 @@
             <a href="{% url 'loja' %}" class="{% if request.resolver_match.url_name == 'loja' %}active{% endif %}">🛍️ Loja</a>
             <a href="{% url 'passaporte' %}" class="{% if request.resolver_match.url_name == 'passaporte' %}active{% endif %}">🛂 Passaporte</a>
             <a href="{% url 'recepcao_index' %}" class="{% if request.resolver_match.url_name == 'recepcao_index' or request.resolver_match.url_name == 'recepcao_checkin' or request.resolver_match.url_name == 'recepcao_hospedes' or request.resolver_match.url_name == 'recepcao_hospede_detalhe' or request.resolver_match.url_name == 'recepcao_agenda' or request.resolver_match.url_name == 'recepcao_vincular' or request.resolver_match.url_name == 'recepcao_vincular_passeio' or request.resolver_match.url_name == 'recepcao_passeios_pagamentos' %}active{% endif %}">📋 Recepção</a>
-            <a href="{% url 'ponto_app_login' %}" class="{% if 'ponto' in request.path %}active{% endif %}">⏱️ Ponto</a>
+            <a href="{% url 'ponto_gestao' %}" class="{% if 'ponto' in request.path %}active{% endif %}">⏱️ Ponto</a>
             <a href="{% url 'financeiro_hub' %}" class="{% if 'financeiro' in request.path %}active{% endif %}">💰 Pagamentos</a>
             <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
             <a href="{% url 'importacao_gestao' %}" class="{% if request.resolver_match.url_name == 'importacao_gestao' or request.resolver_match.url_name == 'eventos_gestao' %}active{% endif %}">📥 Importar</a>
