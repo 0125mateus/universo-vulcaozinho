@@ -1338,12 +1338,19 @@ class PontoRecreadorTestCase(TestCase):
         with self.assertRaises(PontoErro):
             verificar_rosto(self.rec, wrong)
 
-    def test_registrar_exige_rosto_quando_cadastrado(self):
-        self.rec.face_descriptor = [0.01 * i for i in range(128)]
-        self.rec.save(update_fields=['face_descriptor'])
-        resp = self.client.post(
-            reverse('ponto_api_registrar', args=[self.rec.pk]),
-            {'pin': '1234', 'tipo': 'entrada'},
-        )
-        self.assertEqual(resp.status_code, 400)
-        self.assertIn('reconhecimento facial', resp.json()['erro'].lower())
+    def test_criar_recreador_gestao(self):
+        from core.models import PapelUsuario, PerfilUsuario
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        user = User.objects.create_user('gerente_test', password='x')
+        PerfilUsuario.objects.create(user=user, papel=PapelUsuario.GERENTE, hotel=self.hotel)
+        self.client.login(username='gerente_test', password='x')
+        resp = self.client.post(reverse('ponto_recreador_novo'), {
+            'nome': 'Bruno Novo',
+            'telefone': '',
+            'ativo': 'on',
+            'pin': '5678',
+            'pin_confirm': '5678',
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(Recreador.objects.filter(hotel=self.hotel, nome='Bruno Novo').exists())

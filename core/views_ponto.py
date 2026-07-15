@@ -358,6 +358,83 @@ class PontoGestaoView(PapelRequeridoMixin, View):
         })
 
 
+def _aplicar_form_recreador(request, recreador, *, pin_obrigatorio: bool = False):
+    """Aplica POST no recreador. Retorna mensagem de erro ou None."""
+    nome = request.POST.get('nome', '').strip()
+    if not nome:
+        return 'Informe o nome do recreador.'
+    recreador.nome = nome
+    recreador.telefone = request.POST.get('telefone', '').strip()
+    recreador.ativo = request.POST.get('ativo') in ('1', 'on', 'true')
+    if request.FILES.get('foto'):
+        recreador.foto = request.FILES['foto']
+    face_raw = request.POST.get('face_descriptor', '').strip()
+    if face_raw:
+        try:
+            recreador.set_face_descriptor(face_raw)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return 'Descritor facial inválido. Tire a foto novamente.'
+    elif request.FILES.get('foto'):
+        recreador.face_descriptor = None
+
+    pin = request.POST.get('pin', '').strip()
+    pin2 = request.POST.get('pin_confirm', '').strip()
+    if pin_obrigatorio and not pin and not recreador.tem_pin:
+        return 'Defina um PIN de 4 a 6 dígitos.'
+    if pin:
+        if not pin.isdigit() or not (4 <= len(pin) <= 6):
+            return 'PIN deve ter 4 a 6 dígitos numéricos.'
+        if pin != pin2:
+            return 'Confirmação de PIN não confere.'
+        recreador.set_pin(pin)
+    return None
+
+
+def _mensagem_apos_salvar(recreador, *, criado: bool = False) -> tuple[str, str]:
+    """Retorna (level, message)."""
+    verbo = 'cadastrado' if criado else 'atualizado'
+    if recreador.foto and not recreador.tem_reconhecimento_facial:
+        return (
+            'warning',
+            f'{recreador.nome} {verbo}, mas o reconhecimento facial não foi gerado. '
+            'Abra Configurar e tire a foto na câmera até “Rosto detectado”.',
+        )
+    if recreador.tem_reconhecimento_facial:
+        return 'success', f'{recreador.nome} {verbo} com reconhecimento facial.'
+    return 'success', f'Recreador {recreador.nome} {verbo}.'
+
+
+class PontoRecreadorNovoView(PapelRequeridoMixin, View):
+    papeis_requeridos = PAPEIS_PONTO_GESTAO
+    titulo_acesso = 'Novo recreador'
+    login_url = '/entrar/'
+    template_name = 'ponto/recreador_novo.html'
+
+    def get(self, request):
+        hotel = resolver_hotel_atual(request)
+        if not hotel:
+            return redirect('home')
+        return render(request, self.template_name, {'hotel': hotel})
+
+    def post(self, request):
+        hotel = resolver_hotel_atual(request)
+        if not hotel:
+            return redirect('home')
+        recreador = Recreador(hotel=hotel, ativo=True)
+        erro = _aplicar_form_recreador(request, recreador, pin_obrigatorio=True)
+        if erro:
+            messages.error(request, erro)
+            return render(request, self.template_name, {
+                'hotel': hotel,
+                'nome': request.POST.get('nome', ''),
+                'telefone': request.POST.get('telefone', ''),
+            })
+        recreador.save()
+        level, msg = _mensagem_apos_salvar(recreador, criado=True)
+        getattr(messages, level)(request, msg)
+        return redirect('ponto_recreador_config', pk=recreador.pk)
+
+
 class PontoRecreadorConfigView(PapelRequeridoMixin, View):
     papeis_requeridos = PAPEIS_PONTO_GESTAO
     titulo_acesso = 'Configurar recreador'
@@ -379,40 +456,11 @@ class PontoRecreadorConfigView(PapelRequeridoMixin, View):
             messages.error(request, 'Recreador inválido para este hotel.')
             return redirect('ponto_gestao')
 
-        recreador.nome = request.POST.get('nome', recreador.nome).strip() or recreador.nome
-        recreador.telefone = request.POST.get('telefone', '').strip()
-        recreador.ativo = request.POST.get('ativo') in ('1', 'on', 'true')
-        if request.FILES.get('foto'):
-            recreador.foto = request.FILES['foto']
-        face_raw = request.POST.get('face_descriptor', '').strip()
-        if face_raw:
-            try:
-                recreador.set_face_descriptor(face_raw)
-            except (TypeError, ValueError, json.JSONDecodeError):
-                messages.error(request, 'Descritor facial inválido. Tire a foto novamente.')
-                return render(request, self.template_name, {'hotel': hotel, 'recreador': recreador})
-        elif request.FILES.get('foto'):
-            # Nova foto sem descritor: limpa cadastro facial antigo
-            recreador.face_descriptor = None
-        pin = request.POST.get('pin', '').strip()
-        pin2 = request.POST.get('pin_confirm', '').strip()
-        if pin:
-            if not pin.isdigit() or not (4 <= len(pin) <= 6):
-                messages.error(request, 'PIN deve ter 4 a 6 dígitos numéricos.')
-                return render(request, self.template_name, {'hotel': hotel, 'recreador': recreador})
-            if pin != pin2:
-                messages.error(request, 'Confirmação de PIN não confere.')
-                return render(request, self.template_name, {'hotel': hotel, 'recreador': recreador})
-            recreador.set_pin(pin)
+        erro = _aplicar_form_recreador(request, recreador, pin_obrigatorio=False)
+        if erro:
+            messages.error(request, erro)
+            return render(request, self.template_name, {'hotel': hotel, 'recreador': recreador})
         recreador.save()
-        if recreador.foto and not recreador.tem_reconhecimento_facial:
-            messages.warning(
-                request,
-                f'{recreador.nome} salvo, mas o reconhecimento facial não foi gerado. '
-                'Abra de novo e use “Tirar foto com a câmera” aguardando “Rosto detectado”.',
-            )
-        elif recreador.tem_reconhecimento_facial:
-            messages.success(request, f'{recreador.nome} atualizado com reconhecimento facial.')
-        else:
-            messages.success(request, f'Recreador {recreador.nome} atualizado.')
+        level, msg = _mensagem_apos_salvar(recreador, criado=False)
+        getattr(messages, level)(request, msg)
         return redirect('ponto_gestao')
