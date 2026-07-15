@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestão do Ponto — {{ hotel.nome }}{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <span class="hotel-badge">{{ hotel.nome }}</span>
+    <h2>Gestão do ponto</h2>
+    <p>Batidas de hoje e configuração de foto/PIN dos recreadores.</p>
+    <div class="rec-actions" style="justify-content:flex-start;margin-top:0.75rem;">
+        <a href="{% url 'ponto_quiosque' %}" class="rec-btn rec-btn-primary">Abrir quiosque do tablet</a>
+    </div>
+</section>
+
+<h2 class="section-title">Recreadores</h2>
+<div class="cards-grid">
+    {% for r in recreadores %}
+    <div class="card">
+        {% if r.foto %}
+        <img src="{{ r.foto.url }}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;margin-bottom:0.5rem;">
+        {% endif %}
+        <h3>{{ r.nome }}</h3>
+        <p>{% if r.ativo %}Ativo{% else %}Inativo{% endif %} · {% if r.tem_pin %}PIN ok{% else %}Sem PIN{% endif %}</p>
+        <a href="{% url 'ponto_recreador_config' r.pk %}" class="card-link">Configurar →</a>
+    </div>
+    {% empty %}
+    <p class="empty-state">Nenhum recreador cadastrado. Cadastre no admin ou via programação/seed.</p>
+    {% endfor %}
+</div>
+
+<h2 class="section-title">Batidas de hoje — {{ hoje|date:"d/m/Y" }}</h2>
+<div class="rec-table-wrap">
+    <table class="rec-table">
+        <thead>
+            <tr>
+                <th>Hora</th>
+                <th>Recreador</th>
+                <th>Tipo</th>
+                <th>Extra</th>
+                <th>Foto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in batidas %}
+            <tr>
+                <td>{{ b.registrado_em|date:"H:i" }}</td>
+                <td>{{ b.recreador.nome }}</td>
+                <td>{{ b.get_tipo_display }}</td>
+                <td>{% if b.extra_plantao %}Sim{% else %}—{% endif %}</td>
+                <td>
+                    {% if b.foto_auditoria %}
+                    <a href="{{ b.foto_auditoria.url }}" target="_blank" rel="noopener">ver</a>
+                    {% else %}—{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="rec-empty">Nenhuma batida hoje.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

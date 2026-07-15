@@ -210,6 +210,14 @@ class Recreador(models.Model):
     )
     nome = models.CharField('nome', max_length=120)
     telefone = models.CharField('telefone', max_length=20, blank=True)
+    foto = models.ImageField(
+        'foto',
+        upload_to='recreadores/%Y/%m/',
+        blank=True,
+        null=True,
+    )
+    pin_hash = models.CharField('PIN (hash)', max_length=128, blank=True)
+    pin_atualizado_em = models.DateTimeField('PIN atualizado em', null=True, blank=True)
     ativo = models.BooleanField('ativo', default=True)
     criado_em = models.DateTimeField(auto_now_add=True)
 
@@ -220,6 +228,79 @@ class Recreador(models.Model):
 
     def __str__(self):
         return self.nome
+
+    def set_pin(self, pin: str) -> None:
+        from django.contrib.auth.hashers import make_password
+        from django.utils import timezone as tz
+
+        self.pin_hash = make_password(str(pin).strip())
+        self.pin_atualizado_em = tz.now()
+
+    def check_pin(self, pin: str) -> bool:
+        from django.contrib.auth.hashers import check_password
+
+        if not self.pin_hash:
+            return False
+        return check_password(str(pin).strip(), self.pin_hash)
+
+    @property
+    def tem_pin(self) -> bool:
+        return bool(self.pin_hash)
+
+
+class TipoPontoBatida(models.TextChoices):
+    ENTRADA = 'entrada', 'Entrada'
+    SAIDA = 'saida', 'Saída'
+
+
+class PontoBatida(models.Model):
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name='ponto_batidas',
+        verbose_name='hotel',
+    )
+    recreador = models.ForeignKey(
+        Recreador,
+        on_delete=models.CASCADE,
+        related_name='ponto_batidas',
+        verbose_name='recreador',
+    )
+    tipo = models.CharField(
+        'tipo',
+        max_length=10,
+        choices=TipoPontoBatida.choices,
+    )
+    extra_plantao = models.BooleanField('extra / plantão', default=False)
+    registrado_em = models.DateTimeField('registrado em', default=timezone.now)
+    foto_auditoria = models.ImageField(
+        'foto da batida',
+        upload_to='ponto/%Y/%m/',
+        blank=True,
+        null=True,
+    )
+    ip = models.GenericIPAddressField('IP', null=True, blank=True)
+    user_agent = models.CharField('user agent', max_length=255, blank=True)
+    registrado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ponto_batidas_registradas',
+        verbose_name='registrado por',
+    )
+
+    class Meta:
+        ordering = ['-registrado_em']
+        verbose_name = 'batida de ponto'
+        verbose_name_plural = 'batidas de ponto'
+        indexes = [
+            models.Index(fields=['hotel', 'registrado_em']),
+            models.Index(fields=['recreador', 'registrado_em']),
+        ]
+
+    def __str__(self):
+        return f'{self.recreador.nome} — {self.get_tipo_display()} @ {self.registrado_em}'
 
 
 class LocalAtividade(models.Model):

@@ -14,6 +14,7 @@ from .models import (
     Passeio,
     PassaporteHospede,
     PerfilUsuario,
+    PontoBatida,
     PresencaRegistro,
     ProdutoLoja,
     EventoRecreacao,
@@ -69,9 +70,23 @@ class HospedeAdmin(admin.ModelAdmin):
 
 @admin.register(Recreador)
 class RecreadorAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'hotel', 'telefone', 'ativo')
+    list_display = ('nome', 'hotel', 'telefone', 'tem_pin_display', 'ativo')
     list_filter = ('hotel', 'ativo')
     search_fields = ('nome',)
+    readonly_fields = ('pin_hash', 'pin_atualizado_em')
+
+    @admin.display(boolean=True, description='tem PIN')
+    def tem_pin_display(self, obj):
+        return obj.tem_pin
+
+
+@admin.register(PontoBatida)
+class PontoBatidaAdmin(admin.ModelAdmin):
+    list_display = ('recreador', 'hotel', 'tipo', 'extra_plantao', 'registrado_em')
+    list_filter = ('hotel', 'tipo', 'extra_plantao', 'registrado_em')
+    search_fields = ('recreador__nome',)
+    readonly_fields = ('hotel', 'recreador', 'tipo', 'extra_plantao', 'registrado_em', 'foto_auditoria', 'ip', 'user_agent', 'registrado_por')
+    date_hierarchy = 'registrado_em'
 
 
 @admin.register(LocalAtividade)

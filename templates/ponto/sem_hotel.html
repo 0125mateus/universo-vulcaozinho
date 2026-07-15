@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ponto — sem hotel</title>
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=1">
+</head>
+<body class="ponto-body">
+    <main class="ponto-main">
+        <p class="ponto-empty">Selecione um hotel no sistema antes de abrir o ponto.</p>
+        <p style="text-align:center;margin-top:1rem;"><a href="{% url 'home' %}">Voltar ao início</a></p>
+    </main>
+</body>
+</html>

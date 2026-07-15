@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ponto — {{ hotel.nome }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=1">
+    <style>
+        :root {
+            --hotel-primary: {{ hotel.cor_primaria }};
+            --hotel-secondary: {{ hotel.cor_secundaria }};
+            --hotel-accent: {{ hotel.cor_destaque }};
+        }
+    </style>
+</head>
+<body class="ponto-body">
+    <header class="ponto-header">
+        <div>
+            <p class="ponto-eyebrow">Ponto eletrônico</p>
+            <h1>{{ hotel.nome }}</h1>
+        </div>
+        <div class="ponto-header-meta">
+            <span id="ponto-clock">--:--</span>
+            <span class="ponto-date">{{ hoje|date:"d/m/Y" }}</span>
+            <a href="{% url 'ponto_gestao' %}" class="ponto-link-gestao">Gestão</a>
+        </div>
+    </header>
+
+    <main class="ponto-main" id="ponto-app"
+          data-csrf="{{ csrf_token }}"
+          data-estado-url-template="{% url 'ponto_api_estado' 0 %}"
+          data-registrar-url-template="{% url 'ponto_api_registrar' 0 %}">
+        {% csrf_token %}
+        <p class="ponto-hint">Toque no seu nome para bater o ponto</p>
+        <div class="ponto-grid">
+            {% for r in recreadores %}
+            <button type="button" class="ponto-card" data-id="{{ r.id }}" data-nome="{{ r.nome }}">
+                {% if r.foto %}
+                <img src="{{ r.foto.url }}" alt="" class="ponto-card-foto">
+                {% else %}
+                <div class="ponto-card-foto ponto-card-foto-empty">{{ r.nome|make_list|first }}</div>
+                {% endif %}
+                <strong>{{ r.nome }}</strong>
+                {% if not r.tem_pin %}<small class="ponto-sem-pin">Sem PIN</small>{% endif %}
+            </button>
+            {% empty %}
+            <p class="ponto-empty">Nenhum recreador ativo neste hotel.</p>
+            {% endfor %}
+        </div>
+    </main>
+
+    <div class="ponto-modal" id="ponto-modal" hidden>
+        <div class="ponto-modal-panel">
+            <button type="button" class="ponto-modal-close" id="ponto-modal-close" aria-label="Fechar">×</button>
+            <div class="ponto-modal-pessoa">
+                <img src="" alt="" id="ponto-modal-foto" class="ponto-modal-foto" hidden>
+                <div class="ponto-modal-foto ponto-card-foto-empty" id="ponto-modal-foto-empty">?</div>
+                <h2 id="ponto-modal-nome">—</h2>
+            </div>
+
+            <div id="ponto-step-pin">
+                <p class="ponto-step-label">Digite seu PIN</p>
+                <div class="ponto-pin-display" id="ponto-pin-display">••••</div>
+                <div class="ponto-pin-pad" id="ponto-pin-pad">
+                    {% for n in "123456789" %}
+                    <button type="button" data-digit="{{ n }}">{{ n }}</button>
+                    {% endfor %}
+                    <button type="button" data-action="clear">C</button>
+                    <button type="button" data-digit="0">0</button>
+                    <button type="button" data-action="back">⌫</button>
+                </div>
+                <p class="ponto-erro" id="ponto-pin-erro" hidden></p>
+                <button type="button" class="ponto-btn ponto-btn-primary" id="ponto-pin-ok">Continuar</button>
+            </div>
+
+            <div id="ponto-step-acao" hidden>
+                <p class="ponto-step-label">Confirmar batida</p>
+                <p class="ponto-acao-sugerida" id="ponto-acao-sugerida">—</p>
+                <label class="ponto-toggle">
+                    <input type="checkbox" id="ponto-extra">
+                    <span>Extra / plantão</span>
+                </label>
+                <div class="ponto-camera-wrap">
+                    <video id="ponto-video" playsinline muted autoplay hidden></video>
+                    <canvas id="ponto-canvas" hidden></canvas>
+                    <button type="button" class="ponto-btn ponto-btn-ghost" id="ponto-foto-btn">Usar câmera (opcional)</button>
+                    <img id="ponto-preview" class="ponto-preview" alt="" hidden>
+                </div>
+                <button type="button" class="ponto-btn ponto-btn-primary" id="ponto-confirmar">Registrar</button>
+                <p class="ponto-erro" id="ponto-acao-erro" hidden></p>
+            </div>
+
+            <div id="ponto-step-ok" hidden>
+                <p class="ponto-sucesso" id="ponto-sucesso-msg">Registrado!</p>
+                <p class="ponto-sucesso-sub">Voltando à lista…</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/ponto.js' %}?v=1"></script>
+</body>
+</html>

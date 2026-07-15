@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Configurar {{ recreador.nome }} — Ponto{% endblock %}
+
+{% block content %}
+<section class="rec-hero rec-hero-compact">
+    <h2>Configurar recreador</h2>
+    <p>{{ hotel.nome }}</p>
+</section>
+
+<div class="rec-layout">
+    <form method="post" enctype="multipart/form-data" class="rec-form-card">
+        {% csrf_token %}
+        <div class="rec-field">
+            <label for="nome">Nome</label>
+            <input class="rec-input" type="text" name="nome" id="nome" value="{{ recreador.nome }}" required>
+        </div>
+        <div class="rec-field">
+            <label for="telefone">Telefone</label>
+            <input class="rec-input" type="text" name="telefone" id="telefone" value="{{ recreador.telefone }}">
+        </div>
+        <div class="rec-field">
+            <label>
+                <input type="checkbox" name="ativo" {% if recreador.ativo %}checked{% endif %}> Ativo
+            </label>
+        </div>
+        <div class="rec-field">
+            <label for="foto">Foto (reconhecimento visual)</label>
+            {% if recreador.foto %}
+            <p><img src="{{ recreador.foto.url }}" alt="" style="width:96px;height:96px;border-radius:50%;object-fit:cover;"></p>
+            {% endif %}
+            <input class="rec-input" type="file" name="foto" id="foto" accept="image/*">
+        </div>
+        <div class="rec-field">
+            <label for="pin">Novo PIN (4–6 dígitos)</label>
+            <input class="rec-input" type="password" name="pin" id="pin" inputmode="numeric" pattern="[0-9]{4,6}" autocomplete="new-password" placeholder="{% if recreador.tem_pin %}Deixe em branco para manter{% else %}Obrigatório{% endif %}">
+        </div>
+        <div class="rec-field">
+            <label for="pin_confirm">Confirmar PIN</label>
+            <input class="rec-input" type="password" name="pin_confirm" id="pin_confirm" inputmode="numeric" pattern="[0-9]{4,6}" autocomplete="new-password">
+        </div>
+        <div class="rec-actions">
+            <a href="{% url 'ponto_gestao' %}" class="rec-btn rec-btn-ghost">Cancelar</a>
+            <button type="submit" class="rec-btn rec-btn-primary">Salvar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1256,3 +1256,51 @@ class HospedeAppAssistantTestCase(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertIn('Festa Neon', resp.json()['reply'])
+
+from core.models import Recreador, TipoPontoBatida
+from core.ponto_service import PontoErro, estado_ponto_hoje, registrar_batida
+
+
+@override_settings(ALLOWED_HOSTS=['testserver'])
+class PontoRecreadorTestCase(TestCase):
+    def setUp(self):
+        self.hotel = Hotel.objects.create(
+            nome='Nacional Inn Test',
+            slug='nacional-inn',
+            rede_marca='nacional_inn',
+        )
+        self.rec = Recreador.objects.create(hotel=self.hotel, nome='Ana Rec', ativo=True)
+        self.rec.set_pin('1234')
+        self.rec.save()
+        self.client = Client()
+        session = self.client.session
+        session['hotel_slug'] = self.hotel.slug
+        session.save()
+
+    def test_pin_errado(self):
+        with self.assertRaises(PontoErro):
+            registrar_batida(recreador=self.rec, hotel=self.hotel, pin='0000')
+
+    def test_entrada_depois_saida(self):
+        b1 = registrar_batida(recreador=self.rec, hotel=self.hotel, pin='1234', extra_plantao=True)
+        self.assertEqual(b1.tipo, TipoPontoBatida.ENTRADA)
+        self.assertTrue(b1.extra_plantao)
+        estado = estado_ponto_hoje(self.rec)
+        self.assertEqual(estado.proxima_acao, TipoPontoBatida.SAIDA)
+        # anti double-tap: force old timestamp
+        from django.utils import timezone as tz
+        from datetime import timedelta
+        b1.registrado_em = tz.now() - timedelta(minutes=2)
+        b1.save(update_fields=['registrado_em'])
+        b2 = registrar_batida(recreador=self.rec, hotel=self.hotel, pin='1234')
+        self.assertEqual(b2.tipo, TipoPontoBatida.SAIDA)
+
+    def test_anti_double_tap(self):
+        registrar_batida(recreador=self.rec, hotel=self.hotel, pin='1234')
+        with self.assertRaises(PontoErro):
+            registrar_batida(recreador=self.rec, hotel=self.hotel, pin='1234')
+
+    def test_quiosque_get(self):
+        resp = self.client.get(reverse('ponto_quiosque'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Ana Rec')

@@ -63,6 +63,9 @@ Superuser admin: `python manage.py seed_superuser` → `admin` / `admin`
 | `/noites/gestao/` | Editar noites temáticas |
 | `/api/v1/docs/` | Documentação Swagger |
 | `/reuniao/` | Reunião diretoria (Jitsi) |
+| `/ponto/` | Ponto tablet (foto + PIN, entrada/saída) |
+| `/ponto/gestao/` | Gestão de batidas e PIN dos recreadores |
+| `/app/` | App do hóspede (PWA) |
 
 ## API Telão (pública, read-only)
 
@@ -113,8 +116,13 @@ python manage.py seed_noites_tematicas
 python manage.py seed_programacao
 python manage.py seed_loja
 python manage.py seed_usuarios_demo
+python manage.py seed_ponto
 python manage.py seed_all   # todos acima
 ```
+
+PIN demo dos recreadores (seed_ponto): `1234`
+
+Fotos de recreadores/batidas ficam em `MEDIA_ROOT` (no Render free o disco é efêmero — use volume persistente se precisar conservar).
 
 ## Deploy
 

@@ -15,6 +15,7 @@ class Command(BaseCommand):
         'seed_salas_reuniao',
         'seed_superuser',
         'seed_usuarios_demo',
+        'seed_ponto',
     ]
 
     def handle(self, *args, **options):

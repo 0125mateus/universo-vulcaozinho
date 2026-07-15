@@ -1,0 +1,231 @@
+/* Ponto tablet — quiosque */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.ponto-body {
+    font-family: 'Fredoka', system-ui, sans-serif;
+    min-height: 100dvh;
+    color: #1f1a14;
+    background:
+        radial-gradient(ellipse 80% 50% at 0% 0%, rgba(232, 107, 31, 0.16) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(245, 197, 24, 0.18) 0%, transparent 50%),
+        linear-gradient(165deg, #1a3d2a 0%, #2d5a3d 16%, #e8f0e4 45%, #f5efe4 100%);
+    background-attachment: fixed;
+}
+
+.ponto-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.5rem;
+    background: rgba(255,255,255,0.92);
+    border-bottom: 3px solid var(--hotel-accent, #F5C518);
+}
+
+.ponto-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--hotel-primary, #165A38);
+}
+
+.ponto-header h1 { font-size: 1.45rem; font-weight: 800; }
+
+.ponto-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 800;
+}
+
+#ponto-clock { font-size: 1.6rem; color: var(--hotel-primary, #165A38); }
+.ponto-date { color: #5e564c; font-size: 0.9rem; }
+.ponto-link-gestao {
+    font-size: 0.8rem;
+    color: var(--hotel-primary, #165A38);
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.ponto-main { padding: 1.25rem 1.5rem 2rem; max-width: 1100px; margin: 0 auto; }
+.ponto-hint {
+    text-align: center;
+    font-weight: 700;
+    color: #5e564c;
+    margin-bottom: 1rem;
+}
+
+.ponto-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.85rem;
+}
+
+.ponto-card {
+    border: none;
+    background: rgba(255,255,255,0.94);
+    border-radius: 18px;
+    padding: 1rem 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(22,90,56,0.1);
+    border-top: 4px solid var(--hotel-primary, #165A38);
+    font-family: inherit;
+    transition: transform 0.15s ease;
+}
+.ponto-card:active { transform: scale(0.97); }
+.ponto-card strong { display: block; margin-top: 0.55rem; font-size: 0.95rem; }
+.ponto-sem-pin { color: #c0392b; font-weight: 700; font-size: 0.72rem; }
+
+.ponto-card-foto {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto;
+    display: block;
+    background: #eee;
+}
+.ponto-card-foto-empty {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--hotel-primary, #165A38), var(--hotel-secondary, #2A9B57));
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.ponto-empty { text-align: center; padding: 2rem; font-weight: 700; color: #5e564c; }
+
+.ponto-modal[hidden] { display: none !important; }
+.ponto-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 20, 18, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+}
+.ponto-modal-panel {
+    background: #fff;
+    border-radius: 22px;
+    padding: 1.35rem 1.25rem 1.5rem;
+    width: min(420px, 100%);
+    max-height: 92dvh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+.ponto-modal-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.75rem;
+    border: none;
+    background: transparent;
+    font-size: 1.75rem;
+    cursor: pointer;
+    color: #888;
+}
+.ponto-modal-pessoa { text-align: center; margin-bottom: 1rem; }
+.ponto-modal-foto { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin: 0 auto 0.5rem; display: block; }
+.ponto-modal-pessoa h2 { font-size: 1.25rem; }
+
+.ponto-step-label { text-align: center; font-weight: 800; color: #5e564c; margin-bottom: 0.5rem; }
+.ponto-pin-display {
+    text-align: center;
+    font-size: 1.8rem;
+    letter-spacing: 0.35em;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: var(--hotel-primary, #165A38);
+}
+.ponto-pin-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+}
+.ponto-pin-pad button {
+    padding: 0.95rem;
+    font-size: 1.35rem;
+    font-weight: 800;
+    font-family: inherit;
+    border: none;
+    border-radius: 14px;
+    background: #f3f0ea;
+    cursor: pointer;
+}
+.ponto-pin-pad button:active { background: #e5e0d6; }
+
+.ponto-btn {
+    width: 100%;
+    padding: 0.95rem;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 1.05rem;
+    cursor: pointer;
+}
+.ponto-btn-primary {
+    background: linear-gradient(135deg, var(--hotel-primary, #165A38), var(--hotel-secondary, #2A9B57));
+    color: #fff;
+}
+.ponto-btn-ghost {
+    background: #f3f0ea;
+    color: #444;
+    margin-bottom: 0.65rem;
+}
+.ponto-erro {
+    color: #c0392b;
+    font-weight: 700;
+    text-align: center;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+.ponto-acao-sugerida {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--hotel-primary, #165A38);
+    margin-bottom: 0.85rem;
+}
+.ponto-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 800;
+    margin-bottom: 0.85rem;
+    cursor: pointer;
+}
+.ponto-toggle input { width: 1.25rem; height: 1.25rem; }
+.ponto-camera-wrap { text-align: center; margin-bottom: 0.75rem; }
+#ponto-video, .ponto-preview {
+    width: 100%;
+    max-height: 180px;
+    border-radius: 12px;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+    background: #111;
+}
+.ponto-sucesso {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--hotel-primary, #165A38);
+    margin: 1.5rem 0 0.35rem;
+}
+.ponto-sucesso-sub { text-align: center; color: #5e564c; font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+    .ponto-card { transition: none; }
+}

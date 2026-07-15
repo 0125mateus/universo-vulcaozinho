@@ -32,6 +32,7 @@ from core import views_passeios_gestao
 from core import views_telao
 from core import views_hospede_app
 from core import views_financeiro_operacional
+from core import views_ponto
 
 
 
@@ -167,6 +168,12 @@ urlpatterns = [
     path('api/reuniao/enviar/', views_reuniao.ReuniaoEnviarAPI.as_view(), name='reuniao_enviar'),
 
     path('hotel/<slug:slug>/', views.selecionar_hotel, name='selecionar_hotel'),
+
+    path('ponto/', views_ponto.PontoQuiosqueView.as_view(), name='ponto_quiosque'),
+    path('ponto/gestao/', views_ponto.PontoGestaoView.as_view(), name='ponto_gestao'),
+    path('ponto/gestao/<int:pk>/', views_ponto.PontoRecreadorConfigView.as_view(), name='ponto_recreador_config'),
+    path('ponto/api/<int:pk>/estado/', views_ponto.PontoRecreadorEstadoAPI.as_view(), name='ponto_api_estado'),
+    path('ponto/api/<int:pk>/registrar/', views_ponto.PontoRegistrarAPI.as_view(), name='ponto_api_registrar'),
 
     path('api/assistant/init/', views_assistant.assistant_init, name='assistant_init'),
 
