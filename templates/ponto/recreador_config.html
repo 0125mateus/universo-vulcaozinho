@@ -9,7 +9,7 @@
 </section>
 
 <div class="rec-layout">
-    <form method="post" enctype="multipart/form-data" class="rec-form-card">
+    <form method="post" enctype="multipart/form-data" class="rec-form-card" id="recreador-config-form">
         {% csrf_token %}
         <div class="rec-field">
             <label for="nome">Nome</label>
@@ -26,10 +26,26 @@
         </div>
         <div class="rec-field">
             <label for="foto">Foto (reconhecimento visual)</label>
-            {% if recreador.foto %}
-            <p><img src="{{ recreador.foto.url }}" alt="" style="width:96px;height:96px;border-radius:50%;object-fit:cover;"></p>
-            {% endif %}
-            <input class="rec-input" type="file" name="foto" id="foto" accept="image/*">
+            <p id="foto-atual-wrap" {% if not recreador.foto %}hidden{% endif %}>
+                {% if recreador.foto %}
+                <img src="{{ recreador.foto.url }}" alt="" id="foto-atual" style="width:96px;height:96px;border-radius:50%;object-fit:cover;">
+                {% else %}
+                <img src="" alt="" id="foto-atual" style="width:96px;height:96px;border-radius:50%;object-fit:cover;" hidden>
+                {% endif %}
+            </p>
+            <img id="foto-preview" alt="Pré-visualização" hidden
+                 style="width:120px;height:120px;border-radius:50%;object-fit:cover;display:block;margin:0.5rem 0;">
+            <video id="foto-video" playsinline muted autoplay hidden
+                   style="width:100%;max-width:320px;border-radius:12px;background:#111;margin:0.5rem 0;"></video>
+            <canvas id="foto-canvas" hidden></canvas>
+            <div class="rec-actions" style="justify-content:flex-start;flex-wrap:wrap;gap:0.5rem;margin:0.5rem 0;">
+                <button type="button" class="rec-btn rec-btn-primary" id="foto-camera-btn">Tirar foto com a câmera</button>
+                <button type="button" class="rec-btn rec-btn-ghost" id="foto-capturar-btn" hidden>Capturar</button>
+                <button type="button" class="rec-btn rec-btn-ghost" id="foto-cancelar-btn" hidden>Cancelar câmera</button>
+            </div>
+            <p class="field-hint" style="margin:0.35rem 0;">Ou escolha um arquivo:</p>
+            <input class="rec-input" type="file" name="foto" id="foto" accept="image/*" capture="user">
+            <p class="field-hint" id="foto-status" hidden></p>
         </div>
         <div class="rec-field">
             <label for="pin">Novo PIN (4–6 dígitos)</label>
@@ -45,4 +61,92 @@
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+  const video = document.getElementById('foto-video');
+  const canvas = document.getElementById('foto-canvas');
+  const preview = document.getElementById('foto-preview');
+  const fileInput = document.getElementById('foto');
+  const camBtn = document.getElementById('foto-camera-btn');
+  const captureBtn = document.getElementById('foto-capturar-btn');
+  const cancelBtn = document.getElementById('foto-cancelar-btn');
+  const status = document.getElementById('foto-status');
+  let stream = null;
+
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      stream = null;
+    }
+    video.hidden = true;
+    video.srcObject = null;
+    captureBtn.hidden = true;
+    cancelBtn.hidden = true;
+    camBtn.hidden = false;
+    camBtn.textContent = 'Tirar foto com a câmera';
+  }
+
+  function setStatus(msg) {
+    status.textContent = msg || '';
+    status.hidden = !msg;
+  }
+
+  function assignFile(blob) {
+    const file = new File([blob], 'recreador-camera.jpg', { type: 'image/jpeg' });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    fileInput.files = dt.files;
+    preview.src = URL.createObjectURL(blob);
+    preview.hidden = false;
+    setStatus('Foto capturada — clique em Salvar para gravar.');
+  }
+
+  camBtn.addEventListener('click', async () => {
+    setStatus('');
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user' },
+        audio: false,
+      });
+      video.srcObject = stream;
+      video.hidden = false;
+      captureBtn.hidden = false;
+      cancelBtn.hidden = false;
+      camBtn.hidden = true;
+    } catch (err) {
+      setStatus('Câmera indisponível. Use “Escolher ficheiro” ou permita o acesso à câmera.');
+    }
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    stopCamera();
+  });
+
+  captureBtn.addEventListener('click', () => {
+    if (!stream) return;
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        setStatus('Não foi possível capturar a foto.');
+        return;
+      }
+      assignFile(blob);
+      stopCamera();
+    }, 'image/jpeg', 0.9);
+  });
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    preview.src = URL.createObjectURL(file);
+    preview.hidden = false;
+    setStatus('Arquivo selecionado — clique em Salvar para gravar.');
+  });
+})();
+</script>
 {% endblock %}
