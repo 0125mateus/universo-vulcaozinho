@@ -219,25 +219,43 @@ SPECTACULAR_SETTINGS = {
 # Telão — chave pública read-only (defina em produção via env)
 TELAO_API_KEY = os.environ.get('TELAO_API_KEY', 'vulcaozinho-telao-dev')
 
-# Render.com — host e CSRF automáticos a partir da URL pública
+# Render.com — host e CSRF (obrigatório em HTTPS / Django 4+)
 _render_url = os.environ.get('RENDER_EXTERNAL_URL', '').strip().rstrip('/')
-if _render_url:
+_render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if not _render_hostname and _render_url:
     from urllib.parse import urlparse
+    _render_hostname = urlparse(_render_url).netloc
+if _render_hostname and _render_hostname not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_render_hostname)
+if '.onrender.com' not in ALLOWED_HOSTS and not any(h.endswith('.onrender.com') for h in ALLOWED_HOSTS):
+    ALLOWED_HOSTS.append('.onrender.com')
 
-    _render_host = urlparse(_render_url).netloc
-    if _render_host and _render_host not in ALLOWED_HOSTS:
-        ALLOWED_HOSTS.append(_render_host)
+CSRF_TRUSTED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
+    if o.strip()
+]
+if _render_url and _render_url not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(_render_url)
+if _render_hostname:
+    _https_origin = f'https://{_render_hostname}'
+    if _https_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_https_origin)
+# Wildcard para qualquer serviço *.onrender.com (Django 4+)
+if 'https://*.onrender.com' not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append('https://*.onrender.com')
 
-# Produção (atrás de proxy / HTTPS)
-if not DEBUG:
+# Produção atrás de proxy (Render / Docker)
+_on_render = bool(_render_url or _render_hostname or os.environ.get('RENDER'))
+if not DEBUG or _on_render:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    CSRF_TRUSTED_ORIGINS = [
-        o.strip()
-        for o in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
-        if o.strip()
-    ]
-    if _render_url and _render_url not in CSRF_TRUSTED_ORIGINS:
-        CSRF_TRUSTED_ORIGINS.append(_render_url)
-    _secure_cookies = os.environ.get('DJANGO_SECURE_COOKIES', 'False').lower() in ('1', 'true', 'yes')
+    _secure_cookies = os.environ.get('DJANGO_SECURE_COOKIES', 'True' if _on_render else 'False').lower() in (
+        '1',
+        'true',
+        'yes',
+    )
     SESSION_COOKIE_SECURE = _secure_cookies
     CSRF_COOKIE_SECURE = _secure_cookies
+    CSRF_COOKIE_HTTPONLY = False  # necessário para alguns fluxos JS; token no form continua ok
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'Lax'
