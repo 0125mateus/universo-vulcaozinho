@@ -17,16 +17,10 @@
 .hospede-app-body {
     font-family: 'Fredoka', system-ui, sans-serif;
     background:
-        radial-gradient(ellipse 90% 55% at 0% -10%, color-mix(in srgb, var(--app-lava, var(--app-accent)) 28%, transparent) 0%, transparent 55%),
-        radial-gradient(ellipse 70% 45% at 100% 0%, color-mix(in srgb, var(--app-accent) 26%, transparent) 0%, transparent 50%),
-        radial-gradient(ellipse 80% 50% at 50% 100%, color-mix(in srgb, var(--app-secondary, var(--app-primary)) 22%, transparent) 0%, transparent 55%),
-        linear-gradient(
-            165deg,
-            color-mix(in srgb, var(--app-primary) 88%, #0a1210) 0%,
-            color-mix(in srgb, var(--app-primary) 42%, #e8efe8) 18%,
-            color-mix(in srgb, var(--app-accent) 10%, #f3eee6) 72%,
-            color-mix(in srgb, var(--app-secondary, var(--app-primary)) 8%, #ebe3d6) 100%
-        );
+        radial-gradient(ellipse 90% 55% at 0% -10%, rgba(232, 107, 31, 0.22) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 45% at 100% 0%, rgba(245, 197, 24, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 50% at 50% 100%, rgba(42, 155, 87, 0.18) 0%, transparent 55%),
+        linear-gradient(165deg, #163528 0%, #24553a 18%, #e6efe4 42%, #f3eee6 78%, #ebe3d6 100%);
     background-attachment: fixed;
     color: var(--app-ink);
     min-height: 100dvh;
