@@ -123,7 +123,7 @@ python manage.py seed_all   # todos acima
 
 PIN demo dos recreadores (seed_ponto): `1234`
 
-Fotos de recreadores/batidas ficam em `MEDIA_ROOT` (no Render free o disco é efêmero — use volume persistente se precisar conservar).
+Fotos de recreadores/batidas ficam em `MEDIA_ROOT` (servidas em `/media/`). No Render free o disco é efêmero — após redeploy pode ser preciso reenviar a foto (ou use volume persistente).
 
 ## Deploy
 

@@ -171,8 +171,8 @@ STORAGES = {
     },
 }
 
-# Uploads (comprovantes de pagamento, etc.)
-MEDIA_URL = 'media/'
+# Uploads (fotos de ponto, comprovantes, etc.)
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type

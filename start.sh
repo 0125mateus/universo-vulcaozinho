@@ -2,6 +2,8 @@
 # Start script para Render (migrate + seed opcional + Daphne/ASGI)
 set -o errexit
 
+mkdir -p media
+
 python manage.py migrate --no-input
 
 if [ "$RUN_SEED" = "1" ]; then
