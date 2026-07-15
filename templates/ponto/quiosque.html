@@ -7,7 +7,7 @@
     <title>Ponto — {{ hotel.nome }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=2">
     <style>
         :root {
             --hotel-primary: {{ hotel.cor_primaria }};
@@ -19,37 +19,61 @@
 <body class="ponto-body">
     <header class="ponto-header">
         <div>
-            <p class="ponto-eyebrow">Ponto eletrônico</p>
+            <p class="ponto-eyebrow">Ponto eletrônico · tablet</p>
             <h1>{{ hotel.nome }}</h1>
         </div>
         <div class="ponto-header-meta">
             <span id="ponto-clock">--:--</span>
             <span class="ponto-date">{{ hoje|date:"d/m/Y" }}</span>
+            <a href="{% url 'ponto_app_login' %}" class="ponto-link-gestao">App</a>
             <a href="{% url 'ponto_gestao' %}" class="ponto-link-gestao">Gestão</a>
         </div>
     </header>
 
     <main class="ponto-main" id="ponto-app"
           data-csrf="{{ csrf_token }}"
-          data-estado-url-template="{% url 'ponto_api_estado' 0 %}"
+          data-autenticar-url="{% url 'ponto_api_autenticar' %}"
           data-registrar-url-template="{% url 'ponto_api_registrar' 0 %}">
         {% csrf_token %}
-        <p class="ponto-hint">Toque no seu nome para bater o ponto</p>
-        <div class="ponto-grid">
-            {% for r in recreadores %}
-            <button type="button" class="ponto-card" data-id="{{ r.id }}" data-nome="{{ r.nome }}">
-                {% if r.foto %}
-                <img src="{{ r.foto.url }}" alt="" class="ponto-card-foto">
-                {% else %}
-                <div class="ponto-card-foto ponto-card-foto-empty">{{ r.nome|make_list|first }}</div>
-                {% endif %}
-                <strong>{{ r.nome }}</strong>
-                {% if not r.tem_pin %}<small class="ponto-sem-pin">Sem PIN</small>{% endif %}
-            </button>
-            {% empty %}
-            <p class="ponto-empty">Nenhum recreador ativo neste hotel.</p>
-            {% endfor %}
-        </div>
+        <p class="ponto-hint">Digite seu nome e PIN para bater o ponto</p>
+
+        <form class="ponto-app-form ponto-quiosque-form" id="ponto-login-form" autocomplete="off">
+            <label class="ponto-field">
+                <span>Seu nome</span>
+                <input type="text" id="ponto-nome" name="nome" required
+                       placeholder="Como no cadastro" autocapitalize="words" autofocus>
+            </label>
+            <p class="ponto-step-label">PIN</p>
+            <div class="ponto-pin-display" id="ponto-pin-display">••••</div>
+            <div class="ponto-pin-pad" id="ponto-pin-pad">
+                {% for n in "123456789" %}
+                <button type="button" data-digit="{{ n }}">{{ n }}</button>
+                {% endfor %}
+                <button type="button" data-action="clear">C</button>
+                <button type="button" data-digit="0">0</button>
+                <button type="button" data-action="back">⌫</button>
+            </div>
+            <p class="ponto-erro" id="ponto-pin-erro" hidden></p>
+            <button type="submit" class="ponto-btn ponto-btn-primary" id="ponto-pin-ok">Continuar</button>
+        </form>
+
+        <details class="ponto-lista-details">
+            <summary>Ver lista com foto (conferência)</summary>
+            <div class="ponto-grid">
+                {% for r in recreadores %}
+                <div class="ponto-card ponto-card-static">
+                    {% if r.foto %}
+                    <img src="{{ r.foto.url }}" alt="" class="ponto-card-foto">
+                    {% else %}
+                    <div class="ponto-card-foto ponto-card-foto-empty">{{ r.nome|make_list|first }}</div>
+                    {% endif %}
+                    <strong>{{ r.nome }}</strong>
+                </div>
+                {% empty %}
+                <p class="ponto-empty">Nenhum recreador ativo neste hotel.</p>
+                {% endfor %}
+            </div>
+        </details>
     </main>
 
     <div class="ponto-modal" id="ponto-modal" hidden>
@@ -61,22 +85,7 @@
                 <h2 id="ponto-modal-nome">—</h2>
             </div>
 
-            <div id="ponto-step-pin">
-                <p class="ponto-step-label">Digite seu PIN</p>
-                <div class="ponto-pin-display" id="ponto-pin-display">••••</div>
-                <div class="ponto-pin-pad" id="ponto-pin-pad">
-                    {% for n in "123456789" %}
-                    <button type="button" data-digit="{{ n }}">{{ n }}</button>
-                    {% endfor %}
-                    <button type="button" data-action="clear">C</button>
-                    <button type="button" data-digit="0">0</button>
-                    <button type="button" data-action="back">⌫</button>
-                </div>
-                <p class="ponto-erro" id="ponto-pin-erro" hidden></p>
-                <button type="button" class="ponto-btn ponto-btn-primary" id="ponto-pin-ok">Continuar</button>
-            </div>
-
-            <div id="ponto-step-acao" hidden>
+            <div id="ponto-step-acao">
                 <p class="ponto-step-label">Confirmar batida</p>
                 <p class="ponto-acao-sugerida" id="ponto-acao-sugerida">—</p>
                 <label class="ponto-toggle">
@@ -95,11 +104,11 @@
 
             <div id="ponto-step-ok" hidden>
                 <p class="ponto-sucesso" id="ponto-sucesso-msg">Registrado!</p>
-                <p class="ponto-sucesso-sub">Voltando à lista…</p>
+                <p class="ponto-sucesso-sub">Voltando…</p>
             </div>
         </div>
     </div>
 
-    <script src="{% static 'js/ponto.js' %}?v=1"></script>
+    <script src="{% static 'js/ponto.js' %}?v=2"></script>
 </body>
 </html>

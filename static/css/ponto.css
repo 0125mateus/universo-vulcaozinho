@@ -226,6 +226,95 @@
 }
 .ponto-sucesso-sub { text-align: center; color: #5e564c; font-weight: 600; }
 
+/* App do recreador + formulário nome/PIN */
+.ponto-app-body { display: flex; flex-direction: column; }
+.ponto-app-shell {
+    width: min(440px, 100%);
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 2.5rem;
+}
+.ponto-app-hero { text-align: center; margin-bottom: 1.25rem; }
+.ponto-app-hero h1 { font-size: 1.85rem; font-weight: 800; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.25); }
+.ponto-app-sub { color: rgba(255,255,255,0.88); font-weight: 600; margin-top: 0.35rem; }
+.ponto-app-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: rgba(255,255,255,0.92);
+    border-bottom: 3px solid var(--hotel-accent, #F5C518);
+}
+.ponto-app-top h1 { font-size: 1.25rem; }
+.ponto-app-form {
+    background: rgba(255,255,255,0.96);
+    border-radius: 20px;
+    padding: 1.25rem;
+    box-shadow: 0 8px 28px rgba(22,90,56,0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.ponto-quiosque-form { max-width: 420px; margin: 0 auto 1.5rem; }
+.ponto-field { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 700; color: #5e564c; }
+.ponto-field input[type="text"],
+.ponto-field input[type="password"],
+.ponto-field input[type="file"] {
+    border: 2px solid #e5e0d6;
+    border-radius: 12px;
+    padding: 0.85rem 0.9rem;
+    font-size: 1.05rem;
+    font-family: inherit;
+    font-weight: 600;
+}
+.ponto-field input:focus {
+    outline: none;
+    border-color: var(--hotel-primary, #165A38);
+}
+.ponto-app-footer {
+    text-align: center;
+    margin-top: 1.25rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+}
+.ponto-app-footer a { color: #fff; font-weight: 800; }
+.ponto-app-card {
+    background: rgba(255,255,255,0.96);
+    border-radius: 20px;
+    padding: 1.35rem 1.2rem;
+    text-align: center;
+    box-shadow: 0 8px 28px rgba(22,90,56,0.12);
+}
+.ponto-app-card .ponto-app-form {
+    box-shadow: none;
+    padding: 0.5rem 0 0;
+    background: transparent;
+}
+.ponto-app-meta { color: #5e564c; font-weight: 600; margin-bottom: 1rem; font-size: 0.9rem; }
+.ponto-msg-list { list-style: none; margin-bottom: 1rem; }
+.ponto-msg {
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+.ponto-msg-success, .ponto-msg-sucesso { background: #e7f6ec; color: #165A38; }
+.ponto-msg-error, .ponto-msg-erro { background: #fde8e8; color: #c0392b; }
+.ponto-lista-details {
+    max-width: 900px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.7);
+    border-radius: 16px;
+    padding: 0.75rem 1rem 1rem;
+}
+.ponto-lista-details summary {
+    cursor: pointer;
+    font-weight: 800;
+    color: var(--hotel-primary, #165A38);
+    margin-bottom: 0.75rem;
+}
+.ponto-card-static { cursor: default; }
+.ponto-card-static:active { transform: none; }
+
 @media (prefers-reduced-motion: reduce) {
     .ponto-card { transition: none; }
 }

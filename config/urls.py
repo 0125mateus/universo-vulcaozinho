@@ -170,8 +170,12 @@ urlpatterns = [
     path('hotel/<slug:slug>/', views.selecionar_hotel, name='selecionar_hotel'),
 
     path('ponto/', views_ponto.PontoQuiosqueView.as_view(), name='ponto_quiosque'),
+    path('ponto/app/', views_ponto.PontoAppHomeView.as_view(), name='ponto_app_home'),
+    path('ponto/app/entrar/', views_ponto.PontoAppLoginView.as_view(), name='ponto_app_login'),
+    path('ponto/app/sair/', views_ponto.PontoAppLogoutView.as_view(), name='ponto_app_logout'),
     path('ponto/gestao/', views_ponto.PontoGestaoView.as_view(), name='ponto_gestao'),
     path('ponto/gestao/<int:pk>/', views_ponto.PontoRecreadorConfigView.as_view(), name='ponto_recreador_config'),
+    path('ponto/api/autenticar/', views_ponto.PontoAutenticarAPI.as_view(), name='ponto_api_autenticar'),
     path('ponto/api/<int:pk>/estado/', views_ponto.PontoRecreadorEstadoAPI.as_view(), name='ponto_api_estado'),
     path('ponto/api/<int:pk>/registrar/', views_ponto.PontoRegistrarAPI.as_view(), name='ponto_api_registrar'),
 

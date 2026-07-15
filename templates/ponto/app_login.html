@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>App do recreador — Ponto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=2">
+    <style>
+        :root {
+            --hotel-primary: {{ hotel.cor_primaria }};
+            --hotel-secondary: {{ hotel.cor_secundaria }};
+            --hotel-accent: {{ hotel.cor_destaque }};
+        }
+    </style>
+</head>
+<body class="ponto-body ponto-app-body">
+    <main class="ponto-app-shell">
+        <div class="ponto-app-hero">
+            <p class="ponto-eyebrow">App do recreador</p>
+            <h1>Bater o ponto</h1>
+            <p class="ponto-app-sub">{{ hotel.nome }} · digite seu nome e PIN</p>
+        </div>
+
+        {% if messages %}
+        <ul class="ponto-msg-list">
+            {% for message in messages %}
+            <li class="ponto-msg ponto-msg-{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post" class="ponto-app-form" autocomplete="off">
+            {% csrf_token %}
+            <label class="ponto-field">
+                <span>Seu nome</span>
+                <input type="text" name="nome" value="{{ nome|default:'' }}" required
+                       placeholder="Como no cadastro" autocapitalize="words" autofocus>
+            </label>
+            <label class="ponto-field">
+                <span>PIN</span>
+                <input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4,6}"
+                       maxlength="6" required placeholder="4 a 6 dígitos" autocomplete="off">
+            </label>
+            <button type="submit" class="ponto-btn ponto-btn-primary">Entrar</button>
+        </form>
+
+        <p class="ponto-app-footer">
+            Tablet da sala: <a href="{% url 'ponto_quiosque' %}">/ponto/</a>
+        </p>
+    </main>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ponto — {{ recreador.nome }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=2">
+    <style>
+        :root {
+            --hotel-primary: {{ hotel.cor_primaria }};
+            --hotel-secondary: {{ hotel.cor_secundaria }};
+            --hotel-accent: {{ hotel.cor_destaque }};
+        }
+    </style>
+</head>
+<body class="ponto-body ponto-app-body">
+    <header class="ponto-app-top">
+        <div>
+            <p class="ponto-eyebrow">{{ hotel.nome }}</p>
+            <h1>{{ recreador.nome }}</h1>
+        </div>
+        <form method="post" action="{% url 'ponto_app_logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="ponto-link-gestao">Sair</button>
+        </form>
+    </header>
+
+    <main class="ponto-app-shell">
+        {% if messages %}
+        <ul class="ponto-msg-list">
+            {% for message in messages %}
+            <li class="ponto-msg ponto-msg-{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="ponto-app-card">
+            {% if recreador.foto %}
+            <img src="{{ recreador.foto.url }}" alt="" class="ponto-modal-foto">
+            {% else %}
+            <div class="ponto-modal-foto ponto-card-foto-empty">{{ recreador.nome|make_list|first }}</div>
+            {% endif %}
+            <p class="ponto-step-label">Próxima batida</p>
+            <p class="ponto-acao-sugerida">
+                {% if estado.proxima_acao == 'entrada' %}Entrada{% else %}Saída{% endif %}
+            </p>
+            {% if estado.ultima_batida %}
+            <p class="ponto-app-meta">
+                Última: {{ estado.ultima_batida.get_tipo_display }} às
+                {{ estado.ultima_batida.registrado_em|time:"H:i" }}
+                {% if estado.ultima_batida.extra_plantao %} · extra{% endif %}
+            </p>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="ponto-app-form" id="ponto-app-batida">
+                {% csrf_token %}
+                <input type="hidden" name="tipo" value="{{ estado.proxima_acao }}">
+                <label class="ponto-toggle">
+                    <input type="checkbox" name="extra_plantao" value="1">
+                    <span>Extra / plantão</span>
+                </label>
+                <label class="ponto-field">
+                    <span>Foto de auditoria (opcional)</span>
+                    <input type="file" name="foto_auditoria" accept="image/*" capture="user">
+                </label>
+                <button type="submit" class="ponto-btn ponto-btn-primary">
+                    Confirmar {% if estado.proxima_acao == 'entrada' %}Entrada{% else %}Saída{% endif %}
+                </button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

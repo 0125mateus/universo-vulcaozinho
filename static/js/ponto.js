@@ -3,7 +3,7 @@
   if (!app) return;
 
   const csrf = app.dataset.csrf;
-  const estadoTpl = app.dataset.estadoUrlTemplate;
+  const autenticarUrl = app.dataset.autenticarUrl;
   const registrarTpl = app.dataset.registrarUrlTemplate;
 
   const modal = document.getElementById('ponto-modal');
@@ -11,7 +11,6 @@
   const nomeEl = document.getElementById('ponto-modal-nome');
   const fotoEl = document.getElementById('ponto-modal-foto');
   const fotoEmpty = document.getElementById('ponto-modal-foto-empty');
-  const stepPin = document.getElementById('ponto-step-pin');
   const stepAcao = document.getElementById('ponto-step-acao');
   const stepOk = document.getElementById('ponto-step-ok');
   const pinDisplay = document.getElementById('ponto-pin-display');
@@ -25,6 +24,8 @@
   const preview = document.getElementById('ponto-preview');
   const fotoBtn = document.getElementById('ponto-foto-btn');
   const clockEl = document.getElementById('ponto-clock');
+  const nomeInput = document.getElementById('ponto-nome');
+  const loginForm = document.getElementById('ponto-login-form');
 
   let state = {
     id: null,
@@ -53,7 +54,6 @@
   }
 
   function showStep(step) {
-    stepPin.hidden = step !== 'pin';
     stepAcao.hidden = step !== 'acao';
     stepOk.hidden = step !== 'ok';
   }
@@ -66,63 +66,37 @@
     video.hidden = true;
   }
 
+  function resetLogin() {
+    state.pin = '';
+    pinDisplay.textContent = '••••';
+    if (nomeInput) nomeInput.value = '';
+    pinErro.hidden = true;
+  }
+
   function closeModal() {
     modal.hidden = true;
     stopCamera();
     state = { id: null, nome: '', pin: '', proxima: 'entrada', stream: null, blob: null };
-    pinDisplay.textContent = '••••';
-    pinErro.hidden = true;
     acaoErro.hidden = true;
     extraToggle.checked = false;
     preview.hidden = true;
     preview.removeAttribute('src');
-    showStep('pin');
+    showStep('acao');
+    resetLogin();
+    if (nomeInput) nomeInput.focus();
   }
 
-  async function openRecreador(btn) {
-    const id = btn.dataset.id;
-    const nome = btn.dataset.nome;
-    state.id = id;
-    state.nome = nome;
-    state.pin = '';
-    pinDisplay.textContent = '••••';
-    nomeEl.textContent = nome;
-
-    try {
-      const res = await fetch(urlFor(estadoTpl, id));
-      const data = await res.json();
-      if (data.foto_url) {
-        fotoEl.src = data.foto_url;
-        fotoEl.hidden = false;
-        fotoEmpty.hidden = true;
-      } else {
-        fotoEl.hidden = true;
-        fotoEmpty.hidden = false;
-        fotoEmpty.textContent = (nome || '?').charAt(0).toUpperCase();
-      }
-      if (!data.tem_pin) {
-        pinErro.textContent = 'PIN ainda não configurado. Procure a gerência.';
-        pinErro.hidden = false;
-      } else {
-        pinErro.hidden = true;
-      }
-    } catch (e) {
+  function applyFoto(data, nome) {
+    if (data.foto_url) {
+      fotoEl.src = data.foto_url;
+      fotoEl.hidden = false;
+      fotoEmpty.hidden = true;
+    } else {
       fotoEl.hidden = true;
       fotoEmpty.hidden = false;
+      fotoEmpty.textContent = (nome || '?').charAt(0).toUpperCase();
     }
-
-    showStep('pin');
-    modal.hidden = false;
   }
-
-  document.querySelectorAll('.ponto-card').forEach((btn) => {
-    btn.addEventListener('click', () => openRecreador(btn));
-  });
-
-  closeBtn.addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
 
   document.getElementById('ponto-pin-pad').addEventListener('click', (e) => {
     const btn = e.target.closest('button');
@@ -143,33 +117,51 @@
     }
   });
 
-  document.getElementById('ponto-pin-ok').addEventListener('click', async () => {
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     pinErro.hidden = true;
+    const nome = (nomeInput.value || '').trim();
+    if (nome.length < 2) {
+      pinErro.textContent = 'Informe seu nome.';
+      pinErro.hidden = false;
+      return;
+    }
     if (state.pin.length < 4) {
       pinErro.textContent = 'PIN inválido.';
       pinErro.hidden = false;
       return;
     }
     const body = new FormData();
+    body.append('nome', nome);
     body.append('pin', state.pin);
     body.append('csrfmiddlewaretoken', csrf);
     try {
-      const res = await fetch(urlFor(estadoTpl, state.id), { method: 'POST', body });
+      const res = await fetch(autenticarUrl, { method: 'POST', body });
       const data = await res.json();
       if (!data.ok) {
-        pinErro.textContent = data.erro || 'PIN incorreto.';
+        pinErro.textContent = data.erro || 'Não foi possível entrar.';
         pinErro.hidden = false;
         state.pin = '';
         pinDisplay.textContent = '••••';
         return;
       }
+      state.id = data.recreador_id;
+      state.nome = data.nome;
       state.proxima = data.proxima_acao;
+      nomeEl.textContent = data.nome;
       acaoSugerida.textContent = data.proxima_acao_label;
+      applyFoto(data, data.nome);
       showStep('acao');
+      modal.hidden = false;
     } catch (err) {
       pinErro.textContent = 'Falha de conexão. Tente de novo.';
       pinErro.hidden = false;
     }
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
   });
 
   fotoBtn.addEventListener('click', async () => {

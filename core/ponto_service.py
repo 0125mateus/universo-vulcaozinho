@@ -54,6 +54,29 @@ def estado_ponto_hoje(recreador: Recreador, agora: datetime | None = None) -> Es
     return EstadoPonto(proxima_acao=proxima, entrada_aberta=entrada_aberta, ultima_batida=ultima)
 
 
+def normalizar_nome(nome: str) -> str:
+    return ' '.join((nome or '').split()).strip()
+
+
+def buscar_recreador_por_nome(hotel: Hotel, nome: str) -> Recreador:
+    nome_limpo = normalizar_nome(nome)
+    if len(nome_limpo) < 2:
+        raise PontoErro('Informe seu nome completo (como no cadastro).')
+    qs = Recreador.objects.filter(hotel=hotel, ativo=True, nome__iexact=nome_limpo)
+    count = qs.count()
+    if count == 0:
+        raise PontoErro('Nome não encontrado neste hotel. Confira a grafia ou fale com a gerência.')
+    if count > 1:
+        raise PontoErro('Há mais de um recreador com esse nome. Use o tablet da sala ou fale com a gerência.')
+    return qs.get()
+
+
+def autenticar_por_nome_pin(hotel: Hotel, nome: str, pin: str) -> Recreador:
+    recreador = buscar_recreador_por_nome(hotel, nome)
+    validar_pin(recreador, pin)
+    return recreador
+
+
 def validar_pin(recreador: Recreador, pin: str) -> None:
     if not recreador.ativo:
         raise PontoErro('Recreador inativo.')
@@ -68,7 +91,7 @@ def registrar_batida(
     *,
     recreador: Recreador,
     hotel: Hotel,
-    pin: str,
+    pin: str | None = None,
     tipo: str | None = None,
     extra_plantao: bool = False,
     foto_auditoria: UploadedFile | None = None,
@@ -76,8 +99,12 @@ def registrar_batida(
     user_agent: str = '',
     registrado_por=None,
     agora: datetime | None = None,
+    exigir_pin: bool = True,
 ) -> PontoBatida:
-    validar_pin(recreador, pin)
+    if exigir_pin:
+        validar_pin(recreador, pin or '')
+    elif not recreador.ativo:
+        raise PontoErro('Recreador inativo.')
     if recreador.hotel_id != hotel.id:
         raise PontoErro('Recreador não pertence a este hotel.')
 

@@ -1304,3 +1304,26 @@ class PontoRecreadorTestCase(TestCase):
         resp = self.client.get(reverse('ponto_quiosque'))
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'Ana Rec')
+        self.assertContains(resp, 'Digite seu nome e PIN')
+
+    def test_autenticar_nome_pin(self):
+        from core.ponto_service import autenticar_por_nome_pin
+        rec = autenticar_por_nome_pin(self.hotel, 'ana rec', '1234')
+        self.assertEqual(rec.pk, self.rec.pk)
+        with self.assertRaises(PontoErro):
+            autenticar_por_nome_pin(self.hotel, 'Ana Rec', '0000')
+        with self.assertRaises(PontoErro):
+            autenticar_por_nome_pin(self.hotel, 'Nome Errado', '1234')
+
+    def test_app_login_e_batida(self):
+        resp = self.client.post(reverse('ponto_app_login'), {'nome': 'Ana Rec', 'pin': '1234'})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.url, reverse('ponto_app_home'))
+        home = self.client.get(reverse('ponto_app_home'))
+        self.assertEqual(home.status_code, 200)
+        self.assertContains(home, 'Ana Rec')
+        batida = self.client.post(reverse('ponto_app_home'), {'tipo': 'entrada', 'extra_plantao': '1'})
+        self.assertEqual(batida.status_code, 302)
+        self.rec.refresh_from_db()
+        from core.models import PontoBatida
+        self.assertTrue(PontoBatida.objects.filter(recreador=self.rec, tipo=TipoPontoBatida.ENTRADA).exists())

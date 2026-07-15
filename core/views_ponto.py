@@ -13,7 +13,13 @@ from django.views import View
 from .auth_utils import resolver_hotel_atual
 from .mixins import PapelRequeridoMixin
 from .models import PapelUsuario, PontoBatida, Recreador, TipoPontoBatida
-from .ponto_service import PontoErro, estado_ponto_hoje, registrar_batida, validar_pin
+from .ponto_service import (
+    PontoErro,
+    autenticar_por_nome_pin,
+    estado_ponto_hoje,
+    registrar_batida,
+    validar_pin,
+)
 
 
 PAPEIS_PONTO_GESTAO = [
@@ -23,12 +29,43 @@ PAPEIS_PONTO_GESTAO = [
     PapelUsuario.SUPERVISOR,
 ]
 
+SESSION_RECREADOR_ID = 'ponto_recreador_id'
+
 
 def _client_ip(request) -> str | None:
     forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
     if forwarded:
         return forwarded.split(',')[0].strip()
     return request.META.get('REMOTE_ADDR')
+
+
+def _recreador_da_sessao(request) -> Recreador | None:
+    rid = request.session.get(SESSION_RECREADOR_ID)
+    if not rid:
+        return None
+    return Recreador.objects.filter(pk=rid, ativo=True).select_related('hotel').first()
+
+
+def _estado_payload(recreador: Recreador) -> dict:
+    estado = estado_ponto_hoje(recreador)
+    return {
+        'ok': True,
+        'recreador_id': recreador.id,
+        'nome': recreador.nome,
+        'foto_url': recreador.foto.url if recreador.foto else '',
+        'tem_pin': recreador.tem_pin,
+        'proxima_acao': estado.proxima_acao,
+        'proxima_acao_label': 'Entrada' if estado.proxima_acao == TipoPontoBatida.ENTRADA else 'Saída',
+        'ultima_batida': (
+            {
+                'tipo': estado.ultima_batida.tipo,
+                'hora': timezone.localtime(estado.ultima_batida.registrado_em).strftime('%H:%M'),
+                'extra_plantao': estado.ultima_batida.extra_plantao,
+            }
+            if estado.ultima_batida
+            else None
+        ),
+    }
 
 
 class PontoQuiosqueView(View):
@@ -56,24 +93,7 @@ class PontoRecreadorEstadoAPI(View):
         recreador = get_object_or_404(Recreador, pk=pk, ativo=True)
         if not hotel or recreador.hotel_id != hotel.id:
             return JsonResponse({'ok': False, 'erro': 'Recreador inválido para este hotel.'}, status=400)
-        estado = estado_ponto_hoje(recreador)
-        return JsonResponse({
-            'ok': True,
-            'recreador_id': recreador.id,
-            'nome': recreador.nome,
-            'foto_url': recreador.foto.url if recreador.foto else '',
-            'tem_pin': recreador.tem_pin,
-            'proxima_acao': estado.proxima_acao,
-            'proxima_acao_label': 'Entrada' if estado.proxima_acao == TipoPontoBatida.ENTRADA else 'Saída',
-            'ultima_batida': (
-                {
-                    'tipo': estado.ultima_batida.tipo,
-                    'hora': timezone.localtime(estado.ultima_batida.registrado_em).strftime('%H:%M'),
-                    'extra_plantao': estado.ultima_batida.extra_plantao,
-                }
-                if estado.ultima_batida else None
-            ),
-        })
+        return JsonResponse(_estado_payload(recreador))
 
     def post(self, request, pk):
         """Valida PIN e devolve estado (sem gravar batida)."""
@@ -86,12 +106,23 @@ class PontoRecreadorEstadoAPI(View):
             validar_pin(recreador, pin)
         except PontoErro as e:
             return JsonResponse({'ok': False, 'erro': str(e)}, status=400)
-        estado = estado_ponto_hoje(recreador)
-        return JsonResponse({
-            'ok': True,
-            'proxima_acao': estado.proxima_acao,
-            'proxima_acao_label': 'Entrada' if estado.proxima_acao == TipoPontoBatida.ENTRADA else 'Saída',
-        })
+        return JsonResponse(_estado_payload(recreador))
+
+
+class PontoAutenticarAPI(View):
+    """Identifica recreador por nome + PIN (quiosque / app)."""
+
+    def post(self, request):
+        hotel = resolver_hotel_atual(request)
+        if not hotel:
+            return JsonResponse({'ok': False, 'erro': 'Selecione o hotel primeiro.'}, status=400)
+        nome = request.POST.get('nome', '')
+        pin = request.POST.get('pin', '')
+        try:
+            recreador = autenticar_por_nome_pin(hotel, nome, pin)
+        except PontoErro as e:
+            return JsonResponse({'ok': False, 'erro': str(e)}, status=400)
+        return JsonResponse(_estado_payload(recreador))
 
 
 class PontoRegistrarAPI(View):
@@ -133,6 +164,103 @@ class PontoRegistrarAPI(View):
                 + (' (extra/plantão)' if batida.extra_plantao else '')
             ),
         })
+
+
+class PontoAppLoginView(View):
+    """App do recreador — login com nome + PIN (estilo app do hóspede)."""
+
+    template_name = 'ponto/app_login.html'
+
+    def get(self, request):
+        hotel = resolver_hotel_atual(request)
+        if not hotel:
+            return render(request, 'ponto/sem_hotel.html')
+        if _recreador_da_sessao(request):
+            return redirect('ponto_app_home')
+        return render(request, self.template_name, {
+            'hotel': hotel,
+            'hoje': timezone.localdate(),
+        })
+
+    def post(self, request):
+        hotel = resolver_hotel_atual(request)
+        if not hotel:
+            return render(request, 'ponto/sem_hotel.html')
+        nome = request.POST.get('nome', '')
+        pin = request.POST.get('pin', '')
+        try:
+            recreador = autenticar_por_nome_pin(hotel, nome, pin)
+        except PontoErro as e:
+            messages.error(request, str(e))
+            return render(request, self.template_name, {
+                'hotel': hotel,
+                'hoje': timezone.localdate(),
+                'nome': nome,
+            })
+        request.session[SESSION_RECREADOR_ID] = recreador.id
+        return redirect('ponto_app_home')
+
+
+class PontoAppLogoutView(View):
+    def post(self, request):
+        request.session.pop(SESSION_RECREADOR_ID, None)
+        return redirect('ponto_app_login')
+
+    def get(self, request):
+        request.session.pop(SESSION_RECREADOR_ID, None)
+        return redirect('ponto_app_login')
+
+
+class PontoAppHomeView(View):
+    """Painel pessoal para bater ponto após login."""
+
+    template_name = 'ponto/app_home.html'
+
+    def get(self, request):
+        hotel = resolver_hotel_atual(request)
+        recreador = _recreador_da_sessao(request)
+        if not hotel:
+            return render(request, 'ponto/sem_hotel.html')
+        if not recreador or recreador.hotel_id != hotel.id:
+            request.session.pop(SESSION_RECREADOR_ID, None)
+            return redirect('ponto_app_login')
+        return render(request, self.template_name, {
+            'hotel': hotel,
+            'recreador': recreador,
+            'estado': estado_ponto_hoje(recreador),
+            'hoje': timezone.localdate(),
+        })
+
+    def post(self, request):
+        hotel = resolver_hotel_atual(request)
+        recreador = _recreador_da_sessao(request)
+        if not hotel or not recreador or recreador.hotel_id != hotel.id:
+            request.session.pop(SESSION_RECREADOR_ID, None)
+            return redirect('ponto_app_login')
+
+        tipo = request.POST.get('tipo') or None
+        extra = request.POST.get('extra_plantao') in ('1', 'true', 'on', 'yes')
+        foto = request.FILES.get('foto_auditoria')
+        try:
+            batida = registrar_batida(
+                recreador=recreador,
+                hotel=hotel,
+                tipo=tipo,
+                extra_plantao=extra,
+                foto_auditoria=foto,
+                ip=_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                exigir_pin=False,
+            )
+            messages.success(
+                request,
+                f'{batida.get_tipo_display()} registrada às '
+                f'{timezone.localtime(batida.registrado_em).strftime("%H:%M")}'
+                + (' (extra/plantão)' if batida.extra_plantao else ''),
+            )
+        except PontoErro as e:
+            messages.error(request, str(e))
+        return redirect('ponto_app_home')
 
 
 class PontoGestaoView(PapelRequeridoMixin, View):
