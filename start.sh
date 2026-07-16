@@ -6,7 +6,8 @@ mkdir -p media
 
 python manage.py migrate --no-input
 
-# Garante logins demo (não apaga dados operacionais — só cria/atualiza usuários).
+# Garante hotéis da rede + logins demo (não apaga ponto/hóspedes).
+python manage.py seed_hoteis
 python manage.py seed_superuser
 python manage.py seed_usuarios_demo
 
