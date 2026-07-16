@@ -6,7 +6,7 @@ import json
 from datetime import datetime, time as dtime, timedelta
 
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views import View
@@ -14,6 +14,11 @@ from django.views import View
 from .auth_utils import resolver_hotel_atual
 from .mixins import PapelRequeridoMixin
 from .models import PapelUsuario, PontoBatida, Recreador, TipoPontoBatida
+from .ponto_export import (
+    exportar_ponto_pdf,
+    exportar_ponto_xlsx,
+    nome_arquivo_ponto,
+)
 from .ponto_whatsapp_utils import contexto_whatsapp_comprovante
 from .ponto_service import (
     FACE_VERIFY_TTL,
@@ -35,6 +40,26 @@ PAPEIS_PONTO_GESTAO = [
 
 SESSION_RECREADOR_ID = 'ponto_recreador_id'
 SESSION_FACE_OK = 'ponto_face_ok'  # {recreador_id, expiso}
+
+
+def _parse_periodo_ponto(request) -> tuple:
+    """Retorna (data_inicio, data_fim, recreador_id|None) a partir da query."""
+    hoje = timezone.localdate()
+    di_str = (request.GET.get('data_inicio') or request.GET.get('data') or '').strip()
+    df_str = (request.GET.get('data_fim') or '').strip()
+    try:
+        data_inicio = datetime.strptime(di_str, '%Y-%m-%d').date() if di_str else hoje
+    except ValueError:
+        data_inicio = hoje
+    try:
+        data_fim = datetime.strptime(df_str, '%Y-%m-%d').date() if df_str else data_inicio
+    except ValueError:
+        data_fim = data_inicio
+    if data_fim < data_inicio:
+        data_inicio, data_fim = data_fim, data_inicio
+    rid = request.GET.get('recreador') or ''
+    recreador_id = int(rid) if rid.isdigit() else None
+    return data_inicio, data_fim, recreador_id
 
 
 def _client_ip(request) -> str | None:
@@ -358,18 +383,9 @@ class PontoGestaoView(PapelRequeridoMixin, View):
             return redirect('home')
 
         hoje = timezone.localdate()
-        data_str = (request.GET.get('data') or '').strip()
-        if data_str:
-            try:
-                dia = datetime.strptime(data_str, '%Y-%m-%d').date()
-            except ValueError:
-                dia = hoje
-        else:
-            dia = hoje
-
-        inicio = timezone.make_aware(datetime.combine(dia, dtime.min))
-        fim = inicio + timedelta(days=1)
-        recreador_id = request.GET.get('recreador') or ''
+        data_inicio, data_fim, recreador_id = _parse_periodo_ponto(request)
+        inicio = timezone.make_aware(datetime.combine(data_inicio, dtime.min))
+        fim = timezone.make_aware(datetime.combine(data_fim + timedelta(days=1), dtime.min))
 
         recreadores = Recreador.objects.filter(hotel=hotel).order_by('nome')
         batidas_qs = (
@@ -377,8 +393,8 @@ class PontoGestaoView(PapelRequeridoMixin, View):
             .select_related('recreador', 'registrado_por')
             .order_by('-registrado_em')
         )
-        if recreador_id.isdigit():
-            batidas_qs = batidas_qs.filter(recreador_id=int(recreador_id))
+        if recreador_id:
+            batidas_qs = batidas_qs.filter(recreador_id=recreador_id)
 
         batidas = list(batidas_qs)
         for b in batidas:
@@ -395,29 +411,72 @@ class PontoGestaoView(PapelRequeridoMixin, View):
 
         por_recreador = []
         for r in recreadores:
-            do_dia = [b for b in batidas if b.recreador_id == r.id]
-            if not do_dia and recreador_id:
-                continue
-            if not do_dia:
+            do_periodo = [b for b in batidas if b.recreador_id == r.id]
+            if not do_periodo:
                 continue
             por_recreador.append({
                 'recreador': r,
-                'batidas': sorted(do_dia, key=lambda b: b.registrado_em),
-                'entradas': sum(1 for b in do_dia if b.tipo == TipoPontoBatida.ENTRADA),
-                'saidas': sum(1 for b in do_dia if b.tipo == TipoPontoBatida.SAIDA),
-                'extras': sum(1 for b in do_dia if b.extra_plantao),
+                'batidas': sorted(do_periodo, key=lambda b: b.registrado_em),
+                'entradas': sum(1 for b in do_periodo if b.tipo == TipoPontoBatida.ENTRADA),
+                'saidas': sum(1 for b in do_periodo if b.tipo == TipoPontoBatida.SAIDA),
+                'extras': sum(1 for b in do_periodo if b.extra_plantao),
             })
+
+        qs_export = (
+            f'?data_inicio={data_inicio.isoformat()}&data_fim={data_fim.isoformat()}'
+            + (f'&recreador={recreador_id}' if recreador_id else '')
+        )
 
         return render(request, self.template_name, {
             'hotel': hotel,
             'recreadores': recreadores,
             'batidas': batidas,
             'hoje': hoje,
-            'dia': dia,
-            'recreador_filtro': recreador_id,
+            'dia': data_inicio,
+            'data_inicio': data_inicio,
+            'data_fim': data_fim,
+            'recreador_filtro': str(recreador_id) if recreador_id else '',
             'resumo': resumo,
             'por_recreador': por_recreador,
+            'qs_export': qs_export,
         })
+
+
+class PontoExportXlsxView(PapelRequeridoMixin, View):
+    papeis_requeridos = PAPEIS_PONTO_GESTAO
+    titulo_acesso = 'Exportar ponto Excel'
+    login_url = '/entrar/'
+
+    def get(self, request):
+        hotel = resolver_hotel_atual(request)
+        if not hotel:
+            return redirect('home')
+        data_inicio, data_fim, recreador_id = _parse_periodo_ponto(request)
+        content = exportar_ponto_xlsx(hotel, data_inicio, data_fim, recreador_id)
+        filename = nome_arquivo_ponto(hotel, data_inicio, data_fim, 'xlsx')
+        response = HttpResponse(
+            content,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        )
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+
+class PontoExportPdfView(PapelRequeridoMixin, View):
+    papeis_requeridos = PAPEIS_PONTO_GESTAO
+    titulo_acesso = 'Exportar ponto PDF'
+    login_url = '/entrar/'
+
+    def get(self, request):
+        hotel = resolver_hotel_atual(request)
+        if not hotel:
+            return redirect('home')
+        data_inicio, data_fim, recreador_id = _parse_periodo_ponto(request)
+        content = exportar_ponto_pdf(hotel, data_inicio, data_fim, recreador_id)
+        filename = nome_arquivo_ponto(hotel, data_inicio, data_fim, 'pdf')
+        response = HttpResponse(content, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
 
 
 def _aplicar_form_recreador(request, recreador, *, pin_obrigatorio: bool = False):

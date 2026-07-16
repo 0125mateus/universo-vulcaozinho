@@ -1365,6 +1365,26 @@ class PontoRecreadorTestCase(TestCase):
         self.assertIn('wa.me/5531999006632', wa['whatsapp_url'])
         self.assertIn('Comprovante de ponto', wa['whatsapp_mensagem'])
 
+    def test_export_ponto_rh(self):
+        from core.ponto_export import exportar_ponto_pdf, exportar_ponto_xlsx, montar_resumos_rh
+        from django.utils import timezone as tz
+        from datetime import timedelta
+        b1 = registrar_batida(recreador=self.rec, hotel=self.hotel, pin='1234')
+        b1.registrado_em = tz.now() - timedelta(minutes=120)
+        b1.save(update_fields=['registrado_em'])
+        registrar_batida(recreador=self.rec, hotel=self.hotel, pin='1234')
+        hoje = tz.localdate()
+        xlsx = exportar_ponto_xlsx(self.hotel, hoje, hoje)
+        self.assertGreater(len(xlsx), 100)
+        self.assertEqual(xlsx[:2], b'PK')  # zip/xlsx
+        pdf = exportar_ponto_pdf(self.hotel, hoje, hoje)
+        self.assertTrue(pdf.startswith(b'%PDF'))
+        from core.ponto_export import buscar_batidas_periodo
+        batidas = buscar_batidas_periodo(self.hotel, hoje, hoje)
+        resumos = montar_resumos_rh(batidas, data_inicio=hoje, data_fim=hoje)
+        self.assertEqual(len(resumos), 1)
+        self.assertGreater(resumos[0].horas_trabalhadas, 0)
+
     def test_excluir_recreador_gestao(self):
         from core.models import PapelUsuario, PerfilUsuario
         from django.contrib.auth import get_user_model

@@ -38,12 +38,16 @@
     {% endfor %}
 </div>
 
-<h2 class="section-title" id="batidas">Batidas — {{ dia|date:"d/m/Y" }}</h2>
+<h2 class="section-title" id="batidas">Batidas — RH / pagamento</h2>
 
 <form method="get" class="rec-form-card" style="margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:0.75rem;align-items:end;">
-    <div class="rec-field" style="margin:0;min-width:160px;">
-        <label for="data">Data</label>
-        <input class="rec-input" type="date" name="data" id="data" value="{{ dia|date:'Y-m-d' }}">
+    <div class="rec-field" style="margin:0;min-width:150px;">
+        <label for="data_inicio">De</label>
+        <input class="rec-input" type="date" name="data_inicio" id="data_inicio" value="{{ data_inicio|date:'Y-m-d' }}">
+    </div>
+    <div class="rec-field" style="margin:0;min-width:150px;">
+        <label for="data_fim">Até</label>
+        <input class="rec-input" type="date" name="data_fim" id="data_fim" value="{{ data_fim|date:'Y-m-d' }}">
     </div>
     <div class="rec-field" style="margin:0;min-width:200px;">
         <label for="recreador">Recreador</label>
@@ -55,10 +59,19 @@
         </select>
     </div>
     <button type="submit" class="rec-btn rec-btn-primary">Filtrar</button>
-    {% if dia != hoje or recreador_filtro %}
+    {% if data_inicio != hoje or data_fim != hoje or recreador_filtro %}
     <a href="{% url 'ponto_gestao' %}#batidas" class="rec-btn rec-btn-ghost">Hoje / limpar</a>
     {% endif %}
 </form>
+
+<div class="rec-actions" style="justify-content:flex-start;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+    <a href="{% url 'ponto_export_xlsx' %}{{ qs_export }}" class="rec-btn rec-btn-primary">📥 Planilha Excel (RH)</a>
+    <a href="{% url 'ponto_export_pdf' %}{{ qs_export }}" class="rec-btn rec-btn-primary">📄 PDF (RH)</a>
+</div>
+<p style="margin-bottom:1rem;font-weight:600;color:var(--text-muted);">
+    Período: {{ data_inicio|date:"d/m/Y" }}{% if data_fim != data_inicio %} a {{ data_fim|date:"d/m/Y" }}{% endif %}.
+    A planilha traz aba <strong>Resumo RH</strong> (horas por pessoa/dia) + <strong>Detalhe</strong> + instruções.
+</p>
 
 <div class="cards-grid" style="margin-bottom:1.25rem;">
     <div class="card"><h3>Total</h3><p class="stat" style="font-size:1.75rem;font-weight:800;">{{ resumo.total }}</p></div>
