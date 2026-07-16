@@ -340,21 +340,63 @@ class PontoGestaoView(PapelRequeridoMixin, View):
         hotel = resolver_hotel_atual(request)
         if not hotel:
             return redirect('home')
+
         hoje = timezone.localdate()
-        inicio = timezone.make_aware(datetime.combine(hoje, dtime.min))
+        data_str = (request.GET.get('data') or '').strip()
+        if data_str:
+            try:
+                dia = datetime.strptime(data_str, '%Y-%m-%d').date()
+            except ValueError:
+                dia = hoje
+        else:
+            dia = hoje
+
+        inicio = timezone.make_aware(datetime.combine(dia, dtime.min))
         fim = inicio + timedelta(days=1)
+        recreador_id = request.GET.get('recreador') or ''
 
         recreadores = Recreador.objects.filter(hotel=hotel).order_by('nome')
-        batidas = (
+        batidas_qs = (
             PontoBatida.objects.filter(hotel=hotel, registrado_em__gte=inicio, registrado_em__lt=fim)
-            .select_related('recreador')
+            .select_related('recreador', 'registrado_por')
             .order_by('-registrado_em')
         )
+        if recreador_id.isdigit():
+            batidas_qs = batidas_qs.filter(recreador_id=int(recreador_id))
+
+        batidas = list(batidas_qs)
+        resumo = {
+            'total': len(batidas),
+            'entradas': sum(1 for b in batidas if b.tipo == TipoPontoBatida.ENTRADA),
+            'saidas': sum(1 for b in batidas if b.tipo == TipoPontoBatida.SAIDA),
+            'extras': sum(1 for b in batidas if b.extra_plantao),
+            'com_foto': sum(1 for b in batidas if b.foto_auditoria),
+        }
+
+        por_recreador = []
+        for r in recreadores:
+            do_dia = [b for b in batidas if b.recreador_id == r.id]
+            if not do_dia and recreador_id:
+                continue
+            if not do_dia:
+                continue
+            por_recreador.append({
+                'recreador': r,
+                'batidas': sorted(do_dia, key=lambda b: b.registrado_em),
+                'entradas': sum(1 for b in do_dia if b.tipo == TipoPontoBatida.ENTRADA),
+                'saidas': sum(1 for b in do_dia if b.tipo == TipoPontoBatida.SAIDA),
+                'extras': sum(1 for b in do_dia if b.extra_plantao),
+            })
+
         return render(request, self.template_name, {
             'hotel': hotel,
             'recreadores': recreadores,
             'batidas': batidas,
             'hoje': hoje,
+            'dia': dia,
+            'recreador_filtro': recreador_id,
+            'resumo': resumo,
+            'por_recreador': por_recreador,
         })
 
 

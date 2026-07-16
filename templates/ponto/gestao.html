@@ -7,7 +7,7 @@
 <section class="rec-hero rec-hero-compact">
     <span class="hotel-badge">{{ hotel.nome }}</span>
     <h2>Gestão do ponto</h2>
-    <p>Batidas de hoje e configuração de foto/PIN dos recreadores.</p>
+    <p>Batidas do dia e configuração de foto/PIN dos recreadores.</p>
     <div class="rec-actions" style="justify-content:flex-start;margin-top:0.75rem;gap:0.5rem;flex-wrap:wrap;">
         <a href="{% url 'ponto_recreador_novo' %}" class="rec-btn rec-btn-primary">+ Adicionar recreador</a>
         <a href="{% url 'ponto_app_login' %}" class="rec-btn rec-btn-primary">App do recreador</a>
@@ -38,33 +38,107 @@
     {% endfor %}
 </div>
 
-<h2 class="section-title">Batidas de hoje — {{ hoje|date:"d/m/Y" }}</h2>
+<h2 class="section-title" id="batidas">Batidas — {{ dia|date:"d/m/Y" }}</h2>
+
+<form method="get" class="rec-form-card" style="margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:0.75rem;align-items:end;">
+    <div class="rec-field" style="margin:0;min-width:160px;">
+        <label for="data">Data</label>
+        <input class="rec-input" type="date" name="data" id="data" value="{{ dia|date:'Y-m-d' }}">
+    </div>
+    <div class="rec-field" style="margin:0;min-width:200px;">
+        <label for="recreador">Recreador</label>
+        <select class="rec-input" name="recreador" id="recreador">
+            <option value="">Todos</option>
+            {% for r in recreadores %}
+            <option value="{{ r.pk }}" {% if recreador_filtro == r.pk|stringformat:"s" %}selected{% endif %}>{{ r.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="rec-btn rec-btn-primary">Filtrar</button>
+    {% if dia != hoje or recreador_filtro %}
+    <a href="{% url 'ponto_gestao' %}#batidas" class="rec-btn rec-btn-ghost">Hoje / limpar</a>
+    {% endif %}
+</form>
+
+<div class="cards-grid" style="margin-bottom:1.25rem;">
+    <div class="card"><h3>Total</h3><p class="stat" style="font-size:1.75rem;font-weight:800;">{{ resumo.total }}</p></div>
+    <div class="card"><h3>Entradas</h3><p class="stat" style="font-size:1.75rem;font-weight:800;">{{ resumo.entradas }}</p></div>
+    <div class="card"><h3>Saídas</h3><p class="stat" style="font-size:1.75rem;font-weight:800;">{{ resumo.saidas }}</p></div>
+    <div class="card"><h3>Extra/plantão</h3><p class="stat" style="font-size:1.75rem;font-weight:800;">{{ resumo.extras }}</p></div>
+    <div class="card"><h3>Com foto</h3><p class="stat" style="font-size:1.75rem;font-weight:800;">{{ resumo.com_foto }}</p></div>
+</div>
+
+{% if por_recreador %}
+<h3 class="section-title" style="font-size:1.15rem;">Por recreador</h3>
+<div class="cards-grid" style="margin-bottom:1.5rem;">
+    {% for item in por_recreador %}
+    <div class="card">
+        <h3>{{ item.recreador.nome }}</h3>
+        <p>{{ item.entradas }} entrada(s) · {{ item.saidas }} saída(s) · {{ item.extras }} extra(s)</p>
+        <ul style="margin-top:0.5rem;padding-left:1.1rem;font-size:0.9rem;">
+            {% for b in item.batidas %}
+            <li>
+                {{ b.registrado_em|date:"H:i:s" }} —
+                <strong>{{ b.get_tipo_display }}</strong>
+                {% if b.extra_plantao %} · extra{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="rec-table-wrap">
     <table class="rec-table">
         <thead>
             <tr>
-                <th>Hora</th>
+                <th>Data/hora</th>
                 <th>Recreador</th>
                 <th>Tipo</th>
                 <th>Extra</th>
-                <th>Foto</th>
+                <th>Foto auditoria</th>
+                <th>IP</th>
+                <th>Dispositivo</th>
+                <th>Registrado por</th>
             </tr>
         </thead>
         <tbody>
             {% for b in batidas %}
             <tr>
-                <td>{{ b.registrado_em|date:"H:i" }}</td>
-                <td>{{ b.recreador.nome }}</td>
-                <td>{{ b.get_tipo_display }}</td>
+                <td>
+                    <strong>{{ b.registrado_em|date:"H:i:s" }}</strong><br>
+                    <small>{{ b.registrado_em|date:"d/m/Y" }}</small>
+                </td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        {% if b.recreador.foto %}
+                        <img src="{{ b.recreador.foto.url }}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
+                        {% endif %}
+                        <span>{{ b.recreador.nome }}</span>
+                    </div>
+                </td>
+                <td><strong>{{ b.get_tipo_display }}</strong></td>
                 <td>{% if b.extra_plantao %}Sim{% else %}—{% endif %}</td>
                 <td>
                     {% if b.foto_auditoria %}
-                    <a href="{{ b.foto_auditoria.url }}" target="_blank" rel="noopener">ver</a>
+                    <a href="{{ b.foto_auditoria.url }}" target="_blank" rel="noopener">
+                        <img src="{{ b.foto_auditoria.url }}" alt="auditoria" style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
+                    </a>
                     {% else %}—{% endif %}
+                </td>
+                <td><small>{{ b.ip|default:"—" }}</small></td>
+                <td style="max-width:180px;">
+                    <small title="{{ b.user_agent }}">{{ b.user_agent|default:"—"|truncatechars:48 }}</small>
+                </td>
+                <td>
+                    <small>
+                        {% if b.registrado_por %}{{ b.registrado_por.get_username }}{% else %}próprio / quiosque{% endif %}
+                    </small>
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="5" class="rec-empty">Nenhuma batida hoje.</td></tr>
+            <tr><td colspan="8" class="rec-empty">Nenhuma batida neste dia{% if recreador_filtro %} para o filtro{% endif %}.</td></tr>
             {% endfor %}
         </tbody>
     </table>
