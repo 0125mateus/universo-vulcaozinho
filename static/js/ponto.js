@@ -13,6 +13,7 @@
   const fotoEl = document.getElementById('ponto-modal-foto');
   const fotoEmpty = document.getElementById('ponto-modal-foto-empty');
   const stepRosto = document.getElementById('ponto-step-rosto');
+  const stepWhatsapp = document.getElementById('ponto-step-whatsapp');
   const stepAcao = document.getElementById('ponto-step-acao');
   const stepOk = document.getElementById('ponto-step-ok');
   const pinDisplay = document.getElementById('ponto-pin-display');
@@ -23,13 +24,14 @@
   const extraToggle = document.getElementById('ponto-extra');
   const sucessoMsg = document.getElementById('ponto-sucesso-msg');
   const sucessoSub = document.getElementById('ponto-sucesso-sub');
-  const whatsappBtn = document.getElementById('ponto-whatsapp-btn');
   const video = document.getElementById('ponto-video');
   const faceVideo = document.getElementById('ponto-face-video');
   const canvas = document.getElementById('ponto-canvas');
   const preview = document.getElementById('ponto-preview');
   const fotoBtn = document.getElementById('ponto-foto-btn');
   const faceBtn = document.getElementById('ponto-face-btn');
+  const waSim = document.getElementById('ponto-wa-sim');
+  const waNao = document.getElementById('ponto-wa-nao');
   const clockEl = document.getElementById('ponto-clock');
   const nomeInput = document.getElementById('ponto-nome');
   const loginForm = document.getElementById('ponto-login-form');
@@ -40,6 +42,8 @@
     pin: '',
     proxima: 'entrada',
     precisaRosto: false,
+    temWhatsapp: false,
+    enviarWhatsapp: false,
     stream: null,
     faceStream: null,
     blob: null,
@@ -63,6 +67,7 @@
 
   function showStep(step) {
     stepRosto.hidden = step !== 'rosto';
+    if (stepWhatsapp) stepWhatsapp.hidden = step !== 'whatsapp';
     stepAcao.hidden = step !== 'acao';
     stepOk.hidden = step !== 'ok';
   }
@@ -93,7 +98,10 @@
   function closeModal() {
     modal.hidden = true;
     stopAllCameras();
-    state = { id: null, nome: '', pin: '', proxima: 'entrada', precisaRosto: false, stream: null, faceStream: null, blob: null };
+    state = {
+      id: null, nome: '', pin: '', proxima: 'entrada', precisaRosto: false,
+      temWhatsapp: false, enviarWhatsapp: false, stream: null, faceStream: null, blob: null,
+    };
     faceErro.hidden = true;
     acaoErro.hidden = true;
     extraToggle.checked = false;
@@ -126,11 +134,23 @@
     await faceVideo.play();
   }
 
+  /** Depois da identidade confirmada (PIN e/ou facial). */
+  function depoisIdentidade() {
+    if (state.temWhatsapp && stepWhatsapp) {
+      showStep('whatsapp');
+      return;
+    }
+    state.enviarWhatsapp = false;
+    showStep('acao');
+  }
+
   async function goAfterAuth(data) {
     state.id = data.recreador_id;
     state.nome = data.nome;
     state.proxima = data.proxima_acao;
     state.precisaRosto = !!data.tem_reconhecimento_facial;
+    state.temWhatsapp = !!data.tem_whatsapp;
+    state.enviarWhatsapp = false;
     nomeEl.textContent = data.nome;
     acaoSugerida.textContent = data.proxima_acao_label;
     applyFoto(data, data.nome);
@@ -146,7 +166,7 @@
         faceErro.hidden = false;
       }
     } else {
-      showStep('acao');
+      depoisIdentidade();
     }
   }
 
@@ -219,7 +239,7 @@
       const data = await res.json();
       if (!data.ok) throw new Error(data.erro || 'Rosto não confere.');
       stopStream('faceStream', faceVideo);
-      showStep('acao');
+      depoisIdentidade();
     } catch (err) {
       faceErro.textContent = err.message || 'Falha no reconhecimento.';
       faceErro.hidden = false;
@@ -228,6 +248,19 @@
       faceBtn.textContent = 'Verificar rosto';
     }
   });
+
+  if (waSim) {
+    waSim.addEventListener('click', () => {
+      state.enviarWhatsapp = true;
+      showStep('acao');
+    });
+  }
+  if (waNao) {
+    waNao.addEventListener('click', () => {
+      state.enviarWhatsapp = false;
+      showStep('acao');
+    });
+  }
 
   closeBtn.addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => {
@@ -277,28 +310,16 @@
         return;
       }
       sucessoMsg.textContent = data.mensagem;
-      if (whatsappBtn) {
-        if (data.whatsapp_disponivel && data.whatsapp_url) {
-          whatsappBtn.href = data.whatsapp_url;
-          whatsappBtn.hidden = false;
-          if (sucessoSub) sucessoSub.textContent = 'Toque no WhatsApp ou aguarde para voltar…';
-          // Abre o comprovante; o operador confirma o envio no app
-          window.open(data.whatsapp_url, '_blank', 'noopener');
-        } else {
-          whatsappBtn.hidden = true;
-          whatsappBtn.removeAttribute('href');
-          if (sucessoSub) {
-            sucessoSub.textContent = data.whatsapp_disponivel === false
-              ? 'Sem WhatsApp cadastrado. Voltando…'
-              : 'Voltando…';
-          }
-        }
+      if (sucessoSub) sucessoSub.textContent = 'Voltando…';
+      if (state.enviarWhatsapp && data.whatsapp_disponivel && data.whatsapp_url) {
+        if (sucessoSub) sucessoSub.textContent = 'Abrindo WhatsApp…';
+        window.open(data.whatsapp_url, '_blank', 'noopener');
       }
       showStep('ok');
       setTimeout(() => {
         closeModal();
         window.location.reload();
-      }, data.whatsapp_disponivel ? 8000 : 2800);
+      }, state.enviarWhatsapp && data.whatsapp_disponivel ? 5000 : 2800);
     } catch (err) {
       acaoErro.textContent = 'Falha de conexão. Tente de novo.';
       acaoErro.hidden = false;

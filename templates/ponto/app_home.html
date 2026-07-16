@@ -7,7 +7,7 @@
     <title>Ponto — {{ recreador.nome }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=5">
     <style>
         :root {
             --hotel-primary: {{ hotel.cor_primaria }};
@@ -32,20 +32,15 @@
           id="ponto-app-home"
           data-csrf="{{ csrf_token }}"
           data-rosto-url="{% url 'ponto_api_rosto' recreador.pk %}"
-          data-exige-rosto="{% if recreador.tem_reconhecimento_facial %}1{% else %}0{% endif %}">
+          data-exige-rosto="{% if recreador.tem_reconhecimento_facial %}1{% else %}0{% endif %}"
+          data-tem-whatsapp="{% if tem_whatsapp %}1{% else %}0{% endif %}"
+          data-whatsapp-url="{{ whatsapp_comprovante_url|default:'' }}">
         {% if messages %}
         <ul class="ponto-msg-list">
             {% for message in messages %}
             <li class="ponto-msg ponto-msg-{{ message.tags }}">{{ message }}</li>
             {% endfor %}
         </ul>
-        {% endif %}
-
-        {% if whatsapp_comprovante_url %}
-        <a href="{{ whatsapp_comprovante_url }}" class="ponto-btn ponto-btn-whatsapp" target="_blank" rel="noopener"
-           style="margin-bottom:1rem;">
-            Enviar comprovante no WhatsApp
-        </a>
         {% endif %}
 
         <div class="ponto-app-card">
@@ -72,15 +67,23 @@
                 <video id="ponto-face-video" playsinline muted autoplay style="width:100%;border-radius:12px;background:#111;"></video>
                 <button type="button" class="ponto-btn ponto-btn-primary" id="ponto-face-btn" style="margin-top:0.65rem;">Verificar rosto</button>
                 <p class="ponto-erro" id="ponto-face-erro" hidden></p>
-                <p class="ponto-app-meta" id="ponto-face-ok" hidden style="color:#165A38;">Rosto confirmado — pode registrar.</p>
             </div>
-            {% else %}
-            <p class="ponto-app-meta">Sem reconhecimento facial cadastrado. Peça à gestão para tirar a foto na configuração.</p>
             {% endif %}
 
-            <form method="post" enctype="multipart/form-data" class="ponto-app-form" id="ponto-app-batida" {% if recreador.tem_reconhecimento_facial %}hidden{% endif %}>
+            <div id="ponto-wa-ask" class="ponto-face-box" {% if recreador.tem_reconhecimento_facial or not tem_whatsapp %}hidden{% endif %}>
+                <p class="ponto-step-label">Comprovante no WhatsApp</p>
+                <p class="ponto-app-meta" style="margin-bottom:0.75rem;">
+                    Deseja enviar o comprovante desta batida para o WhatsApp cadastrado?
+                </p>
+                <button type="button" class="ponto-btn ponto-btn-whatsapp" id="ponto-wa-sim">Sim, enviar no WhatsApp</button>
+                <button type="button" class="ponto-btn ponto-btn-ghost" id="ponto-wa-nao" style="margin-top:0.5rem;">Não, só registrar</button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="ponto-app-form" id="ponto-app-batida"
+                  {% if recreador.tem_reconhecimento_facial or tem_whatsapp %}hidden{% endif %}>
                 {% csrf_token %}
                 <input type="hidden" name="tipo" value="{{ estado.proxima_acao }}">
+                <input type="hidden" name="enviar_whatsapp" id="enviar_whatsapp" value="0">
                 <label class="ponto-toggle">
                     <input type="checkbox" name="extra_plantao" value="1">
                     <span>Extra / plantão</span>
@@ -100,56 +103,95 @@
     <script>
     (() => {
       const root = document.getElementById('ponto-app-home');
-      if (!root || root.dataset.exigeRosto !== '1') return;
+      if (!root) return;
       const csrf = root.dataset.csrf;
       const url = root.dataset.rostoUrl;
+      const exigeRosto = root.dataset.exigeRosto === '1';
+      const temWhatsapp = root.dataset.temWhatsapp === '1';
+      const waUrl = root.dataset.whatsappUrl || '';
       const video = document.getElementById('ponto-face-video');
-      const btn = document.getElementById('ponto-face-btn');
-      const erro = document.getElementById('ponto-face-erro');
-      const ok = document.getElementById('ponto-face-ok');
+      const faceBtn = document.getElementById('ponto-face-btn');
+      const faceErro = document.getElementById('ponto-face-erro');
+      const faceBox = document.getElementById('ponto-face-box');
+      const waAsk = document.getElementById('ponto-wa-ask');
+      const waSim = document.getElementById('ponto-wa-sim');
+      const waNao = document.getElementById('ponto-wa-nao');
       const form = document.getElementById('ponto-app-batida');
+      const enviarInput = document.getElementById('enviar_whatsapp');
       let stream = null;
 
-      (async () => {
-        try {
-          if (window.PontoFace) await window.PontoFace.ensureModels();
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-          video.srcObject = stream;
-          await video.play();
-        } catch (e) {
-          erro.textContent = 'Câmera indisponível. Permita o acesso para reconhecer o rosto.';
-          erro.hidden = false;
-        }
-      })();
+      function mostrarBatida() {
+        if (waAsk) waAsk.hidden = true;
+        form.hidden = false;
+      }
 
-      btn.addEventListener('click', async () => {
-        erro.hidden = true;
-        btn.disabled = true;
-        btn.textContent = 'Verificando…';
-        try {
-          const descriptor = await window.PontoFace.descriptorFrom(video);
-          const body = new FormData();
-          body.append('face_descriptor', JSON.stringify(descriptor));
-          body.append('csrfmiddlewaretoken', csrf);
-          const res = await fetch(url, { method: 'POST', body });
-          const data = await res.json();
-          if (!data.ok) throw new Error(data.erro || 'Rosto não confere.');
-          ok.hidden = false;
-          form.hidden = false;
-          if (stream) {
-            stream.getTracks().forEach((t) => t.stop());
-            stream = null;
-          }
-          video.hidden = true;
-          btn.hidden = true;
-        } catch (e) {
-          erro.textContent = e.message || 'Falha no reconhecimento.';
-          erro.hidden = false;
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Verificar rosto';
+      function depoisIdentidade() {
+        if (temWhatsapp && waAsk) {
+          if (faceBox) faceBox.hidden = true;
+          waAsk.hidden = false;
+          return;
         }
-      });
+        mostrarBatida();
+      }
+
+      if (waUrl) {
+        window.open(waUrl, '_blank', 'noopener');
+      }
+
+      if (exigeRosto && faceBtn && video) {
+        (async () => {
+          try {
+            if (window.PontoFace) await window.PontoFace.ensureModels();
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+            video.srcObject = stream;
+            await video.play();
+          } catch (e) {
+            faceErro.textContent = 'Câmera indisponível. Permita o acesso para reconhecer o rosto.';
+            faceErro.hidden = false;
+          }
+        })();
+
+        faceBtn.addEventListener('click', async () => {
+          faceErro.hidden = true;
+          faceBtn.disabled = true;
+          faceBtn.textContent = 'Verificando…';
+          try {
+            const descriptor = await window.PontoFace.descriptorFrom(video);
+            const body = new FormData();
+            body.append('face_descriptor', JSON.stringify(descriptor));
+            body.append('csrfmiddlewaretoken', csrf);
+            const res = await fetch(url, { method: 'POST', body });
+            const data = await res.json();
+            if (!data.ok) throw new Error(data.erro || 'Rosto não confere.');
+            if (stream) {
+              stream.getTracks().forEach((t) => t.stop());
+              stream = null;
+            }
+            video.hidden = true;
+            faceBtn.hidden = true;
+            depoisIdentidade();
+          } catch (e) {
+            faceErro.textContent = e.message || 'Falha no reconhecimento.';
+            faceErro.hidden = false;
+          } finally {
+            faceBtn.disabled = false;
+            faceBtn.textContent = 'Verificar rosto';
+          }
+        });
+      }
+
+      if (waSim) {
+        waSim.addEventListener('click', () => {
+          enviarInput.value = '1';
+          mostrarBatida();
+        });
+      }
+      if (waNao) {
+        waNao.addEventListener('click', () => {
+          enviarInput.value = '0';
+          mostrarBatida();
+        });
+      }
     })();
     </script>
 </body>

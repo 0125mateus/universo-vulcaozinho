@@ -7,7 +7,7 @@
     <title>Ponto — {{ hotel.nome }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=5">
     <style>
         :root {
             --hotel-primary: {{ hotel.cor_primaria }};
@@ -95,6 +95,15 @@
                 <p class="ponto-erro" id="ponto-face-erro" hidden></p>
             </div>
 
+            <div id="ponto-step-whatsapp" hidden>
+                <p class="ponto-step-label">Comprovante no WhatsApp</p>
+                <p class="ponto-app-meta" style="margin-bottom:1rem;">
+                    Deseja enviar o comprovante desta batida para o WhatsApp cadastrado?
+                </p>
+                <button type="button" class="ponto-btn ponto-btn-whatsapp" id="ponto-wa-sim">Sim, enviar no WhatsApp</button>
+                <button type="button" class="ponto-btn ponto-btn-ghost" id="ponto-wa-nao" style="margin-top:0.5rem;">Não, só registrar</button>
+            </div>
+
             <div id="ponto-step-acao" hidden>
                 <p class="ponto-step-label">Confirmar batida</p>
                 <p class="ponto-acao-sugerida" id="ponto-acao-sugerida">—</p>
@@ -114,15 +123,12 @@
 
             <div id="ponto-step-ok" hidden>
                 <p class="ponto-sucesso" id="ponto-sucesso-msg">Registrado!</p>
-                <a id="ponto-whatsapp-btn" class="ponto-btn ponto-btn-whatsapp" href="#" target="_blank" rel="noopener" hidden>
-                    Enviar comprovante no WhatsApp
-                </a>
                 <p class="ponto-sucesso-sub" id="ponto-sucesso-sub">Voltando…</p>
             </div>
         </div>
     </div>
 
     <script src="{% static 'js/ponto-face.js' %}?v=1"></script>
-    <script src="{% static 'js/ponto.js' %}?v=4"></script>
+    <script src="{% static 'js/ponto.js' %}?v=5"></script>
 </body>
 </html>

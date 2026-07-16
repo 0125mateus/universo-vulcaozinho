@@ -81,6 +81,7 @@ def _exigir_rosto_se_cadastrado(request, recreador: Recreador) -> None:
 
 def _estado_payload(recreador: Recreador) -> dict:
     estado = estado_ponto_hoje(recreador)
+    from .termo_utils import normalizar_telefone_whatsapp
     return {
         'ok': True,
         'recreador_id': recreador.id,
@@ -88,6 +89,7 @@ def _estado_payload(recreador: Recreador) -> dict:
         'foto_url': recreador.foto.url if recreador.foto else '',
         'tem_pin': recreador.tem_pin,
         'tem_reconhecimento_facial': recreador.tem_reconhecimento_facial,
+        'tem_whatsapp': bool(normalizar_telefone_whatsapp(recreador.telefone or '')),
         'proxima_acao': estado.proxima_acao,
         'proxima_acao_label': 'Entrada' if estado.proxima_acao == TipoPontoBatida.ENTRADA else 'Saída',
         'ultima_batida': (
@@ -294,12 +296,14 @@ class PontoAppHomeView(View):
             request.session.pop(SESSION_RECREADOR_ID, None)
             return redirect('ponto_app_login')
         whatsapp_url = request.session.pop('ponto_whatsapp_comprovante_url', None)
+        from .termo_utils import normalizar_telefone_whatsapp
         return render(request, self.template_name, {
             'hotel': hotel,
             'recreador': recreador,
             'estado': estado_ponto_hoje(recreador),
             'hoje': timezone.localdate(),
             'whatsapp_comprovante_url': whatsapp_url,
+            'tem_whatsapp': bool(normalizar_telefone_whatsapp(recreador.telefone or '')),
         })
 
     def post(self, request):
@@ -326,20 +330,17 @@ class PontoAppHomeView(View):
             )
             request.session.pop(SESSION_FACE_OK, None)
             wa = contexto_whatsapp_comprovante(batida, hotel)
+            enviar_wa = request.POST.get('enviar_whatsapp') in ('1', 'true', 'on', 'yes')
             messages.success(
                 request,
                 f'{batida.get_tipo_display()} registrada às '
                 f'{timezone.localtime(batida.registrado_em).strftime("%H:%M")}'
                 + (' (extra/plantão)' if batida.extra_plantao else ''),
             )
-            if wa['whatsapp_disponivel']:
+            if enviar_wa and wa['whatsapp_disponivel']:
                 request.session['ponto_whatsapp_comprovante_url'] = wa['whatsapp_url']
             else:
                 request.session.pop('ponto_whatsapp_comprovante_url', None)
-                messages.info(
-                    request,
-                    'Cadastre o WhatsApp do recreador na gestão para enviar o comprovante.',
-                )
         except PontoErro as e:
             messages.error(request, str(e))
         return redirect('ponto_app_home')
