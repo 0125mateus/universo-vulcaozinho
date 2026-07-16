@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/vulcaozinho.css' %}">
     <link rel="stylesheet" href="{% static 'css/hotel-themes.css' %}">
     <link rel="stylesheet" href="{% static 'css/assistant.css' %}">
-    <link rel="stylesheet" href="{% static 'css/hybrid-polish.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/hybrid-polish.css' %}?v=5">
     {% block extra_css %}{% endblock %}
     {% if hotel_atual %}
     <style>
@@ -151,6 +151,7 @@
         }
     </script>
     <script src="{% static 'js/assistant.js' %}"></script>
+    <script src="{% static 'js/show-password.js' %}?v=1"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

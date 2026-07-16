@@ -1,5 +1,7 @@
 # Blueprint Render — Universo Vulcãozinho
 # Plano free: apenas 1 PostgreSQL por conta — reutilize o banco existente (consulta-db).
+# IMPORTANTE: DATABASE_URL e DJANGO_SECRET_KEY devem estar fixos no painel do Render
+# (não regenerar a cada deploy). RUN_SEED=0 evita re-seed a cada subida.
 
 services:
   - type: web
@@ -15,7 +17,7 @@ services:
       - key: DJANGO_DEBUG
         value: "false"
       - key: DJANGO_SECRET_KEY
-        generateValue: true
+        sync: false
       - key: DJANGO_ALLOWED_HOSTS
         value: ".onrender.com"
       - key: DJANGO_SECURE_COOKIES
@@ -25,7 +27,9 @@ services:
       - key: DEV_SKIP_LOGIN
         value: "false"
       - key: RUN_SEED
-        value: "1"
+        value: "0"
+      - key: MEDIA_STORAGE
+        value: "database"
       - key: DATABASE_URL
         sync: false
       - key: OPENAI_API_KEY

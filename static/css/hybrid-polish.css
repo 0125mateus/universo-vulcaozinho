@@ -132,3 +132,30 @@ body {
         animation: none !important;
     }
 }
+
+/* Mostrar / ocultar senha */
+.pwd-wrap {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+.pwd-wrap input[type="password"],
+.pwd-wrap input[type="text"] {
+    width: 100%;
+    padding-right: 5.5rem !important;
+}
+.pwd-toggle {
+    position: absolute;
+    right: 0.45rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: var(--hotel-primary, #165A38);
+    font-weight: 800;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0.35rem 0.5rem;
+}
+.pwd-toggle:hover { text-decoration: underline; }

@@ -4,12 +4,10 @@ from django.urls import include, path, re_path
 from django.views.static import serve as media_serve
 
 from core import views
-
 from core import views_assistant
-
 from core import views_auth
-
 from core import views_dashboard
+from core import views_media
 from core import views_dashboard_executivo
 
 from core import views_loja
@@ -198,6 +196,7 @@ urlpatterns = [
     path('senha/concluido/', views_auth.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
     path('admin/', admin.site.urls),
+    path('media-db/<path:name>', views_media.MediaDbServeView.as_view(), name='media_db_serve'),
 
 ]
 

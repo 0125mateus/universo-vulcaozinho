@@ -171,9 +171,19 @@ STORAGES = {
     },
 }
 
+# Em produção com DATABASE_URL (Render), grava uploads no PostgreSQL para não perder no redeploy.
+_MEDIA_STORAGE = os.environ.get('MEDIA_STORAGE', '').strip().lower()
+_USE_DB_MEDIA = _MEDIA_STORAGE in ('db', 'database') or (
+    bool(DATABASE_URL) and _MEDIA_STORAGE not in ('fs', 'filesystem', 'file')
+)
+if _USE_DB_MEDIA:
+    STORAGES['default'] = {
+        'BACKEND': 'core.db_media_storage.DatabaseMediaStorage',
+    }
+
 # Uploads (fotos de ponto, comprovantes, etc.)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', str(BASE_DIR / 'media')))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

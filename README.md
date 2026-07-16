@@ -123,7 +123,7 @@ python manage.py seed_all   # todos acima
 
 PIN demo dos recreadores (seed_ponto): `1234`
 
-Fotos de recreadores/batidas ficam em `MEDIA_ROOT` (servidas em `/media/`). No Render free o disco é efêmero — após redeploy pode ser preciso reenviar a foto (ou use volume persistente).
+Em produção (`MEDIA_STORAGE=database` + `DATABASE_URL` Postgres), fotos e comprovantes ficam no banco e **não somem** no redeploy do Render free. Use `RUN_SEED=0` no Render após a primeira carga (seed só quando necessário).
 
 Reconhecimento facial: na gestão, tire a foto com a câmera até aparecer “Rosto detectado”. No tablet/app, após nome+PIN o sistema compara o rosto ao vivo com o cadastro (face-api no navegador).
 

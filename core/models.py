@@ -201,6 +201,24 @@ class Hospede(models.Model):
             )
 
 
+class StoredMediaFile(models.Model):
+    """Arquivo de mídia persistido no banco (sobrevive a redeploy no Render free)."""
+
+    name = models.CharField('caminho', max_length=500, unique=True, db_index=True)
+    content = models.BinaryField('conteúdo')
+    content_type = models.CharField('content-type', max_length=120, default='application/octet-stream')
+    size = models.PositiveIntegerField('tamanho', default=0)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'arquivo de mídia'
+        verbose_name_plural = 'arquivos de mídia'
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return self.name
+
+
 class Recreador(models.Model):
     hotel = models.ForeignKey(
         Hotel,

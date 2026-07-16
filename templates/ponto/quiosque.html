@@ -55,25 +55,6 @@
             <p class="ponto-erro" id="ponto-pin-erro" hidden></p>
             <button type="submit" class="ponto-btn ponto-btn-primary" id="ponto-pin-ok">Continuar</button>
         </form>
-
-        <details class="ponto-lista-details">
-            <summary>Ver lista com foto (conferência)</summary>
-            <div class="ponto-grid">
-                {% for r in recreadores %}
-                <div class="ponto-card ponto-card-static">
-                    {% if r.foto %}
-                    <img src="{{ r.foto.url }}" alt="" class="ponto-card-foto">
-                    {% else %}
-                    <div class="ponto-card-foto ponto-card-foto-empty">{{ r.nome|make_list|first }}</div>
-                    {% endif %}
-                    <strong>{{ r.nome }}</strong>
-                    {% if r.tem_reconhecimento_facial %}<small>Facial ok</small>{% endif %}
-                </div>
-                {% empty %}
-                <p class="ponto-empty">Nenhum recreador ativo neste hotel.</p>
-                {% endfor %}
-            </div>
-        </details>
     </main>
 
     <div class="ponto-modal" id="ponto-modal" hidden>
