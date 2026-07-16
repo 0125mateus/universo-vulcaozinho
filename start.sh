@@ -6,6 +6,10 @@ mkdir -p media
 
 python manage.py migrate --no-input
 
+# Garante logins demo (não apaga dados operacionais — só cria/atualiza usuários).
+python manage.py seed_superuser
+python manage.py seed_usuarios_demo
+
 if [ "$RUN_SEED" = "1" ]; then
   python manage.py seed_all
 fi

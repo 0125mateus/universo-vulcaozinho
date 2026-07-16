@@ -41,11 +41,14 @@ Senha padrão: `vulcaozinho123`
 | `admin_rede` | Administrador |
 | `diretor_rede` | Diretor |
 | `gerente_nacional` | Gerente (Nacional Inn) |
+| `gerente_cassino` | Gerente (Cassino Resort) |
 | `recepcao_nacional` | Recepção |
 | `loja_nacional` | Loja |
 | `recreador_nacional` | Recreador |
 
-Superuser admin: `python manage.py seed_superuser` → `admin` / `admin`
+Superuser: `admin` / `admin`
+
+No Render, `seed_usuarios_demo` e `seed_superuser` rodam a cada subida (só restauram logins; não apagam ponto/hóspedes).
 
 ## Módulos
 
