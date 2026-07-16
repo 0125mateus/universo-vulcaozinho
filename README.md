@@ -63,7 +63,7 @@ Superuser admin: `python manage.py seed_superuser` → `admin` / `admin`
 | `/noites/gestao/` | Editar noites temáticas |
 | `/api/v1/docs/` | Documentação Swagger |
 | `/reuniao/` | Reunião diretoria (Jitsi) |
-| `/ponto/gestao/` | Gestão do ponto (entrada principal via nav) |
+| `/ponto/gestao/` | Gestão do ponto + exportar Excel/PDF para RH |
 | `/ponto/app/` | App do recreador (bater ponto no celular) |
 | `/ponto/` | Tablet da sala (nome + PIN) |
 | `/app/` | App do hóspede (PWA) |
