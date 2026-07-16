@@ -7,7 +7,7 @@
     <title>Ponto — {{ recreador.nome }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=4">
     <style>
         :root {
             --hotel-primary: {{ hotel.cor_primaria }};
@@ -39,6 +39,13 @@
             <li class="ponto-msg ponto-msg-{{ message.tags }}">{{ message }}</li>
             {% endfor %}
         </ul>
+        {% endif %}
+
+        {% if whatsapp_comprovante_url %}
+        <a href="{{ whatsapp_comprovante_url }}" class="ponto-btn ponto-btn-whatsapp" target="_blank" rel="noopener"
+           style="margin-bottom:1rem;">
+            Enviar comprovante no WhatsApp
+        </a>
         {% endif %}
 
         <div class="ponto-app-card">

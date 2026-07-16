@@ -7,7 +7,7 @@
     <title>Ponto — {{ hotel.nome }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=4">
     <style>
         :root {
             --hotel-primary: {{ hotel.cor_primaria }};
@@ -114,12 +114,15 @@
 
             <div id="ponto-step-ok" hidden>
                 <p class="ponto-sucesso" id="ponto-sucesso-msg">Registrado!</p>
-                <p class="ponto-sucesso-sub">Voltando…</p>
+                <a id="ponto-whatsapp-btn" class="ponto-btn ponto-btn-whatsapp" href="#" target="_blank" rel="noopener" hidden>
+                    Enviar comprovante no WhatsApp
+                </a>
+                <p class="ponto-sucesso-sub" id="ponto-sucesso-sub">Voltando…</p>
             </div>
         </div>
     </div>
 
     <script src="{% static 'js/ponto-face.js' %}?v=1"></script>
-    <script src="{% static 'js/ponto.js' %}?v=3"></script>
+    <script src="{% static 'js/ponto.js' %}?v=4"></script>
 </body>
 </html>

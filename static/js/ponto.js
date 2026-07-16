@@ -22,6 +22,8 @@
   const acaoSugerida = document.getElementById('ponto-acao-sugerida');
   const extraToggle = document.getElementById('ponto-extra');
   const sucessoMsg = document.getElementById('ponto-sucesso-msg');
+  const sucessoSub = document.getElementById('ponto-sucesso-sub');
+  const whatsappBtn = document.getElementById('ponto-whatsapp-btn');
   const video = document.getElementById('ponto-video');
   const faceVideo = document.getElementById('ponto-face-video');
   const canvas = document.getElementById('ponto-canvas');
@@ -275,11 +277,28 @@
         return;
       }
       sucessoMsg.textContent = data.mensagem;
+      if (whatsappBtn) {
+        if (data.whatsapp_disponivel && data.whatsapp_url) {
+          whatsappBtn.href = data.whatsapp_url;
+          whatsappBtn.hidden = false;
+          if (sucessoSub) sucessoSub.textContent = 'Toque no WhatsApp ou aguarde para voltar…';
+          // Abre o comprovante; o operador confirma o envio no app
+          window.open(data.whatsapp_url, '_blank', 'noopener');
+        } else {
+          whatsappBtn.hidden = true;
+          whatsappBtn.removeAttribute('href');
+          if (sucessoSub) {
+            sucessoSub.textContent = data.whatsapp_disponivel === false
+              ? 'Sem WhatsApp cadastrado. Voltando…'
+              : 'Voltando…';
+          }
+        }
+      }
       showStep('ok');
       setTimeout(() => {
         closeModal();
         window.location.reload();
-      }, 2800);
+      }, data.whatsapp_disponivel ? 8000 : 2800);
     } catch (err) {
       acaoErro.textContent = 'Falha de conexão. Tente de novo.';
       acaoErro.hidden = false;

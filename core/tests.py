@@ -1355,6 +1355,16 @@ class PontoRecreadorTestCase(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertTrue(Recreador.objects.filter(hotel=self.hotel, nome='Bruno Novo').exists())
 
+    def test_whatsapp_comprovante(self):
+        from core.ponto_whatsapp_utils import contexto_whatsapp_comprovante
+        self.rec.telefone = '31999006632'
+        self.rec.save(update_fields=['telefone'])
+        batida = registrar_batida(recreador=self.rec, hotel=self.hotel, pin='1234')
+        wa = contexto_whatsapp_comprovante(batida, self.hotel)
+        self.assertTrue(wa['whatsapp_disponivel'])
+        self.assertIn('wa.me/5531999006632', wa['whatsapp_url'])
+        self.assertIn('Comprovante de ponto', wa['whatsapp_mensagem'])
+
     def test_excluir_recreador_gestao(self):
         from core.models import PapelUsuario, PerfilUsuario
         from django.contrib.auth import get_user_model

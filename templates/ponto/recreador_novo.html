@@ -18,8 +18,9 @@
             <input class="rec-input" type="text" name="nome" id="nome" value="{{ nome|default:'' }}" required autofocus>
         </div>
         <div class="rec-field">
-            <label for="telefone">Telefone</label>
-            <input class="rec-input" type="text" name="telefone" id="telefone" value="{{ telefone|default:'' }}">
+            <label for="telefone">WhatsApp (com DDD)</label>
+            <input class="rec-input" type="text" name="telefone" id="telefone" value="{{ telefone|default:'' }}" placeholder="31999999999">
+            <small class="field-hint">Usado para enviar o comprovante da batida.</small>
         </div>
         <div class="rec-field">
             <label>

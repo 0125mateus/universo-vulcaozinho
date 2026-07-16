@@ -101,6 +101,7 @@
                 <th>IP</th>
                 <th>Dispositivo</th>
                 <th>Registrado por</th>
+                <th>WhatsApp</th>
             </tr>
         </thead>
         <tbody>
@@ -136,9 +137,16 @@
                         {% if b.registrado_por %}{{ b.registrado_por.get_username }}{% else %}próprio / quiosque{% endif %}
                     </small>
                 </td>
+                <td>
+                    {% if b.whatsapp_disponivel %}
+                    <a href="{{ b.whatsapp_url }}" target="_blank" rel="noopener" class="rec-btn rec-btn-sm" style="background:#25D366;color:#fff;">WhatsApp</a>
+                    {% else %}
+                    <small title="Cadastre o telefone/WhatsApp do recreador">Sem nº</small>
+                    {% endif %}
+                </td>
             </tr>
             {% empty %}
-            <tr><td colspan="8" class="rec-empty">Nenhuma batida neste dia{% if recreador_filtro %} para o filtro{% endif %}.</td></tr>
+            <tr><td colspan="9" class="rec-empty">Nenhuma batida neste dia{% if recreador_filtro %} para o filtro{% endif %}.</td></tr>
             {% endfor %}
         </tbody>
     </table>

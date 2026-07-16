@@ -225,7 +225,22 @@
     color: var(--hotel-primary, #165A38);
     margin: 1.5rem 0 0.35rem;
 }
-.ponto-sucesso-sub { text-align: center; color: #5e564c; font-weight: 600; }
+.ponto-btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0.85rem 0 0.5rem;
+    padding: 0.95rem;
+    border-radius: 14px;
+    background: #25D366;
+    color: #fff !important;
+    font-weight: 800;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 1.05rem;
+}
+.ponto-btn-whatsapp[hidden] { display: none !important; }
 
 /* App do recreador + formulário nome/PIN */
 .ponto-app-body { display: flex; flex-direction: column; }

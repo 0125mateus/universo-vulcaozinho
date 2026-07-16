@@ -14,6 +14,7 @@ from django.views import View
 from .auth_utils import resolver_hotel_atual
 from .mixins import PapelRequeridoMixin
 from .models import PapelUsuario, PontoBatida, Recreador, TipoPontoBatida
+from .ponto_whatsapp_utils import contexto_whatsapp_comprovante
 from .ponto_service import (
     FACE_VERIFY_TTL,
     PontoErro,
@@ -187,6 +188,7 @@ class PontoRegistrarAPI(View):
             return JsonResponse({'ok': False, 'erro': str(e)}, status=400)
 
         request.session.pop(SESSION_FACE_OK, None)
+        wa = contexto_whatsapp_comprovante(batida, hotel)
         return JsonResponse({
             'ok': True,
             'tipo': batida.tipo,
@@ -198,6 +200,8 @@ class PontoRegistrarAPI(View):
                 f'{timezone.localtime(batida.registrado_em).strftime("%H:%M")}'
                 + (' (extra/plantão)' if batida.extra_plantao else '')
             ),
+            'whatsapp_url': wa['whatsapp_url'],
+            'whatsapp_disponivel': wa['whatsapp_disponivel'],
         })
 
 
@@ -289,11 +293,13 @@ class PontoAppHomeView(View):
         if not recreador or recreador.hotel_id != hotel.id:
             request.session.pop(SESSION_RECREADOR_ID, None)
             return redirect('ponto_app_login')
+        whatsapp_url = request.session.pop('ponto_whatsapp_comprovante_url', None)
         return render(request, self.template_name, {
             'hotel': hotel,
             'recreador': recreador,
             'estado': estado_ponto_hoje(recreador),
             'hoje': timezone.localdate(),
+            'whatsapp_comprovante_url': whatsapp_url,
         })
 
     def post(self, request):
@@ -319,12 +325,21 @@ class PontoAppHomeView(View):
                 exigir_pin=False,
             )
             request.session.pop(SESSION_FACE_OK, None)
+            wa = contexto_whatsapp_comprovante(batida, hotel)
             messages.success(
                 request,
                 f'{batida.get_tipo_display()} registrada às '
                 f'{timezone.localtime(batida.registrado_em).strftime("%H:%M")}'
                 + (' (extra/plantão)' if batida.extra_plantao else ''),
             )
+            if wa['whatsapp_disponivel']:
+                request.session['ponto_whatsapp_comprovante_url'] = wa['whatsapp_url']
+            else:
+                request.session.pop('ponto_whatsapp_comprovante_url', None)
+                messages.info(
+                    request,
+                    'Cadastre o WhatsApp do recreador na gestão para enviar o comprovante.',
+                )
         except PontoErro as e:
             messages.error(request, str(e))
         return redirect('ponto_app_home')
@@ -365,6 +380,10 @@ class PontoGestaoView(PapelRequeridoMixin, View):
             batidas_qs = batidas_qs.filter(recreador_id=int(recreador_id))
 
         batidas = list(batidas_qs)
+        for b in batidas:
+            wa = contexto_whatsapp_comprovante(b, hotel)
+            b.whatsapp_url = wa['whatsapp_url']
+            b.whatsapp_disponivel = wa['whatsapp_disponivel']
         resumo = {
             'total': len(batidas),
             'entradas': sum(1 for b in batidas if b.tipo == TipoPontoBatida.ENTRADA),
