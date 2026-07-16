@@ -464,3 +464,24 @@ class PontoRecreadorConfigView(PapelRequeridoMixin, View):
         level, msg = _mensagem_apos_salvar(recreador, criado=False)
         getattr(messages, level)(request, msg)
         return redirect('ponto_gestao')
+
+
+class PontoRecreadorExcluirView(PapelRequeridoMixin, View):
+    papeis_requeridos = PAPEIS_PONTO_GESTAO
+    titulo_acesso = 'Excluir recreador'
+    login_url = '/entrar/'
+
+    def post(self, request, pk):
+        hotel = resolver_hotel_atual(request)
+        recreador = get_object_or_404(Recreador, pk=pk)
+        if not hotel or recreador.hotel_id != hotel.id:
+            messages.error(request, 'Recreador inválido para este hotel.')
+            return redirect('ponto_gestao')
+
+        nome = recreador.nome
+        if request.session.get(SESSION_RECREADOR_ID) == recreador.id:
+            request.session.pop(SESSION_RECREADOR_ID, None)
+        request.session.pop(SESSION_FACE_OK, None)
+        recreador.delete()
+        messages.success(request, f'Recreador {nome} excluído.')
+        return redirect('ponto_gestao')

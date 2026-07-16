@@ -1354,3 +1354,15 @@ class PontoRecreadorTestCase(TestCase):
         })
         self.assertEqual(resp.status_code, 302)
         self.assertTrue(Recreador.objects.filter(hotel=self.hotel, nome='Bruno Novo').exists())
+
+    def test_excluir_recreador_gestao(self):
+        from core.models import PapelUsuario, PerfilUsuario
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        user = User.objects.create_user('gerente_del', password='x')
+        PerfilUsuario.objects.create(user=user, papel=PapelUsuario.GERENTE, hotel=self.hotel)
+        self.client.login(username='gerente_del', password='x')
+        pk = self.rec.pk
+        resp = self.client.post(reverse('ponto_recreador_excluir', args=[pk]))
+        self.assertEqual(resp.status_code, 302)
+        self.assertFalse(Recreador.objects.filter(pk=pk).exists())

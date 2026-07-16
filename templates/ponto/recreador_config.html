@@ -70,6 +70,12 @@
             <button type="submit" class="rec-btn rec-btn-primary">Salvar</button>
         </div>
     </form>
+    <form method="post" action="{% url 'ponto_recreador_excluir' recreador.pk %}" class="rec-form-card" style="margin-top:1rem;"
+          onsubmit="return confirm('Excluir {{ recreador.nome }}? As batidas deste recreador também serão removidas.');">
+        {% csrf_token %}
+        <p style="font-weight:700;color:#c0392b;margin-bottom:0.75rem;">Zona de risco</p>
+        <button type="submit" class="rec-btn rec-btn-danger">Excluir recreador</button>
+    </form>
 </div>
 {% endblock %}
 

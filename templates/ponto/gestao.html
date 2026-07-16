@@ -24,7 +24,14 @@
         {% endif %}
         <h3>{{ r.nome }}</h3>
         <p>{% if r.ativo %}Ativo{% else %}Inativo{% endif %} · {% if r.tem_pin %}PIN ok{% else %}Sem PIN{% endif %} · {% if r.tem_reconhecimento_facial %}Facial ok{% else %}Sem facial{% endif %}</p>
-        <a href="{% url 'ponto_recreador_config' r.pk %}" class="card-link">Configurar →</a>
+        <div class="rec-actions" style="justify-content:flex-start;gap:0.5rem;flex-wrap:wrap;margin-top:0.65rem;">
+            <a href="{% url 'ponto_recreador_config' r.pk %}" class="rec-btn rec-btn-sm rec-btn-primary">Configurar</a>
+            <form method="post" action="{% url 'ponto_recreador_excluir' r.pk %}" class="rec-inline-form"
+                  onsubmit="return confirm('Excluir {{ r.nome }}? As batidas deste recreador também serão removidas.');">
+                {% csrf_token %}
+                <button type="submit" class="rec-btn rec-btn-sm rec-btn-danger">Excluir</button>
+            </form>
+        </div>
     </div>
     {% empty %}
     <p class="empty-state">Nenhum recreador cadastrado. Use “Adicionar recreador”.</p>

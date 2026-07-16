@@ -173,6 +173,7 @@ urlpatterns = [
     path('ponto/gestao/', views_ponto.PontoGestaoView.as_view(), name='ponto_gestao'),
     path('ponto/gestao/novo/', views_ponto.PontoRecreadorNovoView.as_view(), name='ponto_recreador_novo'),
     path('ponto/gestao/<int:pk>/', views_ponto.PontoRecreadorConfigView.as_view(), name='ponto_recreador_config'),
+    path('ponto/gestao/<int:pk>/excluir/', views_ponto.PontoRecreadorExcluirView.as_view(), name='ponto_recreador_excluir'),
     path('ponto/api/autenticar/', views_ponto.PontoAutenticarAPI.as_view(), name='ponto_api_autenticar'),
     path('ponto/api/<int:pk>/estado/', views_ponto.PontoRecreadorEstadoAPI.as_view(), name='ponto_api_estado'),
     path('ponto/api/<int:pk>/rosto/', views_ponto.PontoVerificarRostoAPI.as_view(), name='ponto_api_rosto'),
