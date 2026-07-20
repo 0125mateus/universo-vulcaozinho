@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" role="img" aria-label="Rei  mascote Recrear">
+  <defs>
+    <linearGradient id="skin" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#FBBF24"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818CF8"/>
+      <stop offset="50%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
+    </linearGradient>
+    <linearGradient id="bodyShine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="cheek" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FB7185" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#FB7185" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FB7185" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="eyeWhite" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </radialGradient>
+    <radialGradient id="irisL" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#0891B2"/>
+    </radialGradient>
+    <radialGradient id="ground" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#86EFAC" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#86EFAC" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-10%" width="140%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#312E81" flood-opacity="0.28"/>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- chão suave -->
+  <ellipse cx="200" cy="430" rx="130" ry="28" fill="url(#ground)"/>
+
+  <g filter="url(#shadow)">
+    <!-- corpo -->
+    <ellipse cx="200" cy="310" rx="88" ry="95" fill="url(#body)"/>
+    <ellipse cx="200" cy="280" rx="72" ry="55" fill="url(#bodyShine)"/>
+
+    <!-- braço esquerdo -->
+    <ellipse cx="118" cy="300" rx="28" ry="38" fill="url(#body)" transform="rotate(-18 118 300)"/>
+    <!-- braço direito (acenando) -->
+    <ellipse cx="290" cy="255" rx="26" ry="36" fill="url(#body)" transform="rotate(28 290 255)"/>
+    <circle cx="308" cy="220" r="22" fill="url(#skin)"/>
+
+    <!-- pernas -->
+    <ellipse cx="165" cy="395" rx="26" ry="22" fill="#4338CA"/>
+    <ellipse cx="235" cy="395" rx="26" ry="22" fill="#4338CA"/>
+
+    <!-- cabeça -->
+    <circle cx="200" cy="175" r="82" fill="url(#skin)"/>
+
+    <!-- cabelo/topete estilo Pixar -->
+    <path d="M128 155 C135 95, 175 72, 200 78 C225 72, 265 95, 272 155 C258 118, 230 102, 200 108 C170 102, 142 118, 128 155 Z" fill="#4F46E5"/>
+    <path d="M185 78 C192 58, 208 58, 215 78 C210 68, 190 68, 185 78 Z" fill="#6366F1"/>
+
+    <!-- orelhas -->
+    <ellipse cx="124" cy="182" rx="14" ry="18" fill="url(#skin)"/>
+    <ellipse cx="276" cy="182" rx="14" ry="18" fill="url(#skin)"/>
+
+    <!-- blush -->
+    <ellipse cx="155" cy="198" rx="22" ry="12" fill="url(#cheek)"/>
+    <ellipse cx="245" cy="198" rx="22" ry="12" fill="url(#cheek)"/>
+
+    <!-- olhos -->
+    <ellipse cx="168" cy="172" rx="26" ry="30" fill="url(#eyeWhite)"/>
+    <ellipse cx="232" cy="172" rx="26" ry="30" fill="url(#eyeWhite)"/>
+    <circle cx="174" cy="178" r="14" fill="url(#irisL)"/>
+    <circle cx="238" cy="178" r="14" fill="url(#irisL)"/>
+    <circle cx="178" cy="174" r="5" fill="#0F172A"/>
+    <circle cx="242" cy="174" r="5" fill="#0F172A"/>
+    <circle cx="181" cy="171" r="2.2" fill="#ffffff"/>
+    <circle cx="245" cy="171" r="2.2" fill="#ffffff"/>
+
+    <!-- sobrancelhas -->
+    <path d="M148 148 Q168 138 188 146" stroke="#92400E" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M212 146 Q232 138 252 148" stroke="#92400E" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+    <!-- nariz -->
+    <ellipse cx="200" cy="192" rx="8" ry="6" fill="#F59E0B" opacity="0.45"/>
+
+    <!-- sorriso -->
+    <path d="M172 210 Q200 232 228 210" stroke="#BE123C" stroke-width="5" fill="none" stroke-linecap="round"/>
+
+    <!-- distintivo Recrear -->
+    <circle cx="200" cy="318" r="30" fill="#FBBF24" filter="url(#softGlow)"/>
+    <circle cx="200" cy="318" r="24" fill="#FDE68A"/>
+    <text x="200" y="327" text-anchor="middle" font-family="'Fredoka', system-ui, sans-serif" font-size="22" font-weight="800" fill="#4F46E5">R</text>
+
+    <!-- estrela flutuante -->
+    <path d="M320 120 L324 132 L336 132 L327 140 L330 152 L320 144 L310 152 L313 140 L304 132 L316 132 Z" fill="#FBBF24" opacity="0.95"/>
+    <path d="M95 110 L97 118 L105 118 L99 123 L101 131 L95 126 L89 131 L91 123 L85 118 L93 118 Z" fill="#EC4899" opacity="0.85"/>
+  </g>
+</svg>

@@ -7,7 +7,7 @@ HOTEIS_COM_LOGO = frozenset({
     'nacional-inn',
 })
 
-FALLBACK_LOGO = 'img/recrear-logo.svg'
+FALLBACK_LOGO = 'img/mascote-recrear.svg'
 
 
 def hotel_logo_static_path(slug: str | None) -> str:
