@@ -29,7 +29,7 @@ services:
       - key: RUN_SEED
         value: "0"
       - key: SEED_DEMO_USERS
-        value: "0"
+        value: "1"
       - key: MEDIA_STORAGE
         value: "database"
       - key: DATABASE_URL

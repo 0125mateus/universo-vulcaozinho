@@ -62,7 +62,7 @@ USUARIOS_DEMO = USUARIOS_REDE + _usuarios_por_hotel()
 
 
 class Command(BaseCommand):
-    help = 'Cria usuários demo por papel e hotel (senha: vulcaozinho123) — idempotente.'
+    help = 'Cria/atualiza usuários demo (senha: vulcaozinho123).'
 
     def handle(self, *args, **options):
         for dados in USUARIOS_DEMO:
@@ -81,9 +81,9 @@ class Command(BaseCommand):
                     'is_active': True,
                 },
             )
-            if created:
-                user.set_password(SENHA_PADRAO)
-                user.save()
+            # Sempre restaura a senha demo conhecida (necessário para login no Render).
+            user.set_password(SENHA_PADRAO)
+            user.save()
 
             PerfilUsuario.objects.update_or_create(
                 user=user,
