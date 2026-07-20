@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Entrar — Universo Vulcãozinho{% endblock %}
+{% block title %}Entrar — Recrear{% endblock %}
 
 {% block content %}
 <div class="auth-wrap">
     <div class="auth-card">
         <div class="auth-header">
-            <span class="auth-emoji">🌋</span>
+            <img src="{% static 'img/recrear-logo.svg' %}" alt="Recrear" class="auth-logo">
             <h2>Entrar</h2>
-            <p>Sistema de Recreação Vulcãozinho Inn</p>
+            <p>Sistema profissional de recreação hoteleira</p>
         </div>
 
         {% if form.errors %}

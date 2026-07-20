@@ -1,26 +1,26 @@
-/* App do Hóspede — PWA mobile-first · visual híbrido Vulcãozinho */
+/* App do Hóspede — PWA mobile-first · visual Recrear Pixar */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --app-primary: #165A38;
-    --app-secondary: #2A9B57;
-    --app-accent: #F5C518;
-    --app-lava: #E86B1F;
-    --app-ink: #1F1A14;
-    --app-muted: #5E564C;
-    --app-surface: #FFFFFF;
-    --app-radius: 18px;
-    --app-shadow: 0 8px 28px rgba(22, 90, 56, 0.12);
-    --app-shadow-soft: 0 2px 12px rgba(22, 90, 56, 0.08);
+    --app-primary: #6366F1;
+    --app-secondary: #8B5CF6;
+    --app-accent: #FBBF24;
+    --app-lava: #EC4899;
+    --app-ink: #1E1B4B;
+    --app-muted: #64748B;
+    --app-surface: rgba(255, 255, 255, 0.92);
+    --app-radius: 20px;
+    --app-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+    --app-shadow-soft: 0 2px 16px rgba(99, 102, 241, 0.1);
 }
 
 .hospede-app-body {
     font-family: 'Fredoka', system-ui, sans-serif;
     background:
-        radial-gradient(ellipse 90% 55% at 0% -10%, rgba(232, 107, 31, 0.22) 0%, transparent 55%),
-        radial-gradient(ellipse 70% 45% at 100% 0%, rgba(245, 197, 24, 0.2) 0%, transparent 50%),
-        radial-gradient(ellipse 80% 50% at 50% 100%, rgba(42, 155, 87, 0.18) 0%, transparent 55%),
-        linear-gradient(165deg, #163528 0%, #24553a 18%, #e6efe4 42%, #f3eee6 78%, #ebe3d6 100%);
+        radial-gradient(ellipse 100% 60% at 50% -10%, rgba(253, 230, 138, 0.5) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 50% at 90% 20%, rgba(236, 72, 153, 0.2) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 45% at 10% 30%, rgba(99, 102, 241, 0.25) 0%, transparent 50%),
+        linear-gradient(180deg, #7DD3FC 0%, #A5B4FC 35%, #FDE68A 70%, #86EFAC 100%);
     background-attachment: fixed;
     color: var(--app-ink);
     min-height: 100dvh;

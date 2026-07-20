@@ -1,4 +1,4 @@
-"""Assistente de IA do App do Hóspede (Vulcãozinho).
+"""Assistente de IA do App do Hóspede (Recrear).
 
 Responde dúvidas do hóspede usando o contexto real do dia (faixa, programação,
 passeios, noite temática e passaporte). Usa OpenAI quando configurado; caso
@@ -94,7 +94,7 @@ def montar_contexto(hospede) -> str:
 def _system_prompt(hospede) -> str:
     contexto = montar_contexto(hospede)
     return (
-        'Você é o **Vulcãozinho**, o assistente simpático do app do hóspede de um '
+        'Você é o assistente **Recrear**, simpático e profissional do app do hóspede de um '
         'hotel de recreação. Fale em português do Brasil, de forma calorosa, curta e '
         'objetiva, como um recreador animado. Use os DADOS DE HOJE abaixo para responder. '
         'Ajude o hóspede com: programação de atividades, passeios (inclusive como pagar '
@@ -108,7 +108,7 @@ def _system_prompt(hospede) -> str:
 def saudacao(hospede) -> str:
     nome = hospede.nome_completo.split()[0] if hospede.nome_completo else 'hóspede'
     return (
-        f'Oi, {nome}! 🌋 Sou o Vulcãozinho, seu guia aqui no app. '
+        f'Oi, {nome}! ✨ Sou a Recrear, sua guia aqui no app. '
         'Posso te contar a programação de hoje, os passeios, como pagar via PIX, '
         'a noite temática e seu passaporte. O que você quer saber?'
     )

@@ -48,7 +48,7 @@
         });
     }
 
-    var SAUDACAO_PADRAO = 'Oi! 🌋 Sou o Vulcãozinho, seu guia aqui no app. Posso te contar a programação de hoje, os passeios, como pagar via PIX e a noite temática. O que você quer saber?';
+    var SAUDACAO_PADRAO = 'Oi! ✨ Sou a Recrear, sua guia aqui no app. Posso te contar a programação de hoje, os passeios, como pagar via PIX e a noite temática. O que você quer saber?';
     var SUGESTOES_PADRAO = [
         'Qual a programação de hoje?',
         'Quais passeios têm hoje?',

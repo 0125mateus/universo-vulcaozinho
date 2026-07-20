@@ -1,11 +1,7 @@
 /* Hybrid polish — overlays remote vulcaozinho.css without removing module styles */
 
 body {
-    background:
-        radial-gradient(ellipse 80% 50% at 0% 0%, rgba(232, 107, 31, 0.16) 0%, transparent 55%),
-        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(245, 197, 24, 0.18) 0%, transparent 50%),
-        radial-gradient(ellipse 70% 45% at 100% 100%, rgba(42, 155, 87, 0.16) 0%, transparent 55%),
-        linear-gradient(165deg, #1a3d2a 0%, #2d5a3d 16%, #e8f0e4 40%, #f5efe4 72%, #f0e6d4 100%) !important;
+    background: transparent !important;
     background-attachment: fixed !important;
 }
 

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Início — Universo Vulcãozinho{% endblock %}
+{% block title %}Início — Recrear{% endblock %}
 
 {% block content %}
 {% if sem_hotel %}
@@ -13,8 +13,8 @@
 
 <section class="hero">
     <span class="hotel-badge">🏨 {{ hotel_atual.nome }}</span>
-    <h2>{{ hotel_atual.slogan|default:"A energia que acolhe, cuida e faz bem!" }}</h2>
-    <p>🎉 Diversão garantida · Programação por idade · Noites temáticas · Passaporte da diversão!</p>
+    <h2>{{ hotel_atual.slogan|default:"Recrear — diversão com excelência!" }}</h2>
+    <p>✨ Experiências animadas · Programação por idade · Noites temáticas · Passaporte da diversão!</p>
     <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
         <a href="{% url 'hospede_app_login' %}" class="rec-btn rec-btn-primary" style="display:inline-flex;">📱 App do hóspede</a>
     </div>
@@ -69,8 +69,8 @@
     </div>
     <div class="card accent-blue">
         <div class="card-icon">🛍️</div>
-        <h3>Loja Vulcãozinho</h3>
-        <p>Acessórios exclusivos e bonés das noites temáticas.</p>
+        <h3>Loja Recrear</h3>
+        <p>Acessórios exclusivos e produtos das noites temáticas.</p>
         <a href="{% url 'loja' %}" style="color:var(--hotel-primary);font-weight:700;font-size:0.875rem;">Ver produtos →</a>
     </div>
 </div>

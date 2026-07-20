@@ -7,10 +7,10 @@
     <meta name="theme-color" content="{{ hotel.cor_primaria|default:'#1E6B43' }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Vulcãozinho">
+    <meta name="apple-mobile-web-app-title" content="Recrear">
     <link rel="manifest" href="{% url 'hospede_app_manifest' %}">
-    <link rel="apple-touch-icon" href="{% if hotel %}{% static hotel|hotel_logo %}{% else %}{% static 'img/mascote-vulcaozinho.png' %}{% endif %}">
-    <title>{% block title %}App Hóspede{% endblock %}{% if hotel %} — {{ hotel.nome }}{% else %} — Vulcãozinho{% endif %}</title>
+    <link rel="apple-touch-icon" href="{% if hotel %}{% static hotel|hotel_logo %}{% else %}{% static 'img/recrear-logo.svg' %}{% endif %}">
+    <title>{% block title %}App Hóspede{% endblock %}{% if hotel %} — {{ hotel.nome }}{% else %} — Recrear{% endif %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/hospede-app.css' %}?v=9">
@@ -40,12 +40,12 @@
 
         {% if hospede %}
         <div class="app-assistant" id="app-assistant">
-            <button type="button" class="app-assistant-fab" id="app-assistant-fab" aria-label="Falar com o Vulcãozinho">
-                <span class="app-assistant-fab-emoji">🌋</span>
+            <button type="button" class="app-assistant-fab" id="app-assistant-fab" aria-label="Falar com a Recrear">
+                <span class="app-assistant-fab-emoji">✨</span>
             </button>
             <div class="app-assistant-panel" id="app-assistant-panel" hidden>
                 <header class="app-assistant-header">
-                    <strong>Vulcãozinho</strong>
+                    <strong>Recrear</strong>
                     <button type="button" class="app-assistant-close" id="app-assistant-close" aria-label="Fechar">×</button>
                 </header>
                 <div class="app-assistant-messages" id="app-assistant-messages"></div>

@@ -4,13 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Universo Vulcãozinho{% endblock %}</title>
+    <title>{% block title %}Recrear{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/vulcaozinho.css' %}">
     <link rel="stylesheet" href="{% static 'css/hotel-themes.css' %}">
     <link rel="stylesheet" href="{% static 'css/assistant.css' %}">
     <link rel="stylesheet" href="{% static 'css/hybrid-polish.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/recrear-theme.css' %}?v=1">
     {% block extra_css %}{% endblock %}
     {% if hotel_atual %}
     <style>
@@ -30,6 +31,19 @@
     {% endif %}
 </head>
 <body{% if hotel_atual %} class="hotel-theme hotel-{{ hotel_atual.slug }}"{% endif %}>
+    <div class="pixar-scene" aria-hidden="true">
+        <div class="pixar-sky"></div>
+        <div class="pixar-sun"></div>
+        <div class="pixar-cloud pixar-cloud-1"></div>
+        <div class="pixar-cloud pixar-cloud-2"></div>
+        <div class="pixar-cloud pixar-cloud-3"></div>
+        <div class="pixar-hills"></div>
+        <span class="pixar-spark pixar-spark-1"></span>
+        <span class="pixar-spark pixar-spark-2"></span>
+        <span class="pixar-spark pixar-spark-3"></span>
+        <span class="pixar-spark pixar-spark-4"></span>
+        <div class="pixar-grain"></div>
+    </div>
     <div class="wave-bg"></div>
     <div class="app-shell">
         {% if hotel_atual %}
@@ -56,10 +70,10 @@
                     {% endif %}
                 </div>
                 {% else %}
-                <img src="{% static 'img/mascote-vulcaozinho.png' %}" alt="Vulcãozinho">
+                <img src="{% static 'img/recrear-logo.svg' %}" alt="Recrear" class="brand-logo-recrear">
                 <div class="brand-text">
-                    <h1>Vulcãozinho</h1>
-                    <span>Sistema de Recreação</span>
+                    <h1>Recrear</h1>
+                    <span>Sistema profissional de recreação hoteleira</span>
                 </div>
                 {% endif %}
             </a>
@@ -83,7 +97,7 @@
                 <div class="hotel-selector-wrap">
                     <img
                         id="hotel-select-logo"
-                        src="{% if hotel_atual %}{% static hotel_atual|hotel_logo %}{% else %}{% static 'img/mascote-vulcaozinho.png' %}{% endif %}"
+                        src="{% if hotel_atual %}{% static hotel_atual|hotel_logo %}{% else %}{% static 'img/recrear-logo.svg' %}{% endif %}"
                         alt=""
                         class="hotel-selector-logo"
                     >
@@ -117,7 +131,7 @@
             <a href="{% url 'programacao' %}" class="{% if request.resolver_match.url_name == 'programacao' %}active{% endif %}">📅 Programação</a>
             <a href="{% url 'noites' %}" class="{% if request.resolver_match.url_name == 'noites' %}active{% endif %}">🎭 Noites</a>
             <a href="{% url 'passeios_gestao' %}" class="{% if request.resolver_match.url_name == 'passeios_gestao' or request.resolver_match.url_name == 'passeio_novo' or request.resolver_match.url_name == 'passeio_editar' or request.resolver_match.url_name == 'passeio_excluir' %}active{% endif %}">🌴 Passeios</a>
-            <a href="{% url 'universo' %}" class="{% if request.resolver_match.url_name == 'universo' %}active{% endif %}">🌋 Universo</a>
+            <a href="{% url 'universo' %}" class="{% if request.resolver_match.url_name == 'universo' %}active{% endif %}">✨ Sobre</a>
             <a href="{% url 'loja' %}" class="{% if request.resolver_match.url_name == 'loja' %}active{% endif %}">🛍️ Loja</a>
             <a href="{% url 'passaporte' %}" class="{% if request.resolver_match.url_name == 'passaporte' %}active{% endif %}">🛂 Passaporte</a>
             <a href="{% url 'recepcao_index' %}" class="{% if request.resolver_match.url_name == 'recepcao_index' or request.resolver_match.url_name == 'recepcao_checkin' or request.resolver_match.url_name == 'recepcao_hospedes' or request.resolver_match.url_name == 'recepcao_hospede_detalhe' or request.resolver_match.url_name == 'recepcao_agenda' or request.resolver_match.url_name == 'recepcao_vincular' or request.resolver_match.url_name == 'recepcao_vincular_passeio' or request.resolver_match.url_name == 'recepcao_passeios_pagamentos' %}active{% endif %}">📋 Recepção</a>
@@ -134,8 +148,8 @@
         {% include 'includes/assistant_widget.html' %}
 
         <footer class="site-footer">
-            <p><strong>A energia que acolhe, cuida e faz bem!</strong></p>
-            <p>Sempre pronto para receber você! · Poços de Caldas/MG</p>
+            <p><strong>Recrear — recreação que transforma experiências</strong></p>
+            <p>Diversão profissional · Gestão inteligente · Momentos inesquecíveis</p>
         </footer>
     </div>
     <script>

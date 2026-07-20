@@ -103,7 +103,7 @@
                 modeEl.textContent = 'Modo guiado';
             }
         } catch {
-            appendMessage('bot', 'Olá! Sou o Vulcãozinho 🌋 Pergunte como usar o sistema de recreação!');
+            appendMessage('bot', 'Olá! Sou a Recrear ✨ Pergunte como usar a plataforma de recreação!');
         }
     }
 
