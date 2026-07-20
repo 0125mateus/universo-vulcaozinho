@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/hotel-themes.css' %}">
     <link rel="stylesheet" href="{% static 'css/assistant.css' %}">
     <link rel="stylesheet" href="{% static 'css/hybrid-polish.css' %}?v=5">
-    <link rel="stylesheet" href="{% static 'css/recrear-theme.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/recrear-theme.css' %}?v=3">
     {% block extra_css %}{% endblock %}
     {% if hotel_atual %}
     <style>
@@ -70,10 +70,11 @@
                     {% endif %}
                 </div>
                 {% else %}
-                <img src="{% static 'img/mascote-recrear.svg' %}" alt="Rei — Recrear" class="brand-logo-recrear brand-mascote">
+                <img src="{% static 'img/recrear-logo.svg' %}" alt="Recrear" class="brand-logo-recrear">
                 <div class="brand-text">
-                    <h1>Recrear</h1>
-                    <span>Sistema profissional de recreação hoteleira</span>
+                    <h1>Re<span class="brand-crear">crear</span></h1>
+                    <span class="brand-subtitle">Recreação &amp; Lazer</span>
+                    <span class="brand-slogan-line"><em>Diversão</em> que conecta, <em>momentos</em> que ficam!</span>
                 </div>
                 {% endif %}
             </a>
@@ -148,8 +149,8 @@
         {% include 'includes/assistant_widget.html' %}
 
         <footer class="site-footer">
-            <p><strong>Recrear — recreação que transforma experiências</strong></p>
-            <p>Diversão profissional · Gestão inteligente · Momentos inesquecíveis</p>
+            <p><strong>Recrear — Recreação &amp; Lazer</strong></p>
+            <p><em>Diversão</em> que conecta, <em>momentos</em> que ficam! · Nossa missão é transformar cada atividade em uma experiência inesquecível!</p>
         </footer>
     </div>
     <script>

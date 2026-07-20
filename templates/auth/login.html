@@ -5,11 +5,15 @@
 
 {% block content %}
 <div class="auth-wrap">
+    <div class="auth-brand-panel">
+        <img src="{% static 'img/recrear-identidade.png' %}" alt="Recrear — Recreação e Lazer">
+    </div>
     <div class="auth-card">
         <div class="auth-header">
             <img src="{% static 'img/recrear-logo.svg' %}" alt="Recrear" class="auth-logo">
+            <span class="brand-subtitle" style="margin:0.5rem 0 0.75rem;">Recreação &amp; Lazer</span>
             <h2>Entrar</h2>
-            <p>Sistema profissional de recreação hoteleira</p>
+            <p class="brand-slogan-line"><em>Diversão</em> que conecta, <em>momentos</em> que ficam!</p>
         </div>
 
         {% if form.errors %}

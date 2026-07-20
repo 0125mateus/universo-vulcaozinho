@@ -11,20 +11,55 @@
 </div>
 {% else %}
 
+<div class="recrear-official-banner">
+    <div>
+        <p class="recrear-official-tagline">
+            <span>Diversão</span> que conecta, <span>momentos</span> que ficam!
+        </p>
+        <p style="margin-top:0.5rem;color:var(--recrear-muted);font-size:0.9rem;font-weight:600;">
+            Nossa missão é transformar cada atividade em uma experiência inesquecível!
+        </p>
+    </div>
+    <img src="{% static 'img/recrear-identidade.png' %}" alt="Recrear — Recreação e Lazer">
+</div>
+
 <section class="hero">
     <span class="hotel-badge">🏨 {{ hotel_atual.nome }}</span>
-    <h2>{{ hotel_atual.slogan|default:"Recrear — diversão com excelência!" }}</h2>
-    <p>✨ Experiências animadas · Programação por idade · Noites temáticas · Passaporte da diversão!</p>
+    <h2>{{ hotel_atual.slogan|default:"Recreação & Lazer com excelência" }}</h2>
+    <p>Programação por idade · Noites temáticas · Passaporte da diversão · Gestão profissional</p>
     <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
         <a href="{% url 'hospede_app_login' %}" class="rec-btn rec-btn-primary" style="display:inline-flex;">📱 App do hóspede</a>
     </div>
 </section>
 
-<div class="values-strip">
-    <span class="value-pill">😄 Diversão Garantida</span>
-    <span class="value-pill">⚡ Energia Positiva</span>
-    <span class="value-pill">🌟 Momentos Incríveis</span>
-    <span class="value-pill">❤️ Acolhimento que Aquece</span>
+<div class="recrear-values-official">
+    <div class="recrear-value-card">
+        <div class="recrear-value-icon">👥</div>
+        <h4>Recreação</h4>
+        <p>Atividades que encantam todas as idades</p>
+    </div>
+    <div class="recrear-value-card">
+        <div class="recrear-value-icon">🎉</div>
+        <h4>Lazer</h4>
+        <p>Diversão com qualidade e segurança</p>
+    </div>
+    <div class="recrear-value-card">
+        <div class="recrear-value-icon">🤝</div>
+        <h4>Conexão</h4>
+        <p>Laços entre hóspedes, famílias e equipe</p>
+    </div>
+    <div class="recrear-value-card">
+        <div class="recrear-value-icon">⭐</div>
+        <h4>Experiência</h4>
+        <p>Momentos que ficam para sempre</p>
+    </div>
+</div>
+
+<div class="recrear-pillars">
+    <div class="recrear-pillar"><span class="recrear-pillar-icon">👨‍👩‍👧</span> Equipe qualificada</div>
+    <div class="recrear-pillar"><span class="recrear-pillar-icon">🛡️</span> Segurança em 1º lugar</div>
+    <div class="recrear-pillar"><span class="recrear-pillar-icon">😄</span> Alegria que contagia</div>
+    <div class="recrear-pillar"><span class="recrear-pillar-icon">❤️</span> Respeito e inclusão</div>
 </div>
 
 <h2 class="section-title">👥 Faixas Etárias (Ages)</h2>

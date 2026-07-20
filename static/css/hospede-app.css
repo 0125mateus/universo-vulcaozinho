@@ -2,25 +2,24 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --app-primary: #6366F1;
-    --app-secondary: #8B5CF6;
-    --app-accent: #FBBF24;
-    --app-lava: #EC4899;
-    --app-ink: #1E1B4B;
-    --app-muted: #64748B;
-    --app-surface: rgba(255, 255, 255, 0.92);
+    --app-primary: #1E5099;
+    --app-secondary: #4A90D9;
+    --app-accent: #F7941D;
+    --app-lava: #E87722;
+    --app-ink: #123A6B;
+    --app-muted: #5A7189;
+    --app-surface: rgba(255, 255, 255, 0.94);
     --app-radius: 20px;
-    --app-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
-    --app-shadow-soft: 0 2px 16px rgba(99, 102, 241, 0.1);
+    --app-shadow: 0 12px 40px rgba(30, 80, 153, 0.15);
+    --app-shadow-soft: 0 2px 16px rgba(30, 80, 153, 0.1);
 }
 
 .hospede-app-body {
     font-family: 'Fredoka', system-ui, sans-serif;
     background:
-        radial-gradient(ellipse 100% 60% at 50% -10%, rgba(253, 230, 138, 0.5) 0%, transparent 50%),
-        radial-gradient(ellipse 80% 50% at 90% 20%, rgba(236, 72, 153, 0.2) 0%, transparent 55%),
-        radial-gradient(ellipse 70% 45% at 10% 30%, rgba(99, 102, 241, 0.25) 0%, transparent 50%),
-        linear-gradient(180deg, #7DD3FC 0%, #A5B4FC 35%, #FDE68A 70%, #86EFAC 100%);
+        radial-gradient(ellipse 100% 60% at 50% -10%, rgba(255, 200, 120, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 50% at 90% 20%, rgba(74, 144, 217, 0.2) 0%, transparent 55%),
+        linear-gradient(180deg, #C5E4F8 0%, #D9EDFA 40%, #FFF8F0 75%, #FFE8C2 100%);
     background-attachment: fixed;
     color: var(--app-ink);
     min-height: 100dvh;

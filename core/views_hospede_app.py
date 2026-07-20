@@ -446,17 +446,17 @@ class HospedeAppManifestView(View):
 
         base = request.build_absolute_uri('/').rstrip('/')
         hotel = resolver_hotel_atual(request)
-        icon_path = hotel.logo_static if hotel else 'img/recrear-logo.svg'
-        app_name = hotel.nome if hotel else 'Recrear — App do Hóspede'
+        icon_path = hotel.logo_static if hotel else 'img/recrear-logo-icon.svg'
+        app_name = hotel.nome if hotel else 'Recrear'
         manifest = {
             'name': f'{app_name} — App do Hóspede',
             'short_name': hotel.nome.split()[0] if hotel else 'Recrear',
-            'description': 'Programação, passaporte e diversão no hotel',
+            'description': 'Programação, passaporte e diversão — Recrear',
             'start_url': f'{base}/app/',
             'scope': f'{base}/app/',
             'display': 'standalone',
-            'background_color': '#A5B4FC',
-            'theme_color': hotel.cor_primaria if hotel else '#6366F1',
+            'background_color': '#C5E4F8',
+            'theme_color': hotel.cor_primaria if hotel else '#1E5099',
             'orientation': 'portrait',
             'lang': 'pt-BR',
             'icons': [
