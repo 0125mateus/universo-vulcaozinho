@@ -38,3 +38,16 @@ services:
         sync: false
       - key: TELAO_API_KEY
         generateValue: true
+      # E-mail (Esqueci a senha) — preencher no painel do Render
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: "true"
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
