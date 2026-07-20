@@ -11,18 +11,6 @@
 </div>
 {% else %}
 
-<div class="recrear-official-banner">
-    <div>
-        <p class="recrear-official-tagline">
-            <span>Diversão</span> que conecta, <span>momentos</span> que ficam!
-        </p>
-        <p style="margin-top:0.5rem;color:var(--recrear-muted);font-size:0.9rem;font-weight:600;">
-            Nossa missão é transformar cada atividade em uma experiência inesquecível!
-        </p>
-    </div>
-    <img src="{% static 'img/recrear-identidade.png' %}" alt="Recrear — Recreação e Lazer">
-</div>
-
 <section class="hero">
     <span class="hotel-badge">🏨 {{ hotel_atual.nome }}</span>
     <h2>{{ hotel_atual.slogan|default:"Recreação & Lazer com excelência" }}</h2>
