@@ -32,8 +32,18 @@
             <button type="submit" class="auth-btn">Entrar</button>
         </form>
 
+        <div class="auth-demo-hint" style="margin-top:1rem;padding:0.75rem;border-radius:12px;background:rgba(30,80,153,0.08);font-size:0.85rem;line-height:1.45;">
+            <strong>Acesso demo:</strong><br>
+            Usuário <code>diretor_rede</code> · Senha <code>vulcaozinho123</code><br>
+            ou <code>admin_rede</code> / <code>vulcaozinho123</code>
+        </div>
+
         <p class="auth-links">
+            {% if email_configurado %}
             <a href="{% url 'password_reset' %}">Esqueci minha senha</a>
+            {% else %}
+            <span style="color:var(--text-muted);font-size:0.85rem;">Redefinição por e-mail ainda não configurada no servidor.</span>
+            {% endif %}
         </p>
     </div>
 </div>
