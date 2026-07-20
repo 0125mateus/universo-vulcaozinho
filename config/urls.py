@@ -5,6 +5,7 @@ from django.views.static import serve as media_serve
 
 from core import views
 from core import views_assistant
+from core import views_intelligence
 from core import views_auth
 from core import views_dashboard
 from core import views_media
@@ -182,6 +183,10 @@ urlpatterns = [
     path('api/assistant/init/', views_assistant.assistant_init, name='assistant_init'),
 
     path('api/assistant/chat/', views_assistant.assistant_chat_view, name='assistant_chat'),
+
+    path('api/intelligence/init/', views_intelligence.intelligence_init, name='intelligence_init'),
+    path('api/intelligence/insights/', views_intelligence.intelligence_insights, name='intelligence_insights'),
+    path('api/intelligence/chat/', views_intelligence.intelligence_chat, name='intelligence_chat'),
 
     path('api/v1/', include('config.api_urls')),
 

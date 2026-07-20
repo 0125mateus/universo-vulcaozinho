@@ -202,8 +202,26 @@ def chat(message: str, history: list[dict] | None, hospede) -> dict[str, Any]:
                 temperature=0.5,
                 max_tokens=600,
             )
-            return {'reply': resp.choices[0].message.content.strip(), 'source': 'ai'}
+            reply = resp.choices[0].message.content.strip()
+            _registrar(hospede, message, reply, 'ai')
+            return {'reply': reply, 'source': 'ai'}
         except Exception:
-            return _fallback(message, hospede)
+            result = _fallback(message, hospede)
+            _registrar(hospede, message, result['reply'], result.get('source', 'guided'))
+            return result
 
-    return _fallback(message, hospede)
+    result = _fallback(message, hospede)
+    _registrar(hospede, message, result['reply'], result.get('source', 'guided'))
+    return result
+
+
+def _registrar(hospede, mensagem, resposta, fonte):
+    from core.intelligence.learning import registrar_consulta
+    registrar_consulta(
+        hotel=hospede.hotel,
+        usuario=None,
+        canal='guest',
+        mensagem=mensagem,
+        resposta=resposta,
+        fonte=fonte,
+    )

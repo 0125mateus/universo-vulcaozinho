@@ -1396,3 +1396,58 @@ class PontoRecreadorTestCase(TestCase):
         resp = self.client.post(reverse('ponto_recreador_excluir', args=[pk]))
         self.assertEqual(resp.status_code, 302)
         self.assertFalse(Recreador.objects.filter(pk=pk).exists())
+
+
+class IntelligenceTestCase(TestCase):
+    def setUp(self):
+        self.hotel = Hotel.objects.create(
+            nome='Hotel Intel',
+            slug='hotel-intel',
+            rede_marca='nacional_inn',
+        )
+
+    def test_gerar_insights_sem_programacao(self):
+        from core.intelligence.insights import gerar_insights
+        insights = gerar_insights(self.hotel)
+        tipos = [i['tipo'] for i in insights]
+        self.assertIn('alerta', tipos)
+
+    def test_registrar_e_aprender_consulta(self):
+        from core.intelligence.learning import registrar_consulta, sugestoes_aprendidas
+        from core.models import ConsultaAssistente
+        registrar_consulta(
+            hotel=self.hotel,
+            usuario=None,
+            canal='staff',
+            mensagem='como ver a programação de hoje?',
+            resposta='Veja em /programacao/',
+            fonte='guided',
+        )
+        self.assertEqual(ConsultaAssistente.objects.count(), 1)
+        sugs = sugestoes_aprendidas(self.hotel)
+        self.assertTrue(any('programação' in s.lower() for s in sugs))
+
+    def test_chat_insights_prioridade(self):
+        from core.intelligence.service import chat_inteligente
+        result = chat_inteligente(
+            'O que devo priorizar hoje?',
+            [],
+            hotel=self.hotel,
+            usuario=None,
+        )
+        self.assertEqual(result['source'], 'insights')
+        self.assertIn('prioridades', result['reply'].lower())
+
+    def test_assistant_init_autenticado(self):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        user = User.objects.create_user('intel_user', password='x')
+        self.client.login(username='intel_user', password='x')
+        session = self.client.session
+        session['hotel_slug'] = self.hotel.slug
+        session.save()
+        resp = self.client.get(reverse('assistant_init'))
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIn('insights', data)
+        self.assertIn('suggestions', data)

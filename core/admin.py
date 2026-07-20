@@ -18,6 +18,7 @@ from .models import (
     PresencaRegistro,
     ProdutoLoja,
     EventoRecreacao,
+    ConsultaAssistente,
     ProgramacaoDiaria,
     Recreador,
     SalaReuniao,
@@ -222,3 +223,15 @@ class PerfilUsuarioAdmin(admin.ModelAdmin):
     list_filter = ('papel', 'ativo', 'hotel')
     search_fields = ('user__username', 'user__email')
     raw_id_fields = ('user',)
+
+
+@admin.register(ConsultaAssistente)
+class ConsultaAssistenteAdmin(admin.ModelAdmin):
+    list_display = ('criado_em', 'canal', 'hotel', 'mensagem_curta', 'fonte', 'tags')
+    list_filter = ('canal', 'fonte', 'hotel')
+    search_fields = ('mensagem', 'tags')
+    readonly_fields = ('criado_em',)
+
+    @admin.display(description='mensagem')
+    def mensagem_curta(self, obj):
+        return obj.mensagem[:70]

@@ -13,6 +13,7 @@ from .auth_utils import resolver_hotel_atual
 from .mixins import PapelRequeridoMixin
 
 from .financeiro import kpis_financeiros_loja
+from .intelligence.insights import gerar_insights
 from .models import Hospede, PapelUsuario, Passeio, PassaporteHospede, ProdutoLoja, ProgramacaoDiaria
 
 
@@ -158,6 +159,8 @@ class DashboardExecutivoView(PapelRequeridoMixin, View):
             'moedas_totais': moedas_totais,
 
             'fin': fin,
+
+            'insights': gerar_insights(hotel),
 
         })
 

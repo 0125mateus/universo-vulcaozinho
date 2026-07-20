@@ -1401,3 +1401,46 @@ class ItemCompraSemanal(models.Model):
     def preco_total(self) -> Decimal:
         return self.preco_unitario * self.quantidade
 
+
+class ConsultaAssistente(models.Model):
+    """Registro de perguntas — aprendizado e melhoria contínua do assistente."""
+
+    CANAL_STAFF = 'staff'
+    CANAL_GUEST = 'guest'
+    CANAL_CHOICES = (
+        (CANAL_STAFF, 'Equipe'),
+        (CANAL_GUEST, 'Hóspede'),
+    )
+
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.CASCADE,
+        related_name='consultas_assistente',
+        null=True,
+        blank=True,
+    )
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='consultas_assistente',
+    )
+    canal = models.CharField(max_length=10, choices=CANAL_CHOICES, default=CANAL_STAFF)
+    mensagem = models.CharField(max_length=500)
+    resposta_resumo = models.CharField(max_length=800, blank=True)
+    tags = models.CharField(max_length=120, blank=True, help_text='Temas detectados (csv).')
+    fonte = models.CharField(max_length=20, default='guided')  # ai, guided, insights
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-criado_em']
+        verbose_name = 'consulta ao assistente'
+        verbose_name_plural = 'consultas ao assistente'
+        indexes = [
+            models.Index(fields=['hotel', 'canal', '-criado_em']),
+        ]
+
+    def __str__(self):
+        return f'{self.mensagem[:50]}…' if len(self.mensagem) > 50 else self.mensagem
+

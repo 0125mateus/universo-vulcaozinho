@@ -1,12 +1,27 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard Executivo — Vulcãozinho{% endblock %}
+{% block title %}Dashboard Executivo — Recrear{% endblock %}
 
 {% block content %}
 <section class="rec-hero rec-hero-compact">
     <h2>📈 Dashboard Executivo</h2>
-    <p>{{ hotel.nome }} · visão gerencial</p>
+    <p>{{ hotel.nome }} · visão gerencial · Recrear Inteligente</p>
 </section>
+
+{% if insights %}
+<section class="insights-panel glass-card" style="padding:1.25rem;">
+    <h3>✨ Análise Recrear — recomendações de hoje</h3>
+    {% for ins in insights %}
+    <div class="insight-card insight-card-{{ ins.prioridade }}">
+        <strong>{{ ins.titulo }}</strong>
+        <p style="margin:0.25rem 0 0;font-size:0.88rem;color:var(--text-muted);">{{ ins.descricao }}</p>
+        {% if ins.acao_url %}
+        <p style="margin-top:0.35rem;"><a href="{{ ins.acao_url }}">{{ ins.acao }} →</a></p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</section>
+{% endif %}
 
 <div class="row g-3 mb-4" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
     <div class="dash-card glass-card" style="padding:1.25rem;">

@@ -96,15 +96,31 @@
             const data = await res.json();
             appendMessage('bot', data.greeting);
             renderSuggestions(data.suggestions || []);
-            if (data.ai_enabled) {
+            if (data.modo) {
+                modeEl.textContent = data.modo;
+            } else if (data.ai_enabled) {
                 modeEl.textContent = 'IA generativa';
-                modeEl.classList.add('is-ai');
             } else {
                 modeEl.textContent = 'Modo guiado';
             }
+            if (data.ai_enabled) modeEl.classList.add('is-ai');
+            renderInsights(data.insights || []);
         } catch {
             appendMessage('bot', 'Olá! Sou a Recrear ✨ Pergunte como usar a plataforma de recreação!');
         }
+    }
+
+    function renderInsights(insights) {
+        if (!insights.length || !suggestionsEl) return;
+        const wrap = document.createElement('div');
+        wrap.className = 'assistant-insights';
+        insights.slice(0, 3).forEach((ins) => {
+            const card = document.createElement('div');
+            card.className = `assistant-insight assistant-insight-${ins.prioridade || 'media'}`;
+            card.innerHTML = `<strong>${ins.titulo}</strong><span>${ins.descricao}</span>`;
+            wrap.appendChild(card);
+        });
+        suggestionsEl.parentNode.insertBefore(wrap, suggestionsEl);
     }
 
     async function sendMessage(text) {
