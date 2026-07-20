@@ -1,26 +1,26 @@
-{% load static %}
+{% load static vulcaozinho_extras %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="{{ hotel.cor_primaria }}">
     <title>Ponto — {{ hotel.nome }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=5">
-    <style>
-        :root {
-            --hotel-primary: {{ hotel.cor_primaria }};
-            --hotel-secondary: {{ hotel.cor_secundaria }};
-            --hotel-accent: {{ hotel.cor_destaque }};
-        }
-    </style>
+    {% include 'ponto/_hotel_brand.html' %}
 </head>
-<body class="ponto-body">
-    <header class="ponto-header">
-        <div>
-            <p class="ponto-eyebrow">Ponto eletrônico · tablet</p>
-            <h1>{{ hotel.nome }}</h1>
+<body class="ponto-body hotel-theme hotel-{{ hotel.slug }}">
+    <header class="ponto-header ponto-header-brand">
+        <div class="ponto-brand">
+            <img src="{% static hotel|hotel_logo %}" alt="{{ hotel.nome }}" class="ponto-brand-logo">
+            <div>
+                <p class="ponto-eyebrow">Ponto eletrônico · tablet</p>
+                <h1>{{ hotel.nome }}</h1>
+                {% if hotel.slogan %}
+                <p class="ponto-brand-slogan">{{ hotel.slogan }}</p>
+                {% endif %}
+            </div>
         </div>
         <div class="ponto-header-meta">
             <span id="ponto-clock">--:--</span>

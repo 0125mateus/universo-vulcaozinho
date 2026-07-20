@@ -1,0 +1,11 @@
+{% load static vulcaozinho_extras %}
+<link rel="stylesheet" href="{% static 'css/hotel-themes.css' %}">
+<link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=7">
+<style>
+    :root {
+        --hotel-primary: {{ hotel.cor_primaria }};
+        --hotel-secondary: {{ hotel.cor_secundaria }};
+        --hotel-accent: {{ hotel.cor_destaque }};
+        --hotel-tertiary: {{ hotel.cor_terciaria|default:hotel.cor_secundaria }};
+    }
+</style>

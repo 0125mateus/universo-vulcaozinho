@@ -1,27 +1,25 @@
-{% load static %}
+{% load static vulcaozinho_extras %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>App do recreador — Ponto</title>
+    <meta name="theme-color" content="{{ hotel.cor_primaria }}">
+    <title>App do recreador — {{ hotel.nome }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/ponto.css' %}?v=6">
-    <style>
-        :root {
-            --hotel-primary: {{ hotel.cor_primaria }};
-            --hotel-secondary: {{ hotel.cor_secundaria }};
-            --hotel-accent: {{ hotel.cor_destaque }};
-        }
-    </style>
+    {% include 'ponto/_hotel_brand.html' %}
 </head>
-<body class="ponto-body ponto-app-body">
+<body class="ponto-body ponto-app-body hotel-theme hotel-{{ hotel.slug }}">
     <main class="ponto-app-shell">
-        <div class="ponto-app-hero">
+        <div class="ponto-app-hero ponto-app-hero-brand">
+            <img src="{% static hotel|hotel_logo %}" alt="{{ hotel.nome }}" class="ponto-brand-logo ponto-brand-logo-lg">
             <p class="ponto-eyebrow">App do recreador</p>
             <h1>Bater o ponto</h1>
-            <p class="ponto-app-sub">{{ hotel.nome }} · digite seu nome e PIN</p>
+            <p class="ponto-app-sub">{{ hotel.nome }}</p>
+            {% if hotel.slogan %}
+            <p class="ponto-brand-slogan ponto-brand-slogan-light">{{ hotel.slogan }}</p>
+            {% endif %}
         </div>
 
         {% if messages %}
