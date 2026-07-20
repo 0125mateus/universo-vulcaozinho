@@ -8,6 +8,7 @@ venv/
 env/
 staticfiles/
 media/
+backups/
 *.log
 .DS_Store
 .idea/

@@ -81,8 +81,9 @@ class Command(BaseCommand):
                     'is_active': True,
                 },
             )
-            user.set_password(SENHA_PADRAO)
-            user.save()
+            if created:
+                user.set_password(SENHA_PADRAO)
+                user.save()
 
             PerfilUsuario.objects.update_or_create(
                 user=user,

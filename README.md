@@ -48,7 +48,9 @@ Senha padrão: `vulcaozinho123`
 
 Superuser: `admin` / `admin`
 
-No Render, `seed_usuarios_demo` e `seed_superuser` rodam a cada subida (só restauram logins; não apagam ponto/hóspedes).
+No Render, `seed_hoteis` roda a cada subida. Usuários demo só com `SEED_DEMO_USERS=1` (produção: `0`).
+
+Roadmap por etapas: **[ETAPAS.md](ETAPAS.md)**
 
 ## Módulos
 

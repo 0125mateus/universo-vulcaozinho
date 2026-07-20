@@ -46,6 +46,7 @@ services:
       TELAO_API_KEY: ${TELAO_API_KEY:-vulcaozinho-telao-dev}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       RUN_SEED: ${RUN_SEED:-1}
+      SEED_DEMO_USERS: ${SEED_DEMO_USERS:-1}
     volumes:
       - static_data:/app/staticfiles
     restart: unless-stopped

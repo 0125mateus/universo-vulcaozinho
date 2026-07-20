@@ -15,11 +15,9 @@ class Command(BaseCommand):
                 'is_superuser': True,
             },
         )
-        user.set_password('admin')
-        user.is_staff = True
-        user.is_superuser = True
-        user.is_active = True
-        user.save()
-
-        acao = 'Criado' if created else 'Atualizado'
-        self.stdout.write(self.style.SUCCESS(f'{acao}: admin / admin (somente para testes)'))
+        if created:
+            user.set_password('admin')
+            user.save()
+            self.stdout.write(self.style.SUCCESS('Criado: admin / admin (somente para testes)'))
+        else:
+            self.stdout.write('admin já existe — senha não alterada.')

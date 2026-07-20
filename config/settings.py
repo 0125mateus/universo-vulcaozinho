@@ -201,8 +201,22 @@ WHATSAPP_SETOR_PAGAMENTOS = os.environ.get('WHATSAPP_SETOR_PAGAMENTOS', '')
 LOGIN_URL = '/entrar/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@vulcaozinho.local'
+
+_EMAIL_HOST = os.environ.get('EMAIL_HOST', '').strip()
+if _EMAIL_HOST:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = _EMAIL_HOST
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '').strip()
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('1', 'true', 'yes')
+    DEFAULT_FROM_EMAIL = os.environ.get(
+        'DEFAULT_FROM_EMAIL',
+        EMAIL_HOST_USER or 'noreply@vulcaozinho.local',
+    )
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@vulcaozinho.local')
 
 # Django REST Framework
 REST_FRAMEWORK = {
