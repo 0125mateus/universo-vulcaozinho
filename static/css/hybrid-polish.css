@@ -31,13 +31,12 @@ body {
     border: 1px solid rgba(31, 26, 20, 0.08) !important;
     border-style: solid !important;
     box-shadow: 0 2px 12px rgba(22, 90, 56, 0.08);
-    overflow-x: auto;
-    flex-wrap: nowrap !important;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
+    overflow: visible !important;
+    flex-wrap: wrap !important;
 }
 
-.main-nav a {
+.main-nav a,
+.main-nav-more-btn {
     border-radius: 10px !important;
     border: none !important;
     box-shadow: none !important;
@@ -47,13 +46,15 @@ body {
     flex-shrink: 0;
 }
 
-.main-nav a:hover {
+.main-nav a:hover,
+.main-nav-more-btn:hover {
     color: var(--hotel-primary, #165A38) !important;
     background: rgba(22, 90, 56, 0.06) !important;
     transform: none !important;
 }
 
-.main-nav a.active {
+.main-nav a.active,
+.main-nav-more-btn.active {
     background: var(--hotel-primary, #165A38) !important;
     color: #fff !important;
     box-shadow: 0 4px 14px rgba(22, 90, 56, 0.28) !important;

@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="{% static 'css/vulcaozinho.css' %}">
     <link rel="stylesheet" href="{% static 'css/hotel-themes.css' %}">
     <link rel="stylesheet" href="{% static 'css/assistant.css' %}">
-    <link rel="stylesheet" href="{% static 'css/hybrid-polish.css' %}?v=5">
-    <link rel="stylesheet" href="{% static 'css/recrear-theme.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/hybrid-polish.css' %}?v=6">
+    <link rel="stylesheet" href="{% static 'css/recrear-theme.css' %}?v=4">
     {% block extra_css %}{% endblock %}
     {% if hotel_atual %}
     <style>
@@ -126,23 +126,34 @@
         </div>
         {% endif %}
 
-        <nav class="main-nav">
-            <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">🏠 Início</a>
-            <a href="{% url 'faixas' %}" class="{% if request.resolver_match.url_name == 'faixas' %}active{% endif %}">👥 Faixas</a>
-            <a href="{% url 'programacao' %}" class="{% if request.resolver_match.url_name == 'programacao' %}active{% endif %}">📅 Programação</a>
-            <a href="{% url 'noites' %}" class="{% if request.resolver_match.url_name == 'noites' %}active{% endif %}">🎭 Noites</a>
-            <a href="{% url 'passeios_gestao' %}" class="{% if request.resolver_match.url_name == 'passeios_gestao' or request.resolver_match.url_name == 'passeio_novo' or request.resolver_match.url_name == 'passeio_editar' or request.resolver_match.url_name == 'passeio_excluir' %}active{% endif %}">🌴 Passeios</a>
-            <a href="{% url 'universo' %}" class="{% if request.resolver_match.url_name == 'universo' %}active{% endif %}">✨ Sobre</a>
-            <a href="{% url 'loja' %}" class="{% if request.resolver_match.url_name == 'loja' %}active{% endif %}">🛍️ Loja</a>
-            <a href="{% url 'passaporte' %}" class="{% if request.resolver_match.url_name == 'passaporte' %}active{% endif %}">🛂 Passaporte</a>
-            <a href="{% url 'recepcao_index' %}" class="{% if request.resolver_match.url_name == 'recepcao_index' or request.resolver_match.url_name == 'recepcao_checkin' or request.resolver_match.url_name == 'recepcao_hospedes' or request.resolver_match.url_name == 'recepcao_hospede_detalhe' or request.resolver_match.url_name == 'recepcao_agenda' or request.resolver_match.url_name == 'recepcao_vincular' or request.resolver_match.url_name == 'recepcao_vincular_passeio' or request.resolver_match.url_name == 'recepcao_passeios_pagamentos' %}active{% endif %}">📋 Recepção</a>
-            <a href="{% url 'ponto_gestao' %}" class="{% if 'ponto' in request.path %}active{% endif %}">⏱️ Ponto</a>
-            <a href="{% url 'financeiro_hub' %}" class="{% if 'financeiro' in request.path %}active{% endif %}">💰 Pagamentos</a>
-            <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
-            <a href="{% url 'importacao_gestao' %}" class="{% if request.resolver_match.url_name == 'importacao_gestao' or request.resolver_match.url_name == 'eventos_gestao' %}active{% endif %}">📥 Importar</a>
-            <a href="{% url 'telao' %}" class="{% if request.resolver_match.url_name == 'telao' or request.resolver_match.url_name == 'telao_hotel' %}active{% endif %}">🖥️ Telão</a>
-            <a href="{% url 'reuniao' %}" class="{% if request.resolver_match.url_name == 'reuniao' %}active{% endif %}">🎥 Reunião</a>
+        {% with url_name=request.resolver_match.url_name path=request.path %}
+        <nav class="main-nav" aria-label="Menu principal">
+            <div class="main-nav-primary">
+                <a href="{% url 'home' %}" class="{% if url_name == 'home' %}active{% endif %}">🏠 Início</a>
+                <a href="{% url 'faixas' %}" class="{% if url_name == 'faixas' %}active{% endif %}">👥 Faixas</a>
+                <a href="{% url 'programacao' %}" class="{% if url_name == 'programacao' %}active{% endif %}">📅 Programação</a>
+                <a href="{% url 'noites' %}" class="{% if url_name == 'noites' %}active{% endif %}">🎭 Noites</a>
+                <a href="{% url 'passeios_gestao' %}" class="{% if url_name == 'passeios_gestao' or url_name == 'passeio_novo' or url_name == 'passeio_editar' or url_name == 'passeio_excluir' %}active{% endif %}">🌴 Passeios</a>
+                <a href="{% url 'recepcao_index' %}" class="{% if url_name == 'recepcao_index' or url_name == 'recepcao_checkin' or url_name == 'recepcao_hospedes' or url_name == 'recepcao_hospede_detalhe' or url_name == 'recepcao_agenda' or url_name == 'recepcao_vincular' or url_name == 'recepcao_vincular_passeio' or url_name == 'recepcao_passeios_pagamentos' %}active{% endif %}">📋 Recepção</a>
+                <a href="{% url 'ponto_gestao' %}" class="{% if 'ponto' in path %}active{% endif %}">⏱️ Ponto</a>
+            </div>
+            <div class="main-nav-more{% if url_name == 'universo' or url_name == 'loja' or url_name == 'passaporte' or 'financeiro' in path or url_name == 'dashboard' or url_name == 'importacao_gestao' or url_name == 'eventos_gestao' or url_name == 'telao' or url_name == 'telao_hotel' or url_name == 'reuniao' %} is-section-active{% endif %}">
+                <button type="button" class="main-nav-more-btn{% if url_name == 'universo' or url_name == 'loja' or url_name == 'passaporte' or 'financeiro' in path or url_name == 'dashboard' or url_name == 'importacao_gestao' or url_name == 'eventos_gestao' or url_name == 'telao' or url_name == 'telao_hotel' or url_name == 'reuniao' %} active{% endif %}" id="main-nav-more-btn" aria-expanded="false" aria-haspopup="true" aria-controls="main-nav-more-menu">
+                    <span aria-hidden="true">⋯</span> Mais
+                </button>
+                <div class="main-nav-more-menu" id="main-nav-more-menu" hidden>
+                    <a href="{% url 'universo' %}" class="{% if url_name == 'universo' %}active{% endif %}">✨ Sobre</a>
+                    <a href="{% url 'loja' %}" class="{% if url_name == 'loja' %}active{% endif %}">🛍️ Loja</a>
+                    <a href="{% url 'passaporte' %}" class="{% if url_name == 'passaporte' %}active{% endif %}">🛂 Passaporte</a>
+                    <a href="{% url 'financeiro_hub' %}" class="{% if 'financeiro' in path %}active{% endif %}">💰 Pagamentos</a>
+                    <a href="{% url 'dashboard' %}" class="{% if url_name == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
+                    <a href="{% url 'importacao_gestao' %}" class="{% if url_name == 'importacao_gestao' or url_name == 'eventos_gestao' %}active{% endif %}">📥 Importar</a>
+                    <a href="{% url 'telao' %}" class="{% if url_name == 'telao' or url_name == 'telao_hotel' %}active{% endif %}">🖥️ Telão</a>
+                    <a href="{% url 'reuniao' %}" class="{% if url_name == 'reuniao' %}active{% endif %}">🎥 Reunião</a>
+                </div>
+            </div>
         </nav>
+        {% endwith %}
 
         {% block content %}{% endblock %}
 
@@ -164,6 +175,30 @@
                 window.location.href = '/hotel/' + sel.value + '/';
             });
         }
+
+        (function () {
+            const wrap = document.querySelector('.main-nav-more');
+            const btn = document.getElementById('main-nav-more-btn');
+            const menu = document.getElementById('main-nav-more-menu');
+            if (!wrap || !btn || !menu) return;
+
+            function setOpen(open) {
+                wrap.classList.toggle('is-open', open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                menu.hidden = !open;
+            }
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setOpen(menu.hidden);
+            });
+            document.addEventListener('click', (e) => {
+                if (!wrap.contains(e.target)) setOpen(false);
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') setOpen(false);
+            });
+        })();
     </script>
     <script src="{% static 'js/assistant.js' %}?v=2"></script>
     <script src="{% static 'js/show-password.js' %}?v=1"></script>
