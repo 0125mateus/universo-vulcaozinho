@@ -1,7 +1,11 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import PasswordResetForm
 from django.urls import reverse_lazy
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _email_configurado() -> bool:
@@ -36,6 +40,21 @@ class PasswordResetView(auth_views.PasswordResetView):
         ctx = super().get_context_data(**kwargs)
         ctx['email_configurado'] = _email_configurado()
         return ctx
+
+    def form_valid(self, form):
+        email = form.cleaned_data.get('email', '')
+        users = list(form.get_users(email))
+        if not users:
+            logger.warning('Password reset: nenhum usuário com e-mail %s', email)
+        try:
+            return super().form_valid(form)
+        except Exception as exc:
+            logger.exception('Password reset SMTP falhou: %s', exc)
+            messages.error(
+                self.request,
+                'Não foi possível enviar o e-mail. Verifique SMTP no Render ou tente mais tarde.',
+            )
+            return self.form_invalid(form)
 
 
 class PasswordResetDoneView(auth_views.PasswordResetDoneView):

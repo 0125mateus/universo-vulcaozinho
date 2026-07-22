@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
+import os
 
 from core.models import Hotel, PapelUsuario, PerfilUsuario
 
@@ -8,18 +9,20 @@ from core.models import Hotel, PapelUsuario, PerfilUsuario
 User = get_user_model()
 
 SENHA_PADRAO = 'vulcaozinho123'
+# Se SMTP estiver configurado, usa esse e-mail nos usuários da rede (recupera senha).
+EMAIL_REDE = (os.environ.get('EMAIL_HOST_USER') or '').strip() or 'admin@vulcaozinho.local'
 
 # Usuários com acesso à rede inteira (podem trocar de hotel)
 USUARIOS_REDE = [
     {
         'username': 'admin_rede',
-        'email': 'admin@vulcaozinho.local',
+        'email': EMAIL_REDE,
         'papel': PapelUsuario.ADMIN,
         'is_staff': True,
     },
     {
         'username': 'diretor_rede',
-        'email': 'diretor@vulcaozinho.local',
+        'email': EMAIL_REDE,
         'papel': PapelUsuario.DIRETOR,
         'is_staff': True,
     },
