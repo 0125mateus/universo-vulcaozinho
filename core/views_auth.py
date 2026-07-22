@@ -4,6 +4,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import PasswordResetForm
 from django.urls import reverse_lazy
 import logging
+import socket
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +48,22 @@ class PasswordResetView(auth_views.PasswordResetView):
         if not users:
             logger.warning('Password reset: nenhum usuário com e-mail %s', email)
         try:
+            # EMAIL_TIMEOUT no settings evita hang infinito no SMTP (Gmail/Render).
             return super().form_valid(form)
+        except (TimeoutError, socket.timeout, OSError) as exc:
+            logger.exception('Password reset timeout/SMTP: %s', exc)
+            messages.error(
+                self.request,
+                'O envio de e-mail demorou demais ou falhou (SMTP). '
+                'Confira EMAIL_* no Render ou use o login demo por enquanto.',
+            )
+            return self.form_invalid(form)
         except Exception as exc:
             logger.exception('Password reset SMTP falhou: %s', exc)
             messages.error(
                 self.request,
-                'Não foi possível enviar o e-mail. Verifique SMTP no Render ou tente mais tarde.',
+                f'Não foi possível enviar o e-mail ({type(exc).__name__}). '
+                'Verifique a senha de app no Render.',
             )
             return self.form_invalid(form)
 

@@ -210,6 +210,9 @@ if _EMAIL_HOST:
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '').strip()
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
     EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('1', 'true', 'yes')
+    EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('1', 'true', 'yes')
+    # Evita a página "Esqueci a senha" ficar carregando para sempre se o Gmail travar.
+    EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '12'))
     DEFAULT_FROM_EMAIL = os.environ.get(
         'DEFAULT_FROM_EMAIL',
         EMAIL_HOST_USER or 'noreply@vulcaozinho.local',
@@ -217,7 +220,7 @@ if _EMAIL_HOST:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@vulcaozinho.local')
-
+    EMAIL_TIMEOUT = 5
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
